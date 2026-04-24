@@ -1,0 +1,422 @@
+[
+  {
+    "id": 1,
+    "title": "Why TypeScript?",
+    "subject": "TypeScript Day 1: What TypeScript gives you",
+    "body": "TypeScript is JavaScript with a type system bolted on. At compile time, the TypeScript compiler (tsc) checks that the values flowing through your code match the types you (or it) have declared. At runtime, there is no TypeScript — the compiler emits plain JavaScript that runs anywhere JavaScript does. The benefit is catching whole classes of bugs before they hit production: typos in property names, missing arguments, undefined sneaking into places that cannot handle it, and APIs used incorrectly. Editors use the same type information for autocomplete, jump-to-definition, and safe refactoring. TypeScript can be as strict or as loose as you want; you can opt into strictness gradually in an existing codebase. If you are writing any JavaScript beyond a simple script, TypeScript pays for itself quickly. This series will take you from basic types to the advanced features that make complex libraries possible.",
+    "codeExample": "// JavaScript lets this happen silently:\nfunction greet(name) {\n  return 'Hi, ' + name.toUppercase(); // typo!\n}\n\n// TypeScript catches it at compile time:\nfunction greetTS(name: string): string {\n  return 'Hi, ' + name.toUppercase();\n  //                    ^^^^^^^^^^ error"
+  },
+  {
+    "id": 2,
+    "title": "Basic Types",
+    "subject": "TypeScript Day 2: The primitive types",
+    "body": "TypeScript supports all JavaScript primitives as lower-case type names: string, number, boolean, null, undefined, bigint, and symbol. Annotate a variable's type with a colon after its name. If you omit the annotation, TypeScript infers the type from the initial value, which is often what you want — type inference keeps code short without giving up safety. The value types Array<T> and T[] describe arrays. tuple types use fixed-position arrays: [string, number]. The any type opts out of checking entirely; avoid it unless you have a concrete reason. unknown is a safer alternative: you can hold any value but must narrow before using it. void represents “no meaningful return” and is used on function return types. never represents values that never occur, like the return type of a function that always throws.",
+    "codeExample": "const name: string = 'Ada';\nlet age: number = 30;\nconst active: boolean = true;\nconst nums: number[] = [1, 2, 3];\nconst pair: [string, number] = ['x', 1];\n\n// inference\nconst greeting = 'hi';          // string\nlet counter = 0;                // number\n\n// prefer unknown over any\nfunction parse(raw: unknown) { /* narrow first */ }"
+  },
+  {
+    "id": 3,
+    "title": "Type Inference",
+    "subject": "TypeScript Day 3: Letting the compiler figure it out",
+    "body": "TypeScript's type inference is strong enough that you rarely need to annotate everything. When you declare const x = 5, the type is number. For let, the type is widened to the base type so reassignments work. Function return types are inferred from the return statements. Contextual typing kicks in when a function is used in a context that expects a specific type — for instance, a callback passed to Array.map inherits the element type. Annotate when the compiler can't guess (function parameters, exported API surfaces, configuration objects) or when you want to constrain rather than describe. On public APIs, explicit return types act as contracts that catch regressions when the implementation changes. Inside your own code, let inference do the work. The idiom is: types at the boundaries, inference in the middle.",
+    "codeExample": "const message = 'hello';            // string\nlet count = 0;                       // number\n\nfunction double(n: number) {         // returns number (inferred)\n  return n * 2;\n}\n\n[1, 2, 3].map(n => n.toFixed(2));    // n is number (contextual)"
+  },
+  {
+    "id": 4,
+    "title": "Interfaces",
+    "subject": "TypeScript Day 4: Describing object shapes with interfaces",
+    "body": "An interface describes the shape of an object — which properties it has and what types those properties are. Declare one with the interface keyword. Interfaces can be extended to build larger shapes from smaller ones, can have optional properties (marked with ?), readonly properties, method signatures, and index signatures for dynamic keys. They are open: multiple declarations of the same interface merge their members, which is how DOM type definitions get extended by libraries. Interfaces are a staple of TypeScript codebases, especially for data coming in from APIs, component props, and configuration objects. They document your expectations clearly, and when the shape changes, every caller that depends on the interface gets a compile error pointing at what needs attention. Prefer interfaces for object shapes; use type aliases when you need unions, intersections, or more complex type operators.",
+    "codeExample": "interface User {\n  id: number;\n  name: string;\n  email?: string;        // optional\n  readonly createdAt: Date;\n}\n\ninterface Admin extends User {\n  permissions: string[];\n}\n\nconst u: User = { id: 1, name: 'Ada', createdAt: new Date() };"
+  },
+  {
+    "id": 5,
+    "title": "Type Aliases",
+    "subject": "TypeScript Day 5: The type keyword",
+    "body": "A type alias gives a name to any type, not just object shapes. Use type Point = { x: number; y: number; } for an object type, or type ID = string | number for a union. Type aliases can describe function types, tuples, primitives, intersections, and conditional types — anything the type system can produce. The key difference from interfaces: aliases are closed (cannot be re-opened to add more members) and cannot be extended with the extends keyword (but you can compose them with intersections). Pick interface when you are modeling a shape you might extend, and type when you are combining, unioning, or aliasing for readability. In practice, most teams use both and pick whichever reads best for the case. What matters is consistency across your codebase.",
+    "codeExample": "type ID = string | number;\ntype Point = { x: number; y: number };\ntype Handler = (event: Event) => void;\n\ntype Person = { name: string };\ntype Employee = Person & { company: string };   // intersection"
+  },
+  {
+    "id": 6,
+    "title": "Union Types",
+    "subject": "TypeScript Day 6: Values of multiple types",
+    "body": "A union type says a value can be one of several types: string | number or 'sm' | 'md' | 'lg'. This is incredibly common in real-world APIs where a field may be one of a few shapes. Before you can use a union value as a specific type, you usually have to narrow it — use typeof checks for primitives, instanceof for classes, or custom type guards. TypeScript's flow analysis recognizes these narrowings: inside an if (typeof x === 'string') block, x is known to be a string. Literal unions are especially useful — they replace enum-like values with plain strings while keeping exhaustiveness checks. Use unions when a field genuinely has multiple valid shapes; don't force everything through a common union when a generic or a discriminated type would be cleaner.",
+    "codeExample": "function format(value: string | number): string {\n  if (typeof value === 'string') {\n    return value.toUpperCase();       // string here\n  }\n  return value.toFixed(2);            // number here\n}\n\ntype Size = 'sm' | 'md' | 'lg';\nconst s: Size = 'md';"
+  },
+  {
+    "id": 7,
+    "title": "Intersection Types",
+    "subject": "TypeScript Day 7: Combining types with &",
+    "body": "An intersection type combines multiple types into one that has all their members. A & B means a value must satisfy A and B simultaneously. This is how you compose small types into larger ones without the formal extends chain. Intersections are useful for mixins and for describing objects that merge shapes from different sources — for example, request data combined with middleware-added fields. You can intersect object types, function types with extra properties, and even primitives when it makes sense (though string & number is never, because no value is both). When properties overlap with conflicting types, the intersection resolves to never for that property. Intersections pair well with unions: the distributive behavior lets you write generic helpers that transform every branch of a union.",
+    "codeExample": "type Timestamped = { createdAt: Date };\ntype Loggable = { log(): void };\n\ntype AuditedUser = { id: number; name: string } & Timestamped & Loggable;\n\nconst u: AuditedUser = {\n  id: 1,\n  name: 'Ada',\n  createdAt: new Date(),\n  log() { console.log(this.name); }\n};"
+  },
+  {
+    "id": 8,
+    "title": "Literal Types",
+    "subject": "TypeScript Day 8: Pinning a value to an exact literal",
+    "body": "A literal type is a type that only accepts one specific value. 'yes' is the type whose only valid value is the string 'yes'. Unions of literals produce enum-like types without the runtime baggage of enum: 'pending' | 'active' | 'done'. Literal types power discriminated unions and exhaustiveness checking. They also give you precise parameter contracts: an API that takes only 'GET' | 'POST' | 'PUT' won't accept arbitrary strings. Use as const assertions to turn object literals into deeply-readonly, literal-typed values, perfect for config objects. When a variable is widened to a base type and you want the literal, either annotate it or use as const. Literal types are one of TypeScript's most distinctive features; they let you encode business rules as types.",
+    "codeExample": "type Method = 'GET' | 'POST' | 'PUT' | 'DELETE';\n\nfunction request(url: string, method: Method) { /* ... */ }\nrequest('/api', 'GET');      // ok\n// request('/api', 'POST ');  // error\n\nconst config = { env: 'prod', retries: 3 } as const;\n// type: { readonly env: 'prod'; readonly retries: 3 }"
+  },
+  {
+    "id": 9,
+    "title": "Enums",
+    "subject": "TypeScript Day 9: Enums and when to avoid them",
+    "body": "TypeScript enums let you define a set of named constants. Numeric enums auto-number starting at 0; string enums assign explicit string values, which is almost always what you want for clarity and debuggability. Enums compile to runtime JavaScript objects — unlike types and interfaces, they have weight. For most cases, modern TypeScript idiom prefers a union of string literals over enums: it's more tree-shakeable, produces no runtime artifact, and integrates better with APIs. const enum is a compile-time-only optimization that inlines values but has caveats with isolatedModules and bundlers. If you adopt enums, prefer string enums. If you are starting fresh, consider 'as const' objects combined with a union type to get the same benefits. Existing codebases often have enums; match the surrounding style.",
+    "codeExample": "enum Status { Pending = 'PENDING', Active = 'ACTIVE', Done = 'DONE' }\nconst s: Status = Status.Active;\n\n// modern alternative:\nconst Status2 = { Pending: 'PENDING', Active: 'ACTIVE', Done: 'DONE' } as const;\ntype Status2 = typeof Status2[keyof typeof Status2];"
+  },
+  {
+    "id": 10,
+    "title": "Generics",
+    "subject": "TypeScript Day 10: Reusable types with parameters",
+    "body": "Generics let you write functions, classes, and types that work over a range of types instead of a fixed one. A generic function uses a type parameter, conventionally named T, declared in angle brackets before the parameter list: function identity<T>(value: T): T. The caller supplies the type explicitly or lets TypeScript infer it from usage. Generics preserve type information — a generic first<T>(arr: T[]): T | undefined returns exactly the element type instead of a widened any. Constraints with extends restrict type parameters: <T extends { id: number }> requires the argument to have an id. Multiple type parameters work like multiple generic arguments. Generics are the backbone of most library code: Array<T>, Promise<T>, Map<K, V>, React.FC<Props>. Write them when you notice the same function shape appearing for several types.",
+    "codeExample": "function identity<T>(value: T): T {\n  return value;\n}\n\nidentity<string>('hi');\nidentity(42);                  // inferred: number\n\nfunction first<T>(arr: T[]): T | undefined {\n  return arr[0];\n}\n\nfunction byId<T extends { id: number }>(items: T[], id: number) {\n  return items.find(x => x.id === id);\n}"
+  },
+  {
+    "id": 11,
+    "title": "Utility Types",
+    "subject": "TypeScript Day 11: Partial, Required, Readonly, Pick, Omit",
+    "body": "TypeScript ships with a set of utility types that transform other types. Partial<T> makes every property optional — useful for update payloads. Required<T> is the opposite. Readonly<T> marks all properties readonly, preventing mutation. Pick<T, K> selects a subset of properties by name; Omit<T, K> removes them. Record<K, V> builds an object type with keys of type K and values of type V. These tools remove piles of hand-written duplicate types. You can combine them: Readonly<Pick<User, 'id' | 'email'>> is a read-only view with only two fields. Exclude<T, U> and Extract<T, U> operate on unions, removing or keeping members. NonNullable<T> drops null and undefined from a type. Mastering these utility types changes how you design data models in TypeScript.",
+    "codeExample": "interface User {\n  id: number; name: string; email: string;\n}\n\ntype UserUpdate = Partial<User>;\ntype UserPublic = Pick<User, 'id' | 'name'>;\ntype UserWithoutId = Omit<User, 'id'>;\ntype ReadOnlyUser = Readonly<User>;\ntype StatusMap = Record<string, 'on' | 'off'>;"
+  },
+  {
+    "id": 12,
+    "title": "Type Narrowing",
+    "subject": "TypeScript Day 12: Refining union types at runtime",
+    "body": "Narrowing is how TypeScript's flow analysis refines a variable's type based on runtime checks. typeof narrows primitives: after if (typeof x === 'string'), x is string. instanceof narrows class instances. The in operator checks property presence: if ('id' in obj), obj is the branch that has id. Equality narrowing recognizes value checks: if (x === null). Truthiness narrows null and undefined out: if (x). Array.isArray narrows to T[]. User-defined type guards use is T in the return type to teach the compiler a custom check. Narrowing is why TypeScript feels natural with unions: you don't have to cast, just check. Patterns that don't narrow well are a sign you need a different shape — often a discriminated union, where a common literal property tells each branch apart.",
+    "codeExample": "function print(value: string | number | null) {\n  if (value === null) return;\n  if (typeof value === 'string') {\n    console.log(value.toUpperCase());\n  } else {\n    console.log(value.toFixed(2));\n  }\n}\n\nfunction isError(x: unknown): x is Error {\n  return x instanceof Error;\n}"
+  },
+  {
+    "id": 13,
+    "title": "Discriminated Unions",
+    "subject": "TypeScript Day 13: Tagged unions done right",
+    "body": "A discriminated union is a union of object types that share a common literal property — the discriminant — which tells TypeScript which branch you have. Pattern: { kind: 'circle'; radius: number } | { kind: 'square'; side: number }. After switching on the discriminant, TypeScript narrows to the exact branch. This is the idiomatic way to model state machines, events, and API responses with multiple shapes. Combined with a never check in the default case, you get exhaustiveness: add a new branch to the union and the compiler flags every switch that doesn't handle it. Discriminated unions are among TypeScript's most powerful patterns because they replace runtime checks, casts, and untyped any with compile-time guarantees. When you feel like adding optional properties to an interface that only apply in some cases, reach for a discriminated union instead.",
+    "codeExample": "type Shape =\n  | { kind: 'circle'; radius: number }\n  | { kind: 'square'; side: number };\n\nfunction area(s: Shape): number {\n  switch (s.kind) {\n    case 'circle': return Math.PI * s.radius ** 2;\n    case 'square': return s.side ** 2;\n    default: {\n      const _exhaustive: never = s;\n      return _exhaustive;\n    }\n  }\n}"
+  },
+  {
+    "id": 14,
+    "title": "Type Assertions",
+    "subject": "TypeScript Day 14: Casting with as",
+    "body": "Sometimes you know more than the compiler — data from JSON, a DOM element you selected, a value you just validated. Type assertions tell TypeScript to treat a value as a specific type, with value as Type syntax. No runtime check happens; it is purely a compile-time hint. Use assertions sparingly: each one is a place where you could silently be wrong. The <Type>value syntax is older and conflicts with JSX, so prefer as. For telling TypeScript a value is not null, use a non-null assertion: value!. These are occasionally necessary but should not become a habit. When you find yourself asserting often, it usually means the input types are modeled poorly — tighten the types or add a runtime validation that narrows. Assertions are a tool, not a fix.",
+    "codeExample": "const raw = localStorage.getItem('user');\nconst user = JSON.parse(raw!) as { id: number; name: string };\n\nconst el = document.querySelector('#root') as HTMLDivElement;\n\n// non-null assertion\nfunction strict(x: number | undefined) {\n  const n: number = x!; // asserts x is defined\n  return n + 1;\n}"
+  },
+  {
+    "id": 15,
+    "title": "Functions and Signatures",
+    "subject": "TypeScript Day 15: Typing functions",
+    "body": "A function type describes what parameters a function takes and what it returns. Inline types work in variable annotations and object properties: (x: number) => number. You can also declare call signatures inside interfaces or types to include overloads or additional properties on a function object. Overloads let one implementation satisfy multiple signatures — write multiple signatures above a single implementation; callers see the narrower signatures. For most cases, a generic is cleaner than overloads. Default and optional parameters mirror JavaScript. Rest parameters are typed with T[]. Function types are contravariant on parameters and covariant on return types, which matters when assigning functions to wider function types. Annotate return types on public functions for contract stability.",
+    "codeExample": "type BinaryOp = (a: number, b: number) => number;\nconst add: BinaryOp = (a, b) => a + b;\n\nfunction pad(value: string, length: number = 10): string {\n  return value.padStart(length);\n}\n\n// overloads\nfunction parse(v: string): string[];\nfunction parse(v: number): number[];\nfunction parse(v: any) { return [v]; }"
+  },
+  {
+    "id": 16,
+    "title": "Classes in TypeScript",
+    "subject": "TypeScript Day 16: Typed classes",
+    "body": "TypeScript extends JavaScript classes with type annotations, access modifiers (public, private, protected), readonly fields, and parameter properties. Parameter properties are a shorthand where constructor parameters declared with public or private become fields automatically, removing boilerplate. Classes can implement interfaces, enforcing shape contracts, and extend abstract classes that define methods for subclasses to implement. Private fields can be marked with # for true JavaScript-level privacy, or private, which is compile-time only. Prefer interfaces plus factory functions for data-only types; reach for classes when you need identity, lifecycle, or polymorphic behavior. Classes are valuable but easy to overuse — many “classes” in TypeScript are really namespaces of functions that would be simpler as plain modules.",
+    "codeExample": "interface Greeter { greet(): string }\n\nclass User implements Greeter {\n  readonly id: number;\n  constructor(id: number, public name: string, private email: string) {\n    this.id = id;\n  }\n  greet() { return `Hi, ${this.name}`; }\n}\n\nconst u = new User(1, 'Ada', 'a@x.com');"
+  },
+  {
+    "id": 17,
+    "title": "readonly and const",
+    "subject": "TypeScript Day 17: Keeping data immutable",
+    "body": "TypeScript has a few tools for immutability. The readonly modifier on interface and class properties prevents reassignment — useful on data-transfer objects and configuration. ReadonlyArray<T> or the readonly T[] syntax forbids push, pop, and assignment, while still allowing reads. The as const assertion is the most sweeping: it narrows literal types and makes all nested properties readonly, perfect for static config. Remember that readonly is a compile-time guarantee only; at runtime, the values are still regular objects that could be mutated via any or from untyped code. Immutability-by-default leads to code that's easier to reason about, especially in async and concurrent code. Use readonly on function parameters to signal “I won't touch your array.” Use as const for constants exported from a module.",
+    "codeExample": "interface Config {\n  readonly apiUrl: string;\n  readonly timeoutMs: number;\n}\n\nfunction sumAll(nums: readonly number[]): number {\n  return nums.reduce((a, b) => a + b, 0);\n}\n\nconst DEFAULTS = { retries: 3, backoff: 'exp' } as const;\n// DEFAULTS.retries is 3 (literal), all readonly"
+  },
+  {
+    "id": 18,
+    "title": "Mapped Types",
+    "subject": "TypeScript Day 18: Transforming types over their keys",
+    "body": "A mapped type builds a new type by iterating over the keys of another type. The syntax is { [K in keyof T]: ... }. You can transform the value type, add modifiers like readonly or ?, or remove them with -readonly and -?. This is how Partial, Readonly, and friends are defined under the hood. Key remapping with as lets you rename keys during mapping: useful for building getter/setter types or renaming fields in bulk. Combine with conditional types for sophisticated transformations — like picking only the string-valued properties of a type. Mapped types are what moves TypeScript from a type-checker to a type-level programming language. Start by using the built-in utility types; learn to write your own when you find yourself writing the same transformation by hand repeatedly.",
+    "codeExample": "type Optional<T> = { [K in keyof T]?: T[K] };\ntype Mutable<T> = { -readonly [K in keyof T]: T[K] };\n\ntype Prefixed<T> = {\n  [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K];\n};\n\ninterface User { name: string; age: number }\ntype UserGetters = Prefixed<User>;\n// { getName(): string; getAge(): number }"
+  },
+  {
+    "id": 19,
+    "title": "Conditional Types",
+    "subject": "TypeScript Day 19: Type-level if statements",
+    "body": "A conditional type chooses one of two type branches based on a relationship between types: T extends U ? X : Y. It is the foundation for types like Exclude, Extract, and ReturnType. When the input is a union, conditional types distribute automatically over each branch unless you wrap with [T] to prevent distribution. The infer keyword inside a conditional type lets you name and extract a type from the branch that matched — that is how ReturnType pulls out a function's return type. Conditional types can be nested and combined with mapped types to express complex transformations. They are powerful but easy to over-engineer; if a conditional type chain is hard to read, a plain runtime function or simpler types may be a better design. Learn the ones you regularly need, and read library source to see more patterns in the wild.",
+    "codeExample": "type IsString<T> = T extends string ? true : false;\n\ntype MyReturnType<F> = F extends (...args: any) => infer R ? R : never;\n\ntype NonFn<T> = T extends Function ? never : T;\ntype Exclude<T, U> = T extends U ? never : T;"
+  },
+  {
+    "id": 20,
+    "title": "Template Literal Types",
+    "subject": "TypeScript Day 20: Strings as types",
+    "body": "Template literal types let you build string types from other string types using backtick syntax at the type level. `${'get' | 'set'}${Capitalize<Key>}` produces get/set method name combinations. They unlock typed string manipulation: route paths, CSS class naming conventions, i18n keys, event names, and redux action types. Combined with Capitalize, Uppercase, Lowercase, and Uncapitalize helpers, plus infer in conditional types, you can parse and transform string types. This is how libraries type complex DSLs — the shape of a query, the path parameters of a route — without running any code. Template literal types are advanced; use them when they solve a concrete problem with a small, readable definition. Overuse leads to types no one wants to debug.",
+    "codeExample": "type Method = 'GET' | 'POST';\ntype Resource = 'users' | 'posts';\ntype Endpoint = `${Method} /api/${Resource}`;\n// 'GET /api/users' | 'GET /api/posts' | 'POST /api/users' | ...\n\ntype EventName<T extends string> = `on${Capitalize<T>}`;\ntype ClickEvent = EventName<'click'>;   // 'onClick'"
+  },
+  {
+    "id": 21,
+    "title": "keyof Operator",
+    "subject": "TypeScript Day 21: The keyof operator",
+    "body": "keyof T produces a union of the property names of T. If T is { name: string; age: number }, keyof T is 'name' | 'age'. It is the backbone of type-safe property access: a function that takes an object and a key it has to exist on. Combine with indexed access types — T[K] — to get the type of the value at that key. Generic functions with <T, K extends keyof T> enforce that callers pass a valid key and give back the exact value type. keyof also works on interfaces, classes, and built-in types like string, giving the union of all their members (rarely what you want for strings). When you have a Record<string, something>, keyof gives you string. For dynamic lookups like form fields or selectors, keyof plus indexed access is the standard pattern.",
+    "codeExample": "interface User { id: number; name: string; email: string }\n\ntype UserKey = keyof User;       // 'id' | 'name' | 'email'\n\nfunction get<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}\n\nconst u: User = { id: 1, name: 'Ada', email: 'a@x.com' };\nconst name = get(u, 'name');     // string\n// get(u, 'missing');             // error"
+  },
+  {
+    "id": 22,
+    "title": "typeof Operator",
+    "subject": "TypeScript Day 22: typeof at the type level",
+    "body": "typeof has two uses in TypeScript. At the value level, it is JavaScript's runtime typeof. At the type level, typeof value refers to the type of a variable, function, or expression. This lets you derive types from concrete values — very useful for config objects, factory functions, and bound parameters. Combined with as const, you can turn a literal object into a tight, narrowed type without duplicating the shape by hand: const colors = { red: '#f00', green: '#0f0' } as const; type Color = typeof colors[keyof typeof colors]. You can also take typeof a function to get a callable type, and typeof a class to get the constructor type (use InstanceType<typeof Cls> to get the instance type). typeof bridges value-land and type-land; it is how TypeScript stays DRY with real data.",
+    "codeExample": "const config = {\n  apiUrl: 'https://api.example.com',\n  retries: 3\n} as const;\n\ntype Config = typeof config;       // exact literal type\n\nfunction greet(name: string) { return `Hi, ${name}`; }\ntype GreetFn = typeof greet;       // (name: string) => string"
+  },
+  {
+    "id": 23,
+    "title": "Indexed Access Types",
+    "subject": "TypeScript Day 23: Drilling into types with T[K]",
+    "body": "Indexed access types look up the type of a property in another type with the same bracket notation used at runtime. T['id'] gives the type of the id property. T[keyof T] gives a union of all value types. For arrays, T[number] gives the element type — handy for pulling the item type out of a known-array type without renaming. You can drill arbitrarily deep: Response['body']['items'][number]. Indexed access is the natural companion to keyof and mapped types. It keeps derived types in sync with source types: when you rename a property, every indexed access updates automatically. Use it whenever you find yourself copying a property type into a separate alias; let the compiler derive it. This is one of the top tools for keeping a complex type graph maintainable.",
+    "codeExample": "interface Api {\n  user: { id: number; name: string };\n  posts: { id: number; title: string }[];\n}\n\ntype UserType = Api['user'];              // { id: number; name: string }\ntype PostType = Api['posts'][number];     // single post\ntype AnyApiKey = keyof Api;               // 'user' | 'posts'"
+  },
+  {
+    "id": 24,
+    "title": "Modules and Imports",
+    "subject": "TypeScript Day 24: ES modules in TypeScript",
+    "body": "TypeScript uses the same import and export syntax as modern JavaScript. Prefer named exports so IDEs can auto-import and rename safely. A single default export is fine when the file exports one main thing, but too many defaults in a project make imports inconsistent. You can import types separately with import type { User }, which helps bundlers drop the imports entirely in the emitted JavaScript. TypeScript resolves modules according to the moduleResolution setting — nodenext or bundler for modern projects. The isolatedModules flag requires each file to be transpilable on its own, which matches tools like Babel, esbuild, swc, and Vite. Circular imports compile but can cause runtime issues; break cycles by moving shared types into a third module. Consistent import organization (grouped, alphabetized) makes diffs cleaner.",
+    "codeExample": "// math.ts\nexport function add(a: number, b: number) { return a + b; }\nexport const PI = 3.14159;\nexport type Coord = [number, number];\n\n// app.ts\nimport { add, PI } from './math';\nimport type { Coord } from './math';"
+  },
+  {
+    "id": 25,
+    "title": "tsconfig.json",
+    "subject": "TypeScript Day 25: Configuring the compiler",
+    "body": "tsconfig.json controls how tsc and your editor interpret the project. The compilerOptions object holds the meat: target sets the ECMAScript version the compiler emits; module controls module format; rootDir and outDir define input and output folders. Set strict to true — it enables a bundle of strict checks that catch the majority of common bugs. include and exclude tell the compiler which files to read. Project references let you split large codebases into smaller, independently compiled parts. Most modern setups leave transpilation to the bundler (Vite, esbuild, swc, tsup) and use tsc only for type checking, via --noEmit. Keep your tsconfig lean and well commented; it is the contract between your code and every editor, test runner, and CI step that looks at it.",
+    "codeExample": "// tsconfig.json\n{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"strict\": true,\n    \"noUncheckedIndexedAccess\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true,\n    \"jsx\": \"react-jsx\"\n  },\n  \"include\": [\"src\"]\n}"
+  },
+  {
+    "id": 26,
+    "title": "strict Mode",
+    "subject": "TypeScript Day 26: The one flag to rule them all",
+    "body": "The strict option in tsconfig.json is a master switch that enables a set of strictness flags. noImplicitAny requires types on parameters whose type TypeScript can't infer. strictNullChecks separates null and undefined from every type, forcing you to handle absence explicitly. strictFunctionTypes enforces safer function parameter variance. strictBindCallApply type-checks bind, call, and apply. strictPropertyInitialization requires class fields to be initialized. alwaysStrict adds 'use strict' to emitted files. Turning strict on in a fresh project costs nothing and prevents most common bugs. In an existing project, turn on one flag at a time and fix the fallout. Of these, strictNullChecks is the biggest behavior change — it stops the “cannot read property of undefined” nightmare by making nullability visible in the type system.",
+    "codeExample": "// with strict: true\nfunction firstChar(s?: string): string {\n  // s is string | undefined\n  if (!s) return '';\n  return s[0];\n}\n\nclass Widget {\n  // strictPropertyInitialization: must assign or mark '!'\n  label!: string;\n}"
+  },
+  {
+    "id": 27,
+    "title": "unknown vs any",
+    "subject": "TypeScript Day 27: The safer escape hatch",
+    "body": "any is TypeScript's opt-out: a value typed as any behaves like JavaScript, bypassing all checks. It is sometimes necessary when migrating from JavaScript or integrating with poorly-typed libraries, but every any is a place where bugs can hide. unknown is the type-safe alternative: it represents a value of any type, but you cannot use it without first narrowing with typeof, instanceof, or a type guard. unknown forces you to prove the shape before operating on the value. Use unknown as the type for external input — JSON, form data, third-party responses — then narrow to the specific type after validating. Prefer unknown for catch clause variables; TypeScript 4.4+ defaults them to unknown under the useUnknownInCatchVariables flag. Replace ambient any with unknown wherever you find it; the type errors that appear are bugs waiting to happen.",
+    "codeExample": "function parseJson(text: string): unknown {\n  return JSON.parse(text);\n}\n\nconst data = parseJson('{\"name\":\"Ada\"}');\n// data.name;  // error: data is unknown\n\nif (typeof data === 'object' && data && 'name' in data) {\n  console.log((data as { name: string }).name);\n}"
+  },
+  {
+    "id": 28,
+    "title": "Type Guards",
+    "subject": "TypeScript Day 28: Writing custom narrowing functions",
+    "body": "A type guard is a function whose return type is a type predicate, like x is Foo. Inside the function, you perform a runtime check; callers get narrowing in the branch where the guard returned true. Type guards are how you teach the compiler about structural checks the built-in narrowing doesn't know — for example, verifying a parsed JSON shape or distinguishing instances from untyped external input. Keep the guard's runtime check aligned with the type predicate; if they drift, you get silently-wrong code. Use guards at the edges of your system to convert unknown into a concrete type, then trust the types throughout the rest of the code. Libraries like Zod and io-ts generate type guards from schemas, combining runtime validation with static typing — a great pattern for APIs and forms.",
+    "codeExample": "interface User { id: number; name: string }\n\nfunction isUser(value: unknown): value is User {\n  return (\n    typeof value === 'object' && value !== null &&\n    'id' in value && typeof (value as any).id === 'number' &&\n    'name' in value && typeof (value as any).name === 'string'\n  );\n}\n\nif (isUser(raw)) {\n  console.log(raw.name);   // narrowed to User\n}"
+  },
+  {
+    "id": 29,
+    "title": "Using Types with JSON",
+    "subject": "TypeScript Day 29: Validating external data",
+    "body": "JSON.parse returns any by default — a classic hole in TypeScript's safety net. Cast its result with as is fast but unsafe; the data could be anything. The safe pattern is: parse to unknown, then validate with a runtime checker that narrows to a typed shape. Libraries like Zod, Valibot, or io-ts define schemas that are both runtime validators and TypeScript types. schema.parse(data) throws or returns a typed value; schema.safeParse returns a result object. Define your data types once as schemas, and your whole app benefits: API responses, form inputs, localStorage data. This is the bridge between TypeScript's compile-time checks and the uncertain data from the outside world. Without it, TypeScript can lie to you in production; with it, you have a single source of truth for both validation and types.",
+    "codeExample": "// Conceptual — using a schema library\nconst UserSchema = z.object({\n  id: z.number(),\n  name: z.string(),\n  email: z.string().email()\n});\n\ntype User = z.infer<typeof UserSchema>;\n\nconst raw: unknown = JSON.parse(text);\nconst user = UserSchema.parse(raw);   // throws if invalid"
+  },
+  {
+    "id": 30,
+    "title": "Generics with Constraints",
+    "subject": "TypeScript Day 30: Bounding generic parameters",
+    "body": "A bare generic T accepts any type, which is too permissive when you need certain members. Add a constraint with T extends Shape to require T to at least have the shape. Inside the function, you can access those guaranteed members, while still preserving the precise type for callers. Common constraints include extends object, extends { id: number }, or extends readonly unknown[]. Combined with keyof, you write functions that operate over a property name that must exist on the input type. Constraints make generics both safer and more useful: they tell callers what is required, and they give the function body something to work with. When the constraint is wider than the function's actual needs, it is a code smell; constraints should state the minimum.",
+    "codeExample": "function pluck<T, K extends keyof T>(items: T[], key: K): T[K][] {\n  return items.map(item => item[key]);\n}\n\nconst users = [{ id: 1, name: 'Ada' }, { id: 2, name: 'Sam' }];\npluck(users, 'name');    // string[]\n// pluck(users, 'age');  // error"
+  },
+  {
+    "id": 31,
+    "title": "Default Generic Parameters",
+    "subject": "TypeScript Day 31: Providing generic defaults",
+    "body": "Generic type parameters can have defaults, just like runtime parameter defaults. <T = string> lets callers omit the type argument and still get a concrete type. Defaults are handy for configuration-like generics — a Result<T, E = Error> that defaults to Error for the error branch. They also help with backward compatibility when adding a new generic parameter to an existing type: give the new one a default so existing callers don't break. In React, component generics often use defaults so components work without a type argument but support one when needed. Keep defaults simple and well-documented; a non-obvious default is a tripping hazard. Combine defaults with constraints: <T extends Record<string, unknown> = Record<string, never>> gives you a typed and bounded parameter with a sensible default.",
+    "codeExample": "type Result<T, E = Error> =\n  | { ok: true; value: T }\n  | { ok: false; error: E };\n\nconst r1: Result<string> = { ok: true, value: 'hi' };\nconst r2: Result<number, string> = { ok: false, error: 'bad' };\n\nfunction identity<T = string>(x: T): T { return x; }"
+  },
+  {
+    "id": 32,
+    "title": "React Props and Events",
+    "subject": "TypeScript Day 32: Typing React components",
+    "body": "React components have typed props and events. Define a Props interface or type and use it on the component's parameter. Prefer function components with explicit props types; React.FC is no longer recommended because it implies children even when the component doesn't accept them. Event handlers take specific event types from React: React.MouseEvent<HTMLButtonElement>, React.ChangeEvent<HTMLInputElement>. Children are React.ReactNode. useState, useRef, useReducer are all generic — type them with the value type or let TypeScript infer from the initial value. For refs to DOM elements, use useRef<HTMLDivElement>(null). Avoid any on props; when you don't care, use unknown or a minimal shape. Well-typed React components catch bugs in the editor and serve as living documentation for your component API.",
+    "codeExample": "interface ButtonProps {\n  label: string;\n  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;\n  children?: React.ReactNode;\n}\n\nfunction Button({ label, onClick, children }: ButtonProps) {\n  return <button onClick={onClick}>{label}{children}</button>;\n}"
+  },
+  {
+    "id": 33,
+    "title": "Declaration Files (.d.ts)",
+    "subject": "TypeScript Day 33: Adding types to untyped code",
+    "body": "Declaration files describe the shape of JavaScript code without implementing it. They use the .d.ts extension and contain only type information — interfaces, type aliases, ambient declarations of modules and globals. When you use a JavaScript library without bundled types, you can either install @types/the-library from DefinitelyTyped, or write your own .d.ts file with declare module 'the-library' to stub the API. declare global adds properties to the global namespace, like a custom property on window. TypeScript picks up .d.ts files automatically based on the tsconfig include paths. Keep your declarations close to the code they describe, and prefer published @types packages to hand-written stubs where possible. When contributing to open-source, DefinitelyTyped is where most JavaScript types live.",
+    "codeExample": "// types.d.ts\ndeclare module 'quirky-lib' {\n  export function quirkify(value: string): string;\n  export const version: string;\n}\n\ndeclare global {\n  interface Window {\n    myAppVersion: string;\n  }\n}\nexport {};"
+  },
+  {
+    "id": 34,
+    "title": "The never Type",
+    "subject": "TypeScript Day 34: Impossible values",
+    "body": "never is the type of values that cannot exist. A function that always throws or never returns (infinite loop) has return type never. A variable whose narrowed type has no remaining possibilities is never. Its main practical role is exhaustiveness checking: in a switch over a discriminated union, assigning the discriminant to never in the default case ensures that if you add a new branch to the union, the compiler errors until you handle it. never is the bottom type: it is assignable to every type, but no type is assignable to it (except never itself). You rarely write never explicitly, but you see it as the result of type operations that produce no valid values — Exclude<'a', 'a'>, a conditional that always takes the else branch, an impossible intersection. Treat a never you didn't expect as a bug report from the compiler.",
+    "codeExample": "function assertNever(x: never): never {\n  throw new Error(`unexpected: ${String(x)}`);\n}\n\ntype Status = 'pending' | 'done';\nfunction label(s: Status): string {\n  switch (s) {\n    case 'pending': return 'Working';\n    case 'done':    return 'Complete';\n    default: return assertNever(s);\n  }\n}"
+  },
+  {
+    "id": 35,
+    "title": "Decorators",
+    "subject": "TypeScript Day 35: Decorators in TypeScript",
+    "body": "Decorators annotate classes, methods, accessors, properties, and parameters with metadata or with a wrapper that modifies behavior. The modern standard (TC39 Stage 3, shipped in TypeScript 5) uses a plain syntax with a different runtime than the legacy experimentalDecorators flag. Class decorators receive the target class and can replace or extend it. Method decorators receive the descriptor and can wrap the function. Frameworks like Angular and NestJS rely heavily on decorators for dependency injection and routing metadata. If you are not using a framework that requires decorators, you usually don't need them — higher-order functions and factories do the same in plain TypeScript with less mystery. Still, understanding the syntax helps when reading framework code and writing plugins. Check which decorator system your project uses before writing new ones.",
+    "codeExample": "// modern decorators (TS 5+)\nfunction log<T extends (...args: any[]) => any>(\n  original: T,\n  _ctx: ClassMethodDecoratorContext\n) {\n  return function (this: any, ...args: Parameters<T>): ReturnType<T> {\n    console.log('calling');\n    return original.apply(this, args);\n  } as T;\n}\n\nclass Service {\n  @log\n  run(x: number) { return x * 2; }\n}"
+  },
+  {
+    "id": 36,
+    "title": "Index Signatures",
+    "subject": "TypeScript Day 36: Dynamic keys in object types",
+    "body": "An index signature describes an object with dynamic keys of a single type. { [key: string]: number } means any string key maps to a number. Use index signatures for lookup tables where keys are not known at design time: caches, registries, localization bundles. Record<K, V> is usually cleaner than a manual index signature. Index signatures and explicit properties can coexist, but the explicit properties must be compatible with the signature's value type. With noUncheckedIndexedAccess enabled (highly recommended), indexed lookups return T | undefined, forcing you to check for missing keys — the same safety as guarding an optional property. For structured objects with a known set of keys, prefer explicit property types or a Record<'a' | 'b', V>; reserve index signatures for truly dynamic data.",
+    "codeExample": "interface NumberMap {\n  [key: string]: number;\n}\n\nconst counts: NumberMap = { apples: 3, oranges: 5 };\ncounts.bananas = 1;\n\n// Record<> is often clearer:\ntype StatusMap = Record<'pending' | 'done', number>;\n\n// with noUncheckedIndexedAccess: number | undefined\nconst v = counts['unknown'];"
+  },
+  {
+    "id": 37,
+    "title": "Function Overloads",
+    "subject": "TypeScript Day 37: Declaring multiple call signatures",
+    "body": "Function overloads let one function support several distinct call patterns with different argument and return types. Write multiple signature lines above a single implementation. The implementation signature (the one with the body) is not visible to callers; they see only the overloads. Overloads are how libraries express APIs like parseInt(string, number) returning number, or array methods returning different types based on argument shapes. They help when a generic type parameter isn't expressive enough. Prefer unions and generics when they fit — they are simpler and scale better. Reach for overloads when each call shape genuinely needs a different return type, or when the call patterns are disjoint and you want strong auto-complete for each. Keep the implementation defensive: all overload arguments land in the implementation, so handle each case explicitly.",
+    "codeExample": "function toArray(input: string): string[];\nfunction toArray(input: number): number[];\nfunction toArray(input: string | number): string[] | number[] {\n  return [input] as any;\n}\n\nconst a: string[] = toArray('x');\nconst b: number[] = toArray(5);"
+  },
+  {
+    "id": 38,
+    "title": "Mixins and Composition",
+    "subject": "TypeScript Day 38: Combining classes with mixins",
+    "body": "A mixin is a function that takes a base class and returns a new class that adds functionality. In TypeScript, mixins let you compose capabilities without deep inheritance hierarchies. The typical shape: function Timestamped<T extends Constructor>(Base: T) returns a class extends Base with extra fields and methods. Compose multiple mixins by chaining: Timestamped(Taggable(Base)). Type the Constructor helper as new (...args: any[]) => {} to accept any class, with extra constraints if the mixin needs fields from the base. Mixins shine for cross-cutting concerns — logging, serialization, event emitting — that multiple classes need. In many cases, plain objects with composed functions are simpler than class mixins; choose based on whether you are modeling instances with state. The technique is worth knowing, but not overusing.",
+    "codeExample": "type Constructor<T = {}> = new (...args: any[]) => T;\n\nfunction Timestamped<T extends Constructor>(Base: T) {\n  return class extends Base {\n    createdAt = new Date();\n  };\n}\n\nclass User { constructor(public name: string) {} }\nconst TsUser = Timestamped(User);\nconst u = new TsUser('Ada');\nconsole.log(u.name, u.createdAt);"
+  },
+  {
+    "id": 39,
+    "title": "Namespaces (and why to avoid them)",
+    "subject": "TypeScript Day 39: Legacy namespaces",
+    "body": "Before ES modules were standardized, TypeScript provided namespaces as its own module system. Declare one with namespace Name { ... } to group types and values into a container. Namespaces still work, but modern TypeScript strongly prefers ES modules — files that import and export. Modules integrate with bundlers, tree-shake cleanly, and match the rest of the JavaScript ecosystem. The only common place namespaces appear today is in ambient declaration files, especially for libraries originally written without modules (types for global-style libraries use declare namespace to describe the shape of a global). In application code, don't introduce namespaces. If you have a legacy namespace, converting it to per-file modules is usually straightforward and improves tooling support. Knowing namespaces exist helps you read older code and ambient types.",
+    "codeExample": "// namespace (legacy)\nnamespace Utils {\n  export function slug(s: string) { return s.toLowerCase(); }\n}\nUtils.slug('Hello');\n\n// modern module (preferred)\n// utils.ts\nexport function slug(s: string) { return s.toLowerCase(); }\n// other.ts\nimport { slug } from './utils';"
+  },
+  {
+    "id": 40,
+    "title": "Type Predicates in Depth",
+    "subject": "TypeScript Day 40: Precise runtime checks",
+    "body": "A type predicate turns a function into a custom narrowing helper. The return type is parameter is Type, which tells the compiler that when the function returns true, the input is that type. Beyond simple shape checks, predicates power parsing logic, tagged union detection, and runtime type systems. Keep the runtime check thorough: a sloppy guard that says “is User” but only checks a single property produces false confidence downstream. Pair predicates with exhaustive field validation, or better, with a schema library that generates both runtime validators and TypeScript types from one source of truth. Asserting predicates (asserts x is Type) are a related feature: the function throws instead of returning, and the compiler narrows after the call — useful for invariants in the middle of a function without the overhead of an if-return.",
+    "codeExample": "function isString(x: unknown): x is string {\n  return typeof x === 'string';\n}\n\nfunction assertString(x: unknown): asserts x is string {\n  if (typeof x !== 'string') throw new Error('not a string');\n}\n\nfunction useValue(x: unknown) {\n  assertString(x);\n  return x.toUpperCase();  // narrowed\n}"
+  },
+  {
+    "id": 41,
+    "title": "Utility Types: Partial and Required",
+    "subject": "TypeScript Day 41: Flipping optionality",
+    "body": "Partial<T> turns every property of T into an optional property, ideal for update payloads where you only send changed fields. Required<T> does the opposite: every optional property becomes required. Use Required when you have a broadly-optional type (a config) but in one place you need the fully-populated version. Both are mapped types: they iterate over the keys of T and apply the ? modifier or remove it. These types compose: Partial<Pick<User, 'email' | 'name'>> produces an object with optional email and name only. Watch out for DeepPartial recursions — TypeScript ships only a shallow Partial; deep versions can be written with a conditional-type recursion, but they get messy and slow. Stick to shallow tools when possible, and avoid over-abstracting; explicit types are often clearer than an eight-level-deep utility chain.",
+    "codeExample": "interface User { id: number; name: string; email?: string; }\n\ntype UserUpdate = Partial<User>;\n// { id?: number; name?: string; email?: string; }\n\ntype FullUser = Required<User>;\n// { id: number; name: string; email: string; }\n\ntype UpdatableName = Partial<Pick<User, 'name'>>;"
+  },
+  {
+    "id": 42,
+    "title": "Utility Types: Pick and Omit",
+    "subject": "TypeScript Day 42: Slicing types",
+    "body": "Pick<T, K> produces a type with only the K keys of T; Omit<T, K> removes them. Both take a union of keys as the second parameter. They are the go-to tools for deriving view types: a public version of a User without the password, a form-value type that skips server-assigned fields, a response shape that picks only a subset. Pick is key-positive (say what you want), Omit is key-negative (say what you don't want) — they balance readability depending on which is shorter. Both preserve optionality and readonly modifiers. Used together with Partial they produce expressive patch types: Partial<Omit<User, 'id'>>. Deriving types instead of redeclaring keeps them in sync when the source type changes, which is one of the main wins of a structured type system over hand-maintained duplicates.",
+    "codeExample": "interface User {\n  id: number; name: string; email: string; password: string;\n}\n\ntype PublicUser = Omit<User, 'password'>;\ntype LoginCredentials = Pick<User, 'email' | 'password'>;\ntype UserPatch = Partial<Omit<User, 'id'>>;"
+  },
+  {
+    "id": 43,
+    "title": "Utility Types: Record",
+    "subject": "TypeScript Day 43: Building mapping types",
+    "body": "Record<K, V> creates an object type whose keys are of type K and whose values are of type V. K is typically a union of string literals or keyof some type, making Record far more precise than a loose index signature. Record<'sm' | 'md' | 'lg', number> forces every size to be present. Compare that to { [key: string]: number } which allows any string key and no guaranteed members. Use Record for configuration tables, translation files, color scales, and component size variants. Combined with Partial, it becomes lenient; with keyof, you produce a map keyed by another type's properties. Record is one of the most useful utility types in day-to-day code because it turns “object with these exact keys” into a single line that stays in sync with the source union.",
+    "codeExample": "type Size = 'sm' | 'md' | 'lg';\ntype SizeMap = Record<Size, number>;\n\nconst padding: SizeMap = { sm: 4, md: 8, lg: 16 };\n\ntype StatusHandlers = Record<'ok' | 'error', (x: string) => void>;\nconst handlers: StatusHandlers = {\n  ok: msg => console.log(msg),\n  error: msg => console.error(msg)\n};"
+  },
+  {
+    "id": 44,
+    "title": "Utility Types: ReturnType and Parameters",
+    "subject": "TypeScript Day 44: Deriving types from functions",
+    "body": "ReturnType<F> extracts the return type of a function type F. Parameters<F> gives a tuple of its parameter types. Both rely on infer inside conditional types. They are invaluable when you want to derive a type from a function without duplicating its signature — the function is the source of truth, and these utilities stay in sync as it evolves. Use ReturnType for API response types when you have a typed fetcher: type User = ReturnType<typeof fetchUser>. Use Parameters for wrappers that forward arguments, keeping them strictly typed. ConstructorParameters does the same for classes, and InstanceType<typeof Cls> gives the instance type of a class constructor. These tools power many library internals, including React's typing for useState initializers and reducer hooks.",
+    "codeExample": "function getUser(id: number) {\n  return { id, name: 'Ada' };\n}\n\ntype User = ReturnType<typeof getUser>;      // { id: number; name: string }\ntype GetUserArgs = Parameters<typeof getUser>; // [id: number]\n\nclass Box { constructor(public size: number) {} }\ntype BoxArgs = ConstructorParameters<typeof Box>;   // [size: number]\ntype BoxInstance = InstanceType<typeof Box>;         // Box"
+  },
+  {
+    "id": 45,
+    "title": "Exhaustiveness Checking",
+    "subject": "TypeScript Day 45: Catching missing union branches",
+    "body": "Exhaustiveness checking is a pattern that uses the never type to force a compile error when a switch or if chain fails to cover every branch of a union. Pattern: in the default case of a switch, assign the narrowed value to a never variable or pass it to an assertNever helper. Because the compiler narrows the value based on prior cases, if any branch is missing the value won't be never — the assignment fails and you get a clear error pointing at the unhandled case. This makes expanding a union type a guided refactor: add a new tag to the type, and the compiler lists every switch that needs a new branch. It is one of the best payoffs of discriminated unions and one of the strongest safety nets in TypeScript applications.",
+    "codeExample": "type Event =\n  | { kind: 'click'; x: number; y: number }\n  | { kind: 'key'; code: string };\n\nfunction describe(e: Event): string {\n  switch (e.kind) {\n    case 'click': return `clicked at ${e.x},${e.y}`;\n    case 'key':   return `key ${e.code}`;\n    default: {\n      const _never: never = e;\n      return _never;\n    }\n  }\n}"
+  },
+  {
+    "id": 46,
+    "title": "Structural Typing",
+    "subject": "TypeScript Day 46: Shape over name",
+    "body": "TypeScript uses structural typing: types are compatible if their shapes match, regardless of the name you used to declare them. Two interfaces with the same members are interchangeable. This contrasts with nominal typing in languages like Java and C#, where declared names matter. Structural typing makes TypeScript feel dynamic and reduces boilerplate: any object with the right fields fits. The downside is accidental compatibility: two conceptually different types with similar shapes (a UserId and a ProductId that are both numbers) become interchangeable. Simulate nominal typing with branded types — intersect with a unique marker interface like { __brand: 'UserId' } and cast at creation points. Branding is a small pattern that rescues correctness for ids, currencies, and other primitive-backed domain types. Use it sparingly where mixing is a real risk.",
+    "codeExample": "interface Named { name: string }\nconst user = { id: 1, name: 'Ada' };\n\nfunction say(n: Named) { console.log(n.name); }\nsay(user);            // ok — structural match\n\ntype UserId = number & { readonly __brand: 'UserId' };\nconst asUserId = (n: number) => n as UserId;\nfunction load(id: UserId) { /* ... */ }\nload(asUserId(5));"
+  },
+  {
+    "id": 47,
+    "title": "Branded Types",
+    "subject": "TypeScript Day 47: Nominal typing on demand",
+    "body": "A branded type (or nominal type) is a primitive or structural type with a unique marker that prevents it from being interchangeable with values of the same base type. Pattern: type Email = string & { readonly __brand: 'Email' }. Only values you explicitly brand pass as Email; a random string won't. Combine the brand with a runtime validator that throws if the input is invalid, then assert the type: const asEmail = (s: string) => { if (!isValid(s)) throw ...; return s as Email; }. This keeps invalid values from spreading through the system. Branding is especially useful for ids, money amounts, non-empty strings, sanitized HTML. It costs almost nothing at runtime but earns real safety. Use sparingly; brand only the domain primitives where mixing up sources of the same base type is dangerous.",
+    "codeExample": "type PostId = number & { readonly __brand: 'PostId' };\ntype UserId = number & { readonly __brand: 'UserId' };\n\nconst asPostId = (n: number) => n as PostId;\nconst asUserId = (n: number) => n as UserId;\n\nfunction loadPost(id: PostId) { /* ... */ }\nloadPost(asPostId(42));\n// loadPost(asUserId(42));    // error"
+  },
+  {
+    "id": 48,
+    "title": "Module Resolution",
+    "subject": "TypeScript Day 48: How TypeScript finds imports",
+    "body": "Module resolution is how TypeScript maps an import specifier like './utils' or 'react' to an actual file. The two main strategies are Node (classic) and Bundler. Node-style resolution matches Node.js behavior: walk up directories looking for node_modules, resolve package.json main/exports. Bundler resolution is for setups like Vite, webpack, or esbuild where the bundler handles resolution and TypeScript just needs to follow along. Set moduleResolution in tsconfig to match your build tool. paths in tsconfig creates aliases — e.g. '@/': ['src/'] — that turn into shorter imports across your codebase. These paths must be mirrored in your bundler config too, since TypeScript only type-checks; the bundler must emit correct paths at runtime. Aliases are great for small names but become debt at deep trees; keep the list short and intentional.",
+    "codeExample": "// tsconfig.json\n{\n  \"compilerOptions\": {\n    \"moduleResolution\": \"bundler\",\n    \"baseUrl\": \".\",\n    \"paths\": {\n      \"@/*\": [\"src/*\"]\n    }\n  }\n}\n\n// src/app.ts\nimport { apiClient } from '@/services/api';"
+  },
+  {
+    "id": 49,
+    "title": "Asserts Signatures",
+    "subject": "TypeScript Day 49: Assertion functions",
+    "body": "An assertion function either throws or guarantees the type of a parameter afterward. Return type asserts x is Type tells the compiler: if this function returns, x is Type. This is like a type predicate but without the boolean — the function's job is to validate and throw. Patterns: assertNever for exhaustiveness, assertIsString for input validation, invariant(condition, message) helpers common in many codebases. Call them early in a function to narrow a parameter once, then use it freely. Asserts signatures are great because they keep the happy path flat: no if-wrapped narrowing block, just one assertion line followed by the typed body. Use them sparingly at edges; overusing them in deep internal code is a sign the types upstream are too loose.",
+    "codeExample": "function invariant(condition: any, msg: string): asserts condition {\n  if (!condition) throw new Error(msg);\n}\n\nfunction process(value: string | null) {\n  invariant(value, 'value required');\n  // value is string below\n  return value.toUpperCase();\n}\n\nfunction assertIsNumber(x: unknown): asserts x is number {\n  if (typeof x !== 'number') throw new TypeError('not a number');\n}"
+  },
+  {
+    "id": 50,
+    "title": "Generic Defaults and Inference",
+    "subject": "TypeScript Day 50: Letting the compiler figure out generics",
+    "body": "Generic inference is usually automatic — the compiler picks the type from the argument you pass. Sometimes inference gets too wide (the type widens to the base type) or too narrow (you want a specific literal). Control it with as const on the value, with explicit type arguments at the call site, or with constraints that guide inference. When building DSL-like APIs, generic defaults combined with conditional types let you infer one part from another: a form library that infers the shape of its values from its schema, a router that infers path parameters from a string pattern. These patterns lean heavily on the infer keyword and template literal types. If a call site requires you to pass every generic explicitly, rethink the API — good generics should feel invisible to callers in the common case.",
+    "codeExample": "function tuple<T extends readonly unknown[]>(...xs: T): T {\n  return xs;\n}\n\nconst pair = tuple('a', 1);          // inferred as (string | number)[]\nconst tight = tuple('a', 1) as const; // readonly ['a', 1]\n\nfunction keysOf<T extends object>(o: T): (keyof T)[] {\n  return Object.keys(o) as (keyof T)[];\n}"
+  },
+  {
+    "id": 51,
+    "title": "Types for async Functions",
+    "subject": "TypeScript Day 51: Typing promises and await",
+    "body": "An async function returns Promise<T>, where T is whatever the function returns. Inside the function, await unwraps a Promise<U> into a U. TypeScript infers the return type well; annotate it on public functions to document the shape. Promise.all, Promise.race, and Promise.allSettled have precise generic signatures that preserve the types of the individual promises in the array — the result of Promise.all([Promise<A>, Promise<B>]) is Promise<[A, B]>. Handle rejections with try/catch around await, or with .catch on the promise directly. The catch parameter defaults to unknown (with strictness on), which is safer than the old any — narrow with instanceof Error before accessing .message. Always type fetch responses: fetch('...').then(r => r.json() as Promise<ResponseShape>), or better, parse with a schema validator.",
+    "codeExample": "async function loadUser(id: number): Promise<{ id: number; name: string }> {\n  const res = await fetch(`/api/users/${id}`);\n  if (!res.ok) throw new Error('failed');\n  return res.json();\n}\n\nconst [u1, u2] = await Promise.all([loadUser(1), loadUser(2)]);\n\ntry { /* ... */ } catch (err) {\n  if (err instanceof Error) console.error(err.message);\n}"
+  },
+  {
+    "id": 52,
+    "title": "React with TypeScript: Hooks",
+    "subject": "TypeScript Day 52: Typed React hooks",
+    "body": "React hooks are typed generically. useState<T>(initial) infers T from the initial value; pass it explicitly when the initial is null but the final type is something like User: useState<User | null>(null). useReducer<Reducer<State, Action>> is typed by its reducer's state and action types. useRef<HTMLInputElement>(null) types a DOM ref; useRef<T>(value) types an arbitrary mutable holder. useEffect returns void or a cleanup function, and TypeScript verifies the dependency array against the referenced variables (with eslint-plugin-react-hooks). Custom hooks are just functions returning a typed object; their return type flows to every caller. Keep state minimal and well-typed — a few tight types propagate cleanly through components. When props or state types get complex, factor them into a types file and share across components.",
+    "codeExample": "interface User { id: number; name: string }\n\nconst [user, setUser] = useState<User | null>(null);\nconst inputRef = useRef<HTMLInputElement>(null);\n\ntype Action = { type: 'inc' } | { type: 'set'; value: number };\nconst reducer = (state: number, a: Action) =>\n  a.type === 'inc' ? state + 1 : a.value;\n\nconst [count, dispatch] = useReducer(reducer, 0);"
+  },
+  {
+    "id": 53,
+    "title": "Generic React Components",
+    "subject": "TypeScript Day 53: Components with type parameters",
+    "body": "Some components need to work with different data types — a table, a dropdown, a select. Make them generic by using a type parameter in the component's function signature. Function components can be declared as <T extends Row>(props: TableProps<T>) => JSX.Element. Callers pass the type argument by letting it infer from props or, when needed, by annotating explicitly. Generic components are how libraries like React Hook Form, React Query, and TanStack Table provide strong typing across arbitrary shapes. The trickiest part is wiring up callback props so they respect the generic — if a prop is (item: T) => void, TypeScript preserves T all the way through. Keep generic components focused; resist the urge to make every component generic when a concrete prop type is enough.",
+    "codeExample": "interface TableProps<T> {\n  items: T[];\n  renderRow: (item: T) => React.ReactNode;\n}\n\nfunction Table<T>({ items, renderRow }: TableProps<T>) {\n  return <ul>{items.map((it, i) => <li key={i}>{renderRow(it)}</li>)}</ul>;\n}\n\n<Table items={users} renderRow={u => u.name} />"
+  },
+  {
+    "id": 54,
+    "title": "Writing Types for External Data",
+    "subject": "TypeScript Day 54: From any to unknown to typed",
+    "body": "Data from outside — HTTP APIs, files, env variables — arrives without types. A naive JSON.parse gives you any; a slightly-better cast gives you a type your compiler trusts but reality might not. The robust pattern is: parse to unknown, validate with a schema library (Zod, Valibot, Yup, io-ts), and derive the TypeScript type from the schema. Now you have one source of truth for both runtime validation and static types, and the resulting type cannot be wrong. Apply this at every boundary: API responses, webhook payloads, request bodies in your Express server, form submissions, database rows. Inside your app, trust the types and avoid redundant checks. This pattern is increasingly standard in TypeScript codebases because it eliminates the biggest remaining gap between compile-time and runtime safety.",
+    "codeExample": "// conceptual with zod\nconst UserSchema = z.object({\n  id: z.number(),\n  email: z.string().email()\n});\ntype User = z.infer<typeof UserSchema>;\n\nasync function loadUser(id: number): Promise<User> {\n  const res = await fetch(`/api/users/${id}`);\n  const json: unknown = await res.json();\n  return UserSchema.parse(json);\n}"
+  },
+  {
+    "id": 55,
+    "title": "DOM Types",
+    "subject": "TypeScript Day 55: The lib.dom types",
+    "body": "TypeScript ships with a huge set of DOM types — HTMLElement, Event, MouseEvent, Node, Window, Document, and specific element types like HTMLButtonElement and HTMLInputElement. Functions like querySelector return Element | null; querySelector<HTMLInputElement>('input') narrows the result type. Event handlers take event objects with the right subtype: addEventListener('click', (e: MouseEvent) => ...). Form elements have typed value, checked, and files properties; access them through the correct subtype. Enable the lib setting in tsconfig (\"DOM\" is default) and avoid using any for DOM nodes. Null checks matter: querying for an element that doesn't exist returns null, and using it without a check is a typical runtime crash. Treat DOM types as a contract — they reflect browser behavior and help catch platform-specific bugs before they ship.",
+    "codeExample": "const input = document.querySelector<HTMLInputElement>('#email');\nif (input) {\n  input.value = 'a@b.com';\n}\n\nbutton.addEventListener('click', (e: MouseEvent) => {\n  const target = e.currentTarget as HTMLButtonElement;\n  target.disabled = true;\n});"
+  },
+  {
+    "id": 56,
+    "title": "tsc vs Build Tools",
+    "subject": "TypeScript Day 56: When to use tsc directly",
+    "body": "tsc is TypeScript's own compiler. It can type-check and emit JavaScript. But emitting JavaScript is not where it shines today — dedicated bundlers (esbuild, swc, Vite, Rollup) are faster and integrate with the rest of the pipeline. The modern split is: use the bundler for transforms and bundling; use tsc --noEmit for type checking in CI and in editors. This keeps builds fast while preserving full type safety. tsc --watch is still useful during development for incremental type checking that a fast bundler might skip. Use tsc --build for project references, where a monorepo splits into subprojects that depend on each other. Configure your scripts accordingly — npm run typecheck for tsc --noEmit, npm run build for the bundler. Don't let build and typecheck diverge; run them both in CI.",
+    "codeExample": "// package.json scripts\n{\n  \"scripts\": {\n    \"build\": \"vite build\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"dev\": \"vite\",\n    \"lint\": \"eslint src\"\n  }\n}\n\n// CI step\n// npm run typecheck && npm run build"
+  },
+  {
+    "id": 57,
+    "title": "Working with Node and Express Types",
+    "subject": "TypeScript Day 57: Typed server code",
+    "body": "For a Node + Express server, install @types/node and @types/express. Express handlers get types like Request, Response, and NextFunction. Generic parameters on Request let you type route params, query strings, request bodies, and response bodies: Request<Params, ResBody, ReqBody, Query>. Typing these at the edges keeps your route handlers accurate; mismatches between client and server become compile errors. Middleware that adds fields to req (like req.user from auth) can be typed with declaration merging: extend the Express Request interface with declare global { namespace Express { interface Request { user?: User } } }. Combined with a schema library for request validation, you get a sharp end-to-end flow: validated incoming shapes, typed handlers, and consistent response shapes. This is the TypeScript version of a fully-typed REST API.",
+    "codeExample": "import type { Request, Response } from 'express';\ninterface User { id: number; name: string }\n\ninterface LoginBody { email: string; password: string }\n\nfunction login(req: Request<{}, {}, LoginBody>, res: Response<{ token: string }>) {\n  const { email, password } = req.body;\n  res.json({ token: 'abc' });\n}\n\ndeclare global {\n  namespace Express {\n    interface Request { user?: User }\n  }\n}"
+  },
+  {
+    "id": 58,
+    "title": "Testing with Types",
+    "subject": "TypeScript Day 58: Types in your tests",
+    "body": "Types in tests catch regressions quickly. Write test inputs with the real types of your production code; mocks that drift from the actual shapes produce tests that pass but lie. When you do need mocks, use Partial<T> for objects where only a few fields matter, Pick<T, K> for focused tests, and Mocked<T> from testing libraries for instrumented versions. Type assertion helpers like expectType<T>(value) or tsd let you assert that a value has a specific type — pure compile-time checks that supplement runtime assertions. Type testing is valuable for library authors to guarantee the public API does not silently regress. For application code, the ordinary type checker plus good tests is usually enough. Keep test types aligned with production; that alignment is most of the value.",
+    "codeExample": "import { expectType } from 'tsd';\n\nfunction add(a: number, b: number): number { return a + b; }\n\n// type-level assertion (tsd)\nexpectType<number>(add(1, 2));\n\n// partial mock in a test\nconst fakeUser: Partial<User> = { id: 1, name: 'Test' };"
+  },
+  {
+    "id": 59,
+    "title": "Migrating from JavaScript",
+    "subject": "TypeScript Day 59: Incremental adoption",
+    "body": "Adopting TypeScript in an existing JavaScript project is easier than people fear if you go gradually. Add a tsconfig with allowJs: true and checkJs: false to start. Rename files one at a time from .js to .ts, fixing errors as they appear. Use any as a temporary tool where migrating types would delay the change; track each any and return later. Enable strict mode only once the majority of the code is typed, and flip individual strict flags first if the blast radius is large. @ts-expect-error comments narrow ignored errors — prefer them over @ts-ignore because they complain when the error disappears. Rely on @types packages for third-party libraries, and write your own ambient declarations for libraries without them. The payoff grows as coverage grows: at first editors feel the same, then gradually autocomplete gets sharper and whole classes of bugs stop happening.",
+    "codeExample": "// tsconfig for migration\n{\n  \"compilerOptions\": {\n    \"allowJs\": true,\n    \"checkJs\": false,\n    \"strict\": false,\n    \"noImplicitAny\": false,\n    \"outDir\": \"dist\"\n  },\n  \"include\": [\"src\"]\n}\n\n// temporary escape hatch\n// @ts-expect-error TODO: fix after schema lands\nconst user = legacyLoader('user');"
+  },
+  {
+    "id": 60,
+    "title": "Putting It All Together",
+    "subject": "TypeScript Day 60: Closing the loop",
+    "body": "You have built up the core ideas of TypeScript: primitive types, interfaces and aliases, unions, generics, utility types, narrowing, mapped and conditional types, and the tooling around tsc and bundlers. The hardest part is knowing when to reach for advanced features. The rule is: types should be as simple as the problem allows. Start with plain interfaces and unions. Reach for utility types when you notice duplication. Reach for conditional types and infer when you are writing a library. For applications, 90% of the types you need are simple; complexity is a smell when it appears in product code. Pair TypeScript with a runtime validator at external boundaries to close the last safety gap. Keep strict mode on, treat every any as a TODO, and let the compiler be a collaborator. Congratulations — you have finished the 60-day TypeScript series.",
+    "codeExample": "// The daily loop: define, narrow, derive\ninterface User { id: number; name: string; email?: string }\n\ntype UserUpdate = Partial<Omit<User, 'id'>>;\n\nfunction updateUser(id: number, patch: UserUpdate): User {\n  // typed in, typed out, no any required\n  return { id, name: patch.name ?? 'Anon', email: patch.email };\n}"
+  }
+]

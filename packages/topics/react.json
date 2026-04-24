@@ -1,0 +1,422 @@
+[
+  {
+    "id": 1,
+    "title": "JSX",
+    "subject": "React Day 1: Writing HTML in JavaScript",
+    "body": "JSX is a syntax extension for JavaScript that looks like HTML. It lets you describe UI trees in a familiar way inside your JavaScript code. Under the hood, JSX compiles to React.createElement calls (or the new automatic runtime that doesn't need React in scope). Each JSX element is just a JavaScript expression — you can assign it to a variable, pass it to a function, or return it from a component. There are a few HTML → JSX differences to remember: className instead of class, htmlFor instead of for, camelCase event names (onClick), and self-closing tags for elements without children. You can embed any JavaScript expression inside JSX with curly braces: {user.name}, {count + 1}, {items.map(...)}. JSX is not required to write React, but almost all React code uses it because the visual correspondence with the rendered output is invaluable.",
+    "codeExample": "const name = 'Ada';\nconst el = <h1 className=\"title\">Hello, {name}!</h1>;\n\nfunction Greeting({ user }) {\n  return (\n    <div>\n      <p>Hi, {user.name}</p>\n      {user.isAdmin && <span>Admin</span>}\n    </div>\n  );\n}"
+  },
+  {
+    "id": 2,
+    "title": "Components",
+    "subject": "React Day 2: Your first component",
+    "body": "A React component is a function that returns JSX. Functions must start with a capital letter so JSX knows to treat it as a component, not a DOM tag. Components can be composed inside each other — a Page renders a Header, which renders a Nav, and so on. Each render call produces a description of UI; React reconciles the description with the actual DOM. Keep components small and focused: one clear responsibility each. When a component grows long or does too many things, break it apart. Class components still work but modern React is almost entirely function components with hooks. File naming convention is usually PascalCase matching the component name, with one top-level component per file. Compose small primitives into larger screens; it is the whole React workflow.",
+    "codeExample": "function Avatar({ url }) {\n  return <img src={url} className=\"avatar\" />;\n}\n\nfunction UserCard({ user }) {\n  return (\n    <div className=\"card\">\n      <Avatar url={user.avatarUrl} />\n      <h2>{user.name}</h2>\n    </div>\n  );\n}"
+  },
+  {
+    "id": 3,
+    "title": "Props",
+    "subject": "React Day 3: Passing data with props",
+    "body": "Props (short for properties) are how you pass data from a parent component to a child. They look like HTML attributes on the JSX tag but can hold any JavaScript value: strings, numbers, booleans, arrays, objects, and even other components. Inside the child function, props are the first (and usually only) argument — destructure it for readability. Props are read-only: a child should never mutate its props. If a child needs to change something, the parent passes a callback as a prop, and the child calls it. Default values for missing props use destructuring defaults: { size = 'md' }. To forward all unknown props to a DOM element, use the rest pattern: const { id, ...rest } = props;. Thinking in props is the core of the React mental model: data flows down, events flow up.",
+    "codeExample": "function Button({ label, onClick, disabled = false }) {\n  return (\n    <button onClick={onClick} disabled={disabled}>\n      {label}\n    </button>\n  );\n}\n\n<Button label=\"Save\" onClick={() => save()} />\n<Button label=\"Wait\" disabled />"
+  },
+  {
+    "id": 4,
+    "title": "State with useState",
+    "subject": "React Day 4: Making components interactive",
+    "body": "State is data a component owns and can change over time. Call useState(initial) inside a component to get a [value, setter] pair. Calling the setter schedules a re-render with the new value. State is local to the component: each instance has its own. Initial values are only used on the first render — changing them later has no effect, so computed initials should be passed as a function to avoid recomputation: useState(() => heavyInit()). Use the updater form setCount(c => c + 1) when the new value depends on the old — this avoids bugs where multiple rapid updates read a stale value. Keep state minimal: anything derivable from other state or props should be computed in render, not stored. useState is the entry point to interactivity in React; mastering it unlocks most of the API.",
+    "codeExample": "function Counter() {\n  const [count, setCount] = useState(0);\n  return (\n    <div>\n      <p>{count}</p>\n      <button onClick={() => setCount(c => c + 1)}>+</button>\n      <button onClick={() => setCount(0)}>reset</button>\n    </div>\n  );\n}"
+  },
+  {
+    "id": 5,
+    "title": "useEffect",
+    "subject": "React Day 5: Effects and side effects",
+    "body": "useEffect lets a component run side effects — data fetching, subscriptions, DOM mutations, timers — after render. Pass a function as the first argument and a dependency array as the second. React runs the effect after the render commits and re-runs it whenever a dependency changes. Return a cleanup function to undo what the effect did (remove event listeners, cancel timers, abort fetches); React calls it before the next run and when the component unmounts. An empty dependency array means “run once after mount.” Omitting the array means “run after every render,” which is almost always wrong. React 18 runs effects twice in strict-mode development to catch missing cleanups — adjust your code, don't silence the warning. Effects should have a clear cause; if you find yourself needing them to sync state, there's often a simpler derivation.",
+    "codeExample": "useEffect(() => {\n  const controller = new AbortController();\n  fetch('/api/user', { signal: controller.signal })\n    .then(r => r.json())\n    .then(setUser);\n  return () => controller.abort();\n}, []);\n\nuseEffect(() => {\n  document.title = `${count} items`;\n}, [count]);"
+  },
+  {
+    "id": 6,
+    "title": "Conditional Rendering",
+    "subject": "React Day 6: Rendering different UI based on state",
+    "body": "Conditional rendering is how you show or hide elements based on logic. The most common patterns are the ternary expression {cond ? <A /> : <B />} for two-way choices, and the && short-circuit {cond && <A />} for show-or-nothing. Avoid && with numeric conditions: {count && <A />} renders 0 when count is zero, a famous bug; use {count > 0 && <A />} instead. For many branches, extract the logic into a helper function or use early returns: if (loading) return <Spinner />;. Don't smuggle IIFEs into JSX when a simple variable would be clearer. For mutually exclusive UI like tabs, a map from state to component is cleaner than a switch. Conditional rendering is the main tool for expressing UI state — make it readable, not clever.",
+    "codeExample": "function UserPanel({ status, user }) {\n  if (status === 'loading') return <Spinner />;\n  if (status === 'error') return <Error />;\n  return (\n    <div>\n      <h2>{user.name}</h2>\n      {user.isAdmin && <AdminBadge />}\n      {user.bio ? <p>{user.bio}</p> : <p>No bio</p>}\n    </div>\n  );\n}"
+  },
+  {
+    "id": 7,
+    "title": "Lists and Keys",
+    "subject": "React Day 7: Rendering arrays",
+    "body": "To render a list, map an array of data to an array of JSX elements. React requires each element in a list to have a unique, stable key prop so it can identify items across renders. A good key is a stable id from your data: user.id, todo.id. Array indices work only for lists that never reorder, filter, or insert; using them on dynamic lists causes subtle UI bugs like form inputs losing state. Keys must be unique among siblings, not globally. The key prop is not passed to the component — it is purely a hint to React. Keep the mapped expression readable: if the item template grows, pull it into its own component. A list of items is usually a prime target for a child component plus a parent that owns the data.",
+    "codeExample": "function UserList({ users }) {\n  return (\n    <ul>\n      {users.map(user => (\n        <li key={user.id}>{user.name}</li>\n      ))}\n    </ul>\n  );\n}"
+  },
+  {
+    "id": 8,
+    "title": "Event Handling",
+    "subject": "React Day 8: Responding to user events",
+    "body": "React attaches event handlers through props whose names start with on: onClick, onChange, onSubmit. The handler receives a SyntheticEvent, a cross-browser wrapper over the native event. Call event.preventDefault() to prevent default behavior like form submission, and event.stopPropagation() to prevent bubbling. Event handlers are typically inline arrows or component methods. Avoid calling a handler in JSX: onClick={handleClick()} invokes it during render; write onClick={handleClick} or onClick={() => handleClick(id)}. For performance-sensitive lists, define handlers at the parent and use event delegation via event.currentTarget or data attributes. React 17+ attaches events to the root container, not document, avoiding common collision bugs. Handlers should be short; move logic into named functions so the JSX stays focused on UI.",
+    "codeExample": "function Form() {\n  function handleSubmit(e) {\n    e.preventDefault();\n    const data = new FormData(e.currentTarget);\n    console.log(Object.fromEntries(data));\n  }\n  return (\n    <form onSubmit={handleSubmit}>\n      <input name=\"email\" />\n      <button>Send</button>\n    </form>\n  );\n}"
+  },
+  {
+    "id": 9,
+    "title": "Forms and Controlled Inputs",
+    "subject": "React Day 9: Form inputs with React",
+    "body": "A controlled input is an input whose value is driven by React state. You pass value and onChange; the state is the single source of truth, and React renders the input with it. This gives you the ability to validate, format, and react to every keystroke. Uncontrolled inputs use the DOM as the source of truth and expose values via refs or form submission — fine for simple cases but harder to validate live. For multiple fields, use one state object and update it with a spread: setForm({ ...form, [name]: value }). For larger forms, consider a dedicated form library (React Hook Form, Formik) that handles arrays of fields, nested validation, and performance optimizations. Always clear errors on input and disable the submit button during async submission to prevent double-sends.",
+    "codeExample": "function LoginForm() {\n  const [form, setForm] = useState({ email: '', password: '' });\n  const update = e =>\n    setForm({ ...form, [e.target.name]: e.target.value });\n\n  return (\n    <form>\n      <input name=\"email\" value={form.email} onChange={update} />\n      <input name=\"password\" type=\"password\" value={form.password} onChange={update} />\n    </form>\n  );\n}"
+  },
+  {
+    "id": 10,
+    "title": "Lifting State Up",
+    "subject": "React Day 10: Sharing state between siblings",
+    "body": "When two components need access to the same state, you lift that state up to their nearest common ancestor. The ancestor owns the state and passes the value down as a prop to both children, along with a setter for any component that needs to change it. This is one of React's core patterns: state lives as low as possible in the tree, but no lower than where it needs to be shared. Avoid duplicating state in multiple components and syncing them manually — that guarantees bugs. If the tree becomes awkward (too many props drilled through many layers), consider Context or a state library, but lift first and see if it's actually painful before reaching for those. Clear data flow is worth some prop plumbing in exchange for simplicity.",
+    "codeExample": "function App() {\n  const [query, setQuery] = useState('');\n  return (\n    <>\n      <SearchBar query={query} onChange={setQuery} />\n      <ResultList query={query} />\n    </>\n  );\n}\n\nfunction SearchBar({ query, onChange }) {\n  return <input value={query} onChange={e => onChange(e.target.value)} />;\n}"
+  },
+  {
+    "id": 11,
+    "title": "useRef",
+    "subject": "React Day 11: Holding mutable values without re-renders",
+    "body": "useRef(initial) returns an object { current: initial } that persists across renders. Unlike state, changing ref.current does not trigger a re-render. Two main uses: accessing DOM nodes and holding mutable values that shouldn't participate in rendering (timers, instance-like counters, previous-value trackers). Attach a ref to a JSX element with the ref prop: <input ref={inputRef} />. Inside an effect you can call inputRef.current.focus(). For non-DOM uses, it's a lightweight alternative to state for values you read in effects or event handlers but never render. Don't read or write ref.current during rendering — rendering should be pure. For custom components to accept refs, use React.forwardRef. useRef is small but essential: it is the escape hatch for imperative interactions and for state that shouldn't cause re-renders.",
+    "codeExample": "function Autofocus() {\n  const inputRef = useRef(null);\n  useEffect(() => { inputRef.current?.focus(); }, []);\n  return <input ref={inputRef} />;\n}\n\nfunction Counter() {\n  const count = useRef(0);\n  return <button onClick={() => count.current++}>+{count.current}</button>;\n}"
+  },
+  {
+    "id": 12,
+    "title": "useMemo",
+    "subject": "React Day 12: Caching expensive values",
+    "body": "useMemo(() => compute(a, b), [a, b]) caches the result of a calculation between renders as long as the dependencies don't change. Use it for genuinely expensive computations — sorting a large list, filtering a big dataset, building a derived structure — not every derived value. Over-memoizing adds memory and complexity without speeding anything up because most calculations are fast enough that the cache overhead is worse. Another use is reference stability: wrapping an object or array in useMemo prevents it from being a new reference each render, which matters when passing it to a memoized child or into a dependency array. Profile before reaching for useMemo; the React profiler or dev tools Highlight Updates will show you what actually renders. React 19's compiler auto-memoizes much of this — but useMemo remains in the API for explicit control.",
+    "codeExample": "const sorted = useMemo(\n  () => [...items].sort((a, b) => a.name.localeCompare(b.name)),\n  [items]\n);\n\nconst style = useMemo(() => ({ color: theme.primary }), [theme.primary]);"
+  },
+  {
+    "id": 13,
+    "title": "useCallback",
+    "subject": "React Day 13: Caching function identities",
+    "body": "useCallback(fn, deps) returns a memoized function that keeps its identity between renders while the dependencies are equal. It is useMemo for functions — a shortcut for useMemo(() => fn, deps). The reason it matters is reference identity: every render creates a new function, which breaks memoized children and triggers unnecessary effect re-runs when the function is in a dependency array. Wrap with useCallback when: (1) the function is passed to a memoized child, (2) it is a dependency of another hook, or (3) it is stored in a Context value. For handlers that are only used inline and never passed down, useCallback adds overhead without benefit. Over-wrapping hurts readability; be deliberate. React 19's compiler removes most manual uses, but it still helps to understand why identity matters.",
+    "codeExample": "const handleSubmit = useCallback((data) => {\n  postToApi(data, token);\n}, [token]);\n\n<Form onSubmit={handleSubmit} />  // memo-friendly"
+  },
+  {
+    "id": 14,
+    "title": "useContext",
+    "subject": "React Day 14: Sharing state without prop drilling",
+    "body": "Context is how you pass values through the component tree without threading props through every layer. Create a context with createContext(defaultValue). Wrap a subtree in a Provider that sets the current value. Inside any descendant, call useContext(MyContext) to read the current value. Use context for data that is truly global to a subtree: theme, current user, localization, feature flags. Avoid using it as a generic replacement for state management — every consumer re-renders when the value changes, so a single large context becomes a re-render hotspot. Split context by concern: ThemeContext, UserContext, each with the smallest relevant slice. Pair with useMemo on the provider's value if the value is an object, to avoid creating a new reference on every parent render. Context is simple but powerful; use it where it fits.",
+    "codeExample": "const ThemeContext = createContext('light');\n\nfunction App() {\n  const [theme, setTheme] = useState('dark');\n  const value = useMemo(() => ({ theme, setTheme }), [theme]);\n  return (\n    <ThemeContext.Provider value={value}>\n      <Page />\n    </ThemeContext.Provider>\n  );\n}\n\nfunction Button() {\n  const { theme } = useContext(ThemeContext);\n  return <button className={theme}>Click</button>;\n}"
+  },
+  {
+    "id": 15,
+    "title": "useReducer",
+    "subject": "React Day 15: State transitions with a reducer",
+    "body": "useReducer is useState's bigger sibling. Pass a reducer function (state, action) => newState and an initial state. useReducer returns [state, dispatch]; calling dispatch(action) runs the reducer and commits the next state. Use useReducer when state has multiple fields whose transitions are related, when the next state depends on the previous state in non-trivial ways, or when you want to test the transitions independently of components. Common actions are objects with a type and additional payload, echoing Redux patterns. Keep reducers pure: no side effects, no mutations of the incoming state. Return a new state object (or the same reference if nothing changed). Combined with useContext, useReducer is a lightweight alternative to a full state library for medium-sized apps. When state is simple, stick to useState — don't reach for useReducer prematurely.",
+    "codeExample": "function reducer(state, action) {\n  switch (action.type) {\n    case 'add':    return { ...state, items: [...state.items, action.item] };\n    case 'remove': return { ...state, items: state.items.filter(i => i.id !== action.id) };\n    case 'clear':  return { items: [] };\n    default: throw new Error();\n  }\n}\nconst [state, dispatch] = useReducer(reducer, { items: [] });"
+  },
+  {
+    "id": 16,
+    "title": "Custom Hooks",
+    "subject": "React Day 16: Extracting reusable logic",
+    "body": "A custom hook is a function whose name starts with use and which can call other hooks. It is the standard way to extract logic shared across components. If two components both subscribe to a WebSocket, manage a form, or debounce an input, move the shared dance into useWebSocket, useForm, useDebounce. Custom hooks follow the rules of hooks: call them at the top of components or other hooks, not inside loops or conditions. They compose like Lego blocks — useDebouncedSearch can internally call useDebounce and useFetch. Keep hooks focused on one concern; the magic is composition, not a kitchen-sink hook. Return whatever shape makes the caller cleanest: a single value, a tuple, or an object with named members. Good custom hooks read like building blocks for the components that use them.",
+    "codeExample": "function useDebounce(value, delay) {\n  const [debounced, setDebounced] = useState(value);\n  useEffect(() => {\n    const id = setTimeout(() => setDebounced(value), delay);\n    return () => clearTimeout(id);\n  }, [value, delay]);\n  return debounced;\n}\n\nconst search = useDebounce(query, 300);"
+  },
+  {
+    "id": 17,
+    "title": "Fragments",
+    "subject": "React Day 17: Grouping without an extra element",
+    "body": "JSX requires a component to return a single root element. When you need to return multiple siblings without adding an extra DOM node, use a Fragment. Write it as <></> or React.Fragment for clarity in unfamiliar code. Fragments are invisible in the output; the children render directly into the parent. This keeps your DOM clean and preserves semantics (tables, lists) where extra wrappers would break CSS layout or break validation. When you need to pass a key to a fragment (mapping over groups of siblings), use the full form <React.Fragment key={id}> since the short syntax doesn't accept props. Prefer fragments over unnecessary <div> wrappers; an unneeded div can complicate Flexbox/Grid layouts and cause subtle CSS bugs. It's a small tool that produces cleaner markup for free.",
+    "codeExample": "function UserName({ user }) {\n  return (\n    <>\n      <span>{user.first}</span>\n      <span>{user.last}</span>\n    </>\n  );\n}\n\n{groups.map(g => (\n  <React.Fragment key={g.id}>\n    <dt>{g.label}</dt>\n    <dd>{g.value}</dd>\n  </React.Fragment>\n))}"
+  },
+  {
+    "id": 18,
+    "title": "children and Composition",
+    "subject": "React Day 18: The children prop",
+    "body": "children is a special prop that contains whatever JSX you nest between a component's opening and closing tags. Use it to build layout components, wrappers, modals, and slots. A Card component might render a header and a body, with children placed in the body. This lets callers pass arbitrary content without the Card knowing or caring what goes inside — the purest form of component composition. For multiple slots (header, body, footer), define explicit named props holding JSX, or use a pattern of multiple child components with composition. Avoid cloneElement for modifying children; it's awkward and brittle. Composition via children is one of React's most powerful ideas because it's just function composition: a component is a function, children are arguments, the result is JSX.",
+    "codeExample": "function Card({ title, children }) {\n  return (\n    <div className=\"card\">\n      <h2>{title}</h2>\n      <div>{children}</div>\n    </div>\n  );\n}\n\n<Card title=\"Profile\">\n  <p>Hello, Ada</p>\n  <button>Edit</button>\n</Card>"
+  },
+  {
+    "id": 19,
+    "title": "Controlled vs Uncontrolled Components",
+    "subject": "React Day 19: Who owns the input value",
+    "body": "A controlled component has its value driven by React state; you pass value and onChange. An uncontrolled component lets the DOM hold the value and you read it when needed via a ref or form submission. Controlled inputs give you live validation, formatting, and the ability to react to every change. Uncontrolled inputs are simpler when all you need is the final value — think signup forms submitted once at the end. Third-party libraries like React Hook Form use uncontrolled inputs internally for performance: fewer re-renders on every keystroke. defaultValue (not value) initializes an uncontrolled input. Pick one approach per field; mixing causes warnings and unpredictable behavior. Start controlled by default; switch to uncontrolled when profiling shows performance issues or when you adopt a library that prefers it.",
+    "codeExample": "// controlled\nconst [name, setName] = useState('');\n<input value={name} onChange={e => setName(e.target.value)} />\n\n// uncontrolled\nconst ref = useRef(null);\n<input defaultValue=\"Ada\" ref={ref} />\n<button onClick={() => alert(ref.current.value)}>Get</button>"
+  },
+  {
+    "id": 20,
+    "title": "React Router: Routes",
+    "subject": "React Day 20: Client-side routing",
+    "body": "React Router lets you build multi-page apps without real page navigation. Wrap your app in a BrowserRouter (or the new createBrowserRouter for data-router APIs). Declare Route elements inside a Routes component; each route maps a path to a component. Nested routes compose layouts and child content through Outlet. The matched component renders when the URL matches. For data-fetching on navigation, React Router 6.4+ supports loaders that run before the route renders and provide data via useLoaderData. Use NavLink for automatic active styling, Link to navigate without a reload, and useNavigate for imperative navigation from handlers. Keep your route tree close to the URL structure for clarity. Route-based code splitting with lazy imports pairs well with React.lazy to keep bundles small.",
+    "codeExample": "import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';\n\nfunction App() {\n  return (\n    <BrowserRouter>\n      <nav><Link to=\"/\">Home</Link> <Link to=\"/about\">About</Link></nav>\n      <Routes>\n        <Route path=\"/\" element={<Home />} />\n        <Route path=\"/about\" element={<About />} />\n        <Route path=\"/users/:id\" element={<UserPage />} />\n      </Routes>\n    </BrowserRouter>\n  );\n}"
+  },
+  {
+    "id": 21,
+    "title": "React Router: Navigation and Params",
+    "subject": "React Day 21: URL parameters and navigation",
+    "body": "Route parameters are declared with :name and accessed in the component with useParams(). A route like /users/:id gives you const { id } = useParams();. Query parameters go through useSearchParams, which returns a [searchParams, setSearchParams] pair. Call useNavigate() to get a navigate function you can call from handlers: navigate('/dashboard'), navigate(-1) to go back, or navigate('/login', { replace: true }) to replace history. useLocation exposes the current location object for reading pathname and state passed between pages. For guarding routes, wrap them in a component that checks auth and redirects with <Navigate to=\"/login\" replace />. Keep URL state small and serializable — the URL is a share-friendly source of truth that survives reloads, deep links, and bookmarks.",
+    "codeExample": "import { useParams, useNavigate, useSearchParams } from 'react-router-dom';\n\nfunction UserPage() {\n  const { id } = useParams();\n  const [params, setParams] = useSearchParams();\n  const navigate = useNavigate();\n  return (\n    <div>\n      <h1>User {id} — tab {params.get('tab') || 'info'}</h1>\n      <button onClick={() => navigate(-1)}>Back</button>\n    </div>\n  );\n}"
+  },
+  {
+    "id": 22,
+    "title": "Fetching Data in React",
+    "subject": "React Day 22: Effects, loading, and errors",
+    "body": "The classic pattern for fetching data is useEffect plus three pieces of state: data, loading, error. Kick off the fetch when dependencies change, set loading true, and on success or failure update the state and set loading false. Always include an AbortController to cancel stale requests when the effect re-runs or the component unmounts. This avoids race conditions where a slower request resolves after a faster one. For anything beyond a few fetches, prefer a dedicated data library like TanStack Query or SWR: they handle caching, deduplication, background refresh, and pagination for you, dramatically reducing effect complexity. React 19 introduces the use hook and Suspense-based data fetching for tighter integration, but the classic effect pattern still works everywhere. Treat the three-state model as the baseline to beat.",
+    "codeExample": "function UserPanel({ id }) {\n  const [user, setUser] = useState(null);\n  const [loading, setLoading] = useState(true);\n  const [error, setError] = useState(null);\n\n  useEffect(() => {\n    const controller = new AbortController();\n    setLoading(true);\n    fetch(`/api/users/${id}`, { signal: controller.signal })\n      .then(r => r.json()).then(setUser).catch(setError)\n      .finally(() => setLoading(false));\n    return () => controller.abort();\n  }, [id]);\n\n  if (loading) return <Spinner />;\n  if (error) return <Error />;\n  return <h2>{user.name}</h2>;\n}"
+  },
+  {
+    "id": 23,
+    "title": "Performance: Key and List Optimization",
+    "subject": "React Day 23: Rendering long lists fast",
+    "body": "For small lists, React handles everything fine. For long lists — hundreds of thousands of rows — two things matter. First, keys must be stable identifiers, not indices, so React can reuse DOM nodes when items move. Second, consider virtualization: only render the rows currently in the viewport. Libraries like TanStack Virtual or react-window handle this with minimal code. Don't wrap every row in React.memo as a habit; memo only helps when the component is expensive and its props rarely change. For filtering and sorting, do the work once outside render (useMemo) rather than on every keystroke. Read-heavy lists benefit from keys + virtualization more than any other single optimization. Keep list-cell components slim; offload heavy derivation to the parent.",
+    "codeExample": "function RowList({ rows }) {\n  const sorted = useMemo(\n    () => [...rows].sort((a, b) => a.name.localeCompare(b.name)),\n    [rows]\n  );\n\n  return (\n    <ul>\n      {sorted.map(row => (\n        <Row key={row.id} row={row} />\n      ))}\n    </ul>\n  );\n}"
+  },
+  {
+    "id": 24,
+    "title": "React.memo",
+    "subject": "React Day 24: Skipping re-renders with memo",
+    "body": "React.memo wraps a component so it only re-renders when its props change by shallow equality. This matters when a parent re-renders frequently and a child's props are usually the same. Without memo, children always re-render with the parent even if nothing about them changed. With memo, they bail out if props are equal. But memo is only useful when the component is expensive to render or when you're rendering many of them. Gains are often smaller than expected because functions and object props from the parent are new references on every render — pair memo with useCallback and useMemo to preserve identity. Profile first; the Highlight Updates checkbox in the Profiler shows what actually re-renders. React 19's compiler memoizes a lot of this automatically, but understanding the principle still matters.",
+    "codeExample": "const Row = React.memo(function Row({ item, onSelect }) {\n  return (\n    <li onClick={() => onSelect(item.id)}>{item.name}</li>\n  );\n});\n\n// parent\nconst handleSelect = useCallback(id => setSelected(id), []);\n<Row key={item.id} item={item} onSelect={handleSelect} />"
+  },
+  {
+    "id": 25,
+    "title": "Error Boundaries",
+    "subject": "React Day 25: Catching render errors",
+    "body": "An error boundary is a class component that catches errors thrown during rendering, in lifecycle methods, or in constructors of child components. It uses componentDidCatch and getDerivedStateFromError to set error state and render a fallback UI instead of the broken tree. React does not yet provide a hook-based boundary (as of React 18); stick with a class component or a library like react-error-boundary for a hook-friendly wrapper. Wrap the top of your app and any risky subtrees (widgets, third-party integrations) in boundaries so a local failure doesn't take the whole page down. Boundaries catch render errors only — not event handlers, async code, or effects; handle those with try/catch or explicit error state. Log caught errors to your monitoring service to see what's happening in production.",
+    "codeExample": "class ErrorBoundary extends React.Component {\n  state = { err: null };\n  static getDerivedStateFromError(err) { return { err }; }\n  componentDidCatch(err, info) { report(err, info); }\n  render() {\n    if (this.state.err) return <p>Something went wrong.</p>;\n    return this.props.children;\n  }\n}\n\n<ErrorBoundary><Widget /></ErrorBoundary>"
+  },
+  {
+    "id": 26,
+    "title": "Portals",
+    "subject": "React Day 26: Rendering outside the parent DOM",
+    "body": "A portal renders a child component into a different DOM node than its React-tree parent. Use createPortal(children, container) from react-dom. Portals are perfect for modals, tooltips, popovers, and toasts — UI that must escape the parent's overflow, z-index, or transform context. Despite the different DOM location, a portal is still in the React component tree: events bubble up to the React parent, and context providers still apply. This gives you the best of both worlds: logically part of the tree, physically part of the top of the document. Create a dedicated root element (like <div id=\"modal-root\">) so your portals have a predictable mounting point. Don't overuse portals; most UI fits naturally in the parent DOM and portals can hide unexpected DOM dependencies.",
+    "codeExample": "import { createPortal } from 'react-dom';\n\nfunction Modal({ children, onClose }) {\n  return createPortal(\n    <div className=\"modal-backdrop\" onClick={onClose}>\n      <div className=\"modal\" onClick={e => e.stopPropagation()}>\n        {children}\n      </div>\n    </div>,\n    document.getElementById('modal-root')\n  );\n}"
+  },
+  {
+    "id": 27,
+    "title": "Lazy Loading and Suspense",
+    "subject": "React Day 27: Code splitting with lazy and Suspense",
+    "body": "React.lazy lets you import a component on demand instead of at initial load. Combine it with <Suspense fallback={...}> to show a placeholder while the chunk downloads. This shrinks the initial bundle and speeds up the first render. Route-based splitting is the easiest win: lazy-load each top-level page. Suspense is also the primitive for async data in modern React — libraries like Relay, TanStack Query (experimental), and Next.js App Router use it to suspend a tree until data arrives. Keep fallbacks meaningful: a skeleton that roughly matches the layout feels much better than a plain spinner. Nest Suspense boundaries to let different parts of a page stream in independently. Lazy loading with Suspense is the modern way to stage UI by priority.",
+    "codeExample": "import { Suspense, lazy } from 'react';\n\nconst Dashboard = lazy(() => import('./Dashboard'));\n\nfunction App() {\n  return (\n    <Suspense fallback={<Spinner />}>\n      <Dashboard />\n    </Suspense>\n  );\n}"
+  },
+  {
+    "id": 28,
+    "title": "Forwarding Refs",
+    "subject": "React Day 28: Exposing DOM refs from custom components",
+    "body": "By default, refs can only point to DOM elements. When you wrap an input in a custom Input component, attaching a ref directly to <Input /> does nothing. forwardRef lets your component accept a ref and forward it to a DOM node inside. Wrap your component with React.forwardRef((props, ref) => <input ref={ref} {...props} />). Combine with useImperativeHandle inside the wrapped component to expose a custom imperative API instead of the raw DOM node: focus(), scrollIntoView(). forwardRef is essential for reusable input components, animation libraries, and any component where the caller needs to interact with the DOM. Name the wrapper (displayName or the function name) for clean DevTools output. React 19 lets you pass ref as a normal prop on function components, removing much of the boilerplate.",
+    "codeExample": "const Input = React.forwardRef(function Input(props, ref) {\n  return <input ref={ref} {...props} />;\n});\n\nfunction Form() {\n  const ref = useRef(null);\n  useEffect(() => ref.current?.focus(), []);\n  return <Input ref={ref} placeholder=\"email\" />;\n}"
+  },
+  {
+    "id": 29,
+    "title": "useLayoutEffect",
+    "subject": "React Day 29: Synchronous effects for DOM measurements",
+    "body": "useLayoutEffect has the same signature as useEffect but runs synchronously after DOM updates and before the browser paints. Use it when you need to measure layout (element size, scroll position) and set state or adjust styles before the user sees the result. If you set state inside useEffect, the user sees one frame with the initial state, then another with the corrected value — a flicker. useLayoutEffect eliminates that by running in the same commit. The cost: blocking paint, so keep the work fast. Most effects should still use useEffect; reach for useLayoutEffect only when measurements require synchronous updates. In server-side rendering it doesn't run (and logs a warning), so gate any reference-dependent logic. When in doubt, start with useEffect and switch only when you see a flicker.",
+    "codeExample": "function Tooltip({ target, children }) {\n  const ref = useRef(null);\n  const [pos, setPos] = useState({ top: 0, left: 0 });\n  useLayoutEffect(() => {\n    const { top, left } = target.getBoundingClientRect();\n    setPos({ top: top - ref.current.offsetHeight, left });\n  }, [target]);\n  return <div ref={ref} style={pos}>{children}</div>;\n}"
+  },
+  {
+    "id": 30,
+    "title": "Keys for Dynamic Inputs",
+    "subject": "React Day 30: Resetting state with the key prop",
+    "body": "The key prop doesn't just identify list items — it also resets a component. When a component's key changes, React unmounts the old instance and mounts a fresh one, discarding any internal state. Use this to reset a form when a route parameter changes, clear a counter when the user switches tabs, or re-run an initialization effect. The pattern: wrap the component in its parent with key={something} and change that key when you want a reset. Compared to duplicating state initialization code in an effect, key-based resets are declarative and bug-free. Watch out: changing keys on every render causes constant remounts and wipes out state forever. The key must change only when a reset is intended. This small feature is one of React's most elegant control knobs.",
+    "codeExample": "function UserEditor({ userId }) {\n  // each userId change resets the form\n  return <EditForm key={userId} userId={userId} />;\n}\n\nfunction EditForm({ userId }) {\n  const [name, setName] = useState('');\n  // ... initial empty every time the key changes\n}"
+  },
+  {
+    "id": 31,
+    "title": "Styling in React",
+    "subject": "React Day 31: Common styling approaches",
+    "body": "There are many ways to style React components, each with tradeoffs. Plain CSS files scoped by class naming conventions (BEM) are simple and fast. CSS Modules scope class names automatically per file. CSS-in-JS libraries like styled-components or Emotion co-locate styles with components and support dynamic props. Utility-first frameworks like Tailwind skip custom CSS and compose small utility classes in JSX, which scales well and integrates with design tokens. For small components, the inline style prop works: style={{ color: 'red' }}. Mix and match sparingly — one approach per project is easiest to navigate. Classnames libraries like clsx or classnames make conditional class logic readable. Whatever you choose, keep styles close to the components they belong to and rely on tokens (spacing, colors) rather than magic numbers.",
+    "codeExample": "import clsx from 'clsx';\n\nfunction Button({ primary, children }) {\n  return (\n    <button className={clsx('btn', primary && 'btn-primary')}>\n      {children}\n    </button>\n  );\n}\n\n// tailwind\n<button className=\"px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700\">Save</button>"
+  },
+  {
+    "id": 32,
+    "title": "Accessing the DOM",
+    "subject": "React Day 32: When to touch the DOM directly",
+    "body": "React wants you to describe UI and let it handle the DOM. Most of the time that's enough. But sometimes you need direct DOM access: focus management, scroll position, text selection, integrating with a non-React library that expects a DOM node. The standard tool is useRef to get a handle on the element, then read or call imperative APIs in an effect. Avoid mutating DOM that React owns — don't innerHTML a node that also has React children — because React will overwrite it on the next render. Read-only access (measuring, attaching observers) is always safe. When integrating a DOM-based library like Chart.js or a D3 viz, render an empty container and let the library manage its children; clean up in the effect's return to tear down the library instance on unmount.",
+    "codeExample": "function Scroller({ toBottom }) {\n  const ref = useRef(null);\n  useEffect(() => {\n    if (toBottom && ref.current) {\n      ref.current.scrollTop = ref.current.scrollHeight;\n    }\n  }, [toBottom]);\n  return <div ref={ref} className=\"list\"> ... </div>;\n}"
+  },
+  {
+    "id": 33,
+    "title": "Render Props",
+    "subject": "React Day 33: Sharing logic via a function prop",
+    "body": "A render prop is a function prop that a component calls to render part of its output. The pattern was popular before hooks because it let you share stateful logic between components. A <MouseTracker render={({ x, y }) => <p>{x},{y}</p>} /> owns mouse position state and hands it to the render prop. Today, hooks replace most render-prop use cases: extract the state and effects into useMousePosition, call it in any component, and let the caller render however it wants. Render props are still useful when the provider truly controls a subtree or when a library exposes them for flexibility (headless UI libraries often use them). Children-as-function is the same idea with children being the function. Hooks are simpler for most sharing; render props remain a valid pattern.",
+    "codeExample": "function MouseTracker({ render }) {\n  const [pos, setPos] = useState({ x: 0, y: 0 });\n  useEffect(() => {\n    const onMove = e => setPos({ x: e.clientX, y: e.clientY });\n    window.addEventListener('mousemove', onMove);\n    return () => window.removeEventListener('mousemove', onMove);\n  }, []);\n  return render(pos);\n}\n\n<MouseTracker render={({ x, y }) => <p>{x},{y}</p>} />"
+  },
+  {
+    "id": 34,
+    "title": "Higher-Order Components (HOCs)",
+    "subject": "React Day 34: HOCs and why hooks replaced them",
+    "body": "A higher-order component is a function that takes a component and returns a new component with extra props or behavior. Think withAuth(Page) returning a page that only renders when the user is logged in. HOCs were a standard tool in class-component React for cross-cutting concerns: routing, theming, data injection. They work but add nesting layers that make component trees messy and prop origins hard to trace. Hooks replace almost every HOC use case: encapsulate the same logic in a custom hook and call it inside the component that needs it. HOCs remain useful for library integrations (react-redux's connect, early react-router) and for wrapping a class component when you can't convert it. Prefer hooks in new code, and when migrating, move HOC logic into custom hooks one step at a time.",
+    "codeExample": "function withAuth(Component) {\n  return function Authed(props) {\n    const { user } = useContext(AuthContext);\n    if (!user) return <Login />;\n    return <Component {...props} user={user} />;\n  };\n}\n\nconst Profile = withAuth(function Profile({ user }) {\n  return <h1>{user.name}</h1>;\n});"
+  },
+  {
+    "id": 35,
+    "title": "Server vs Client Components",
+    "subject": "React Day 35: The RSC model at a glance",
+    "body": "React Server Components (RSCs) are a newer model where some components render only on the server, never shipping their code to the browser. They can read files, query databases, and keep secrets out of the client bundle. Client components — anything that uses state, effects, or browser APIs — still render on the client. Frameworks like Next.js App Router let you mix both: a server component can render client components, but not vice versa (except through children). This split shifts work off the client and shrinks bundles. You opt into client with 'use client' at the top of a file. Not every app needs RSCs: a SPA with Vite + react-router works great. Understanding the model matters as frameworks adopt it, but choose based on your app's needs, not fashion.",
+    "codeExample": "// app/page.tsx (server by default in Next App Router)\nimport Client from './Client';\nimport { db } from '../lib/db';\nexport default async function Page() {\n  const users = await db.user.findMany();\n  return <Client users={users} />;\n}\n\n// app/Client.tsx\n'use client';\nexport default function Client({ users }) {\n  return <ul>{users.map(u => <li key={u.id}>{u.name}</li>)}</ul>;\n}"
+  },
+  {
+    "id": 36,
+    "title": "Strict Mode",
+    "subject": "React Day 36: Development-only double-invokes",
+    "body": "<React.StrictMode> is a development-only component that activates extra checks for its subtree. It double-invokes function bodies, state updaters, and effects (mount → cleanup → mount again) to surface bugs caused by impure rendering or missing cleanup. It also warns on deprecated APIs and unsafe lifecycle methods. Strict Mode does not change production behavior — no effect runs twice in prod. If you see your effect running twice in dev, the fix is to handle that correctly (idempotent logic, proper cleanup), not to disable Strict Mode. Wrap your app root with it in new projects and enjoy earlier bug detection. When code misbehaves under Strict Mode, it has a latent bug that will eventually bite in React 18's concurrent features. Investigate, don't suppress.",
+    "codeExample": "// main.tsx\nimport { StrictMode } from 'react';\nimport { createRoot } from 'react-dom/client';\nimport App from './App';\n\ncreateRoot(document.getElementById('root')).render(\n  <StrictMode>\n    <App />\n  </StrictMode>\n);"
+  },
+  {
+    "id": 37,
+    "title": "useId",
+    "subject": "React Day 37: Stable unique IDs for accessibility",
+    "body": "useId generates a unique ID that is stable across server and client renders. Use it for pairing labels with inputs, for aria-describedby, and for any attribute that needs a unique identifier. Don't use it for list keys; useId is for markup IDs, not for identifying items in data. Each call returns a different id, so if an element needs multiple related ids, derive them from one base: `${baseId}-label`, `${baseId}-description`. Before useId, developers relied on random or counter-based ids, which caused hydration mismatches between server and client. useId avoids that entirely. It is small, boring, and essential: accessible forms need associated labels, and useId makes that association painless in reusable components.",
+    "codeExample": "function Field({ label, ...props }) {\n  const id = useId();\n  return (\n    <div>\n      <label htmlFor={id}>{label}</label>\n      <input id={id} {...props} />\n    </div>\n  );\n}"
+  },
+  {
+    "id": 38,
+    "title": "Debugging with React DevTools",
+    "subject": "React Day 38: Inspecting the component tree",
+    "body": "React DevTools is a browser extension for Chrome, Edge, and Firefox that lets you inspect the React component tree, see props and state, and profile renders. The Components tab shows the tree with its current props and hooks. You can edit values live to test different states. The Profiler tab records a session and shows which components rendered, how long each took, and why — an invaluable tool for finding unnecessary re-renders. Turn on “Highlight updates when components render” to see re-renders in real time. useDebugValue in a custom hook adds a label in DevTools so callers understand what the hook is doing. Name your components (no anonymous arrow-exported components) for cleaner trees. DevTools is the difference between guessing and knowing when tuning a React app.",
+    "codeExample": "function useOnlineStatus() {\n  const [online, setOnline] = useState(navigator.onLine);\n  useEffect(() => {\n    const on = () => setOnline(true);\n    const off = () => setOnline(false);\n    window.addEventListener('online', on);\n    window.addEventListener('offline', off);\n    return () => {\n      window.removeEventListener('online', on);\n      window.removeEventListener('offline', off);\n    };\n  }, []);\n  useDebugValue(online ? 'Online' : 'Offline');\n  return online;\n}"
+  },
+  {
+    "id": 39,
+    "title": "Form Libraries",
+    "subject": "React Day 39: Why and when to use React Hook Form",
+    "body": "Managing complex forms with plain useState becomes painful: validation, error messages, nested fields, arrays, async submits, dirty tracking, touched fields. React Hook Form (RHF) addresses these with a performant, minimal API that uses uncontrolled inputs under the hood. You register each field, the library manages state internally, and you get validation, error objects, and handleSubmit with almost no boilerplate. RHF integrates with schema libraries like Zod and Yup via resolvers: define a schema once, and RHF generates errors matching it. Formik and Final Form are alternatives with their own styles. For simple forms, useState is enough; for anything with validation and dynamic fields, a library saves hours. The payoff is less code, fewer re-renders per keystroke, and a clearer separation between form state and UI.",
+    "codeExample": "// conceptual React Hook Form\nfunction Signup() {\n  const { register, handleSubmit, formState: { errors } } =\n    useForm({ resolver: zodResolver(SignupSchema) });\n\n  return (\n    <form onSubmit={handleSubmit(onSubmit)}>\n      <input {...register('email')} />\n      {errors.email && <p>{errors.email.message}</p>}\n      <button>Sign up</button>\n    </form>\n  );\n}"
+  },
+  {
+    "id": 40,
+    "title": "Data Fetching Libraries",
+    "subject": "React Day 40: TanStack Query and SWR",
+    "body": "Once your app fetches more than a couple of endpoints, managing loading states, errors, caching, and revalidation by hand becomes tedious. TanStack Query (formerly React Query) and SWR are two popular libraries that solve this. You write a queryKey and a queryFn; the library handles caching, deduplication, background refetch, pagination, and stale-while-revalidate. Mutations with optimistic updates become straightforward. Both libraries give you an isolated cache per key, automatic retries, and rich DevTools for inspecting queries. They change how you think about data: the server is the source of truth, and your UI reads from a cache that the library keeps in sync. Pair with suspense-mode for tighter integration. Most teams reach for one of these within the first week of a non-trivial React app.",
+    "codeExample": "// TanStack Query, conceptually\nfunction UserProfile({ id }) {\n  const { data, isLoading, error } = useQuery({\n    queryKey: ['user', id],\n    queryFn: () => fetch(`/api/users/${id}`).then(r => r.json())\n  });\n  if (isLoading) return <Spinner />;\n  if (error) return <Error />;\n  return <h1>{data.name}</h1>;\n}"
+  },
+  {
+    "id": 41,
+    "title": "State Management Libraries",
+    "subject": "React Day 41: Redux, Zustand, Jotai and when to need them",
+    "body": "Context + useReducer covers a lot of ground, but for apps with deep cross-cutting state, a dedicated library helps. Redux (with Redux Toolkit) is the mature choice: predictable state updates via reducers, middleware for side effects, and superb DevTools. Zustand offers a much simpler API — one store, hooks to subscribe to slices — without reducers or providers. Jotai and Recoil take an atomic approach: independent atoms compose into derived atoms. Choose based on complexity: small app, useState and Context; medium app, Zustand; large app with many developers and predictable flows, Redux Toolkit. Don't reach for a state library before you have a concrete problem that lifting state and Context can't solve cleanly. Most performance complaints from Context come from un-memoized values; try fixing that first.",
+    "codeExample": "// Zustand, conceptually\nimport { create } from 'zustand';\nconst useStore = create(set => ({\n  count: 0,\n  inc: () => set(s => ({ count: s.count + 1 }))\n}));\n\nfunction Counter() {\n  const count = useStore(s => s.count);\n  const inc = useStore(s => s.inc);\n  return <button onClick={inc}>{count}</button>;\n}"
+  },
+  {
+    "id": 42,
+    "title": "Testing React Components",
+    "subject": "React Day 42: React Testing Library",
+    "body": "React Testing Library (RTL) is the de facto standard for testing React. It encourages testing from the user's perspective: find elements by their role, label, or text, interact with them, assert visible outcomes. Avoid testing implementation details like state or internal methods — those change during refactors even when behavior doesn't. Use screen.getByRole('button', { name: /save/i }) and userEvent.click to simulate interaction. Run tests with Vitest or Jest. For async work, findBy queries wait for elements to appear. Mock network requests with MSW (Mock Service Worker) — it intercepts real fetches, so tests match production behavior closely. Good tests document behavior and catch regressions; bad tests break on every refactor. Aim for a few integration tests that exercise key flows, supported by a wider net of small unit tests for pure functions.",
+    "codeExample": "import { render, screen } from '@testing-library/react';\nimport userEvent from '@testing-library/user-event';\n\ntest('counts up when clicked', async () => {\n  render(<Counter />);\n  await userEvent.click(screen.getByRole('button', { name: /\\+/ }));\n  expect(screen.getByText('1')).toBeInTheDocument();\n});"
+  },
+  {
+    "id": 43,
+    "title": "Accessibility in React",
+    "subject": "React Day 43: Building accessible UIs",
+    "body": "Accessibility (a11y) is how well everyone — including users of screen readers, keyboards, and assistive devices — can use your app. Key rules: use semantic HTML (button, a, form, label), associate labels with inputs, set alt text on images, manage focus (especially in modals and on route changes), and respect keyboard navigation. React renders exactly the HTML you tell it to, so HTML correctness carries over. Use htmlFor and id (with useId) to pair labels; use aria-* attributes only when semantic HTML isn't enough. Libraries like Radix UI and React Aria give you accessible primitives for complex widgets (dropdown, dialog, combobox) so you don't have to implement the WAI-ARIA patterns yourself. Run tools like axe-core and react-axe in development to catch issues early. Accessibility is a feature, not an extra.",
+    "codeExample": "function Field({ id, label, ...props }) {\n  const rid = id ?? useId();\n  return (\n    <>\n      <label htmlFor={rid}>{label}</label>\n      <input id={rid} aria-required=\"true\" {...props} />\n    </>\n  );\n}\n\n<button aria-label=\"Close\" onClick={onClose}>&times;</button>"
+  },
+  {
+    "id": 44,
+    "title": "Animations in React",
+    "subject": "React Day 44: Animating UI changes",
+    "body": "CSS is usually the best place to do simple animations: hover states, fades, slide-ins with transitions or keyframes. For component-level animations tied to mounting and unmounting, reach for Framer Motion or React Spring. Framer Motion's motion components accept initial, animate, and exit props, with layout animations that tween between positions when elements move. AnimatePresence handles exit animations for removed components. For fine-grained physics-based interactions, React Spring excels. Keep animations purposeful: they guide attention and communicate state changes. Avoid animating for the sake of it — long animations feel slow. Use the reduce-motion media query or the usePrefersReducedMotion hook to respect users who prefer fewer animations, and disable or shorten motions accordingly. A calm UI is a fast UI.",
+    "codeExample": "// Framer Motion, conceptually\nimport { motion, AnimatePresence } from 'framer-motion';\n\n<AnimatePresence>\n  {open && (\n    <motion.div\n      initial={{ opacity: 0, y: 10 }}\n      animate={{ opacity: 1, y: 0 }}\n      exit={{ opacity: 0, y: 10 }}\n    >\n      Drawer content\n    </motion.div>\n  )}\n</AnimatePresence>"
+  },
+  {
+    "id": 45,
+    "title": "The React Compiler",
+    "subject": "React Day 45: Auto-memoization with React Compiler",
+    "body": "The React Compiler (in preview at time of writing) is a build-time tool that analyzes your components and automatically inserts memoization — so you don't have to sprinkle useMemo, useCallback, and React.memo throughout your code. When enabled, the compiler understands which values in your components are stable and which parts of the tree can be skipped on re-render. The programming model stays the same: write simple components, let the compiler optimize. If your code follows the rules of hooks and isn't doing strange mutations, the compiler just works. It is opt-in today; check its release notes for your project. Until it is fully standard, apply useMemo/useCallback deliberately where profiling proves they help. The takeaway: React wants to free you from manual memoization — write clear, correct code first.",
+    "codeExample": "// With the compiler, this becomes memoized automatically:\nfunction List({ items, onSelect }) {\n  const sorted = [...items].sort((a, b) => a.name.localeCompare(b.name));\n  return (\n    <ul>\n      {sorted.map(it => (\n        <li key={it.id} onClick={() => onSelect(it.id)}>{it.name}</li>\n      ))}\n    </ul>\n  );\n}"
+  },
+  {
+    "id": 46,
+    "title": "Working with Environment Variables",
+    "subject": "React Day 46: Vite and CRA env vars",
+    "body": "Environment variables let you change configuration per environment without editing code. In Vite, env vars prefixed with VITE_ are embedded at build time and available at import.meta.env.VITE_*. In Create React App, the prefix is REACT_APP_. In Next.js, client-exposed vars use NEXT_PUBLIC_. Keep production secrets server-side; anything you prefix and use in the browser bundle becomes public. Use .env for shared defaults and .env.local for developer-specific overrides (and add .env.local to .gitignore). Document all supported env vars in your README or a .env.example file. At runtime, wrap reads in a central config module so a single place knows about each var. Switching between dev, staging, and prod should be a matter of env files, not code changes.",
+    "codeExample": "// Vite\nconst apiUrl = import.meta.env.VITE_API_URL;\n\n// CRA\nconst apiUrl2 = process.env.REACT_APP_API_URL;\n\n// config.ts\nexport const config = {\n  apiUrl: import.meta.env.VITE_API_URL ?? 'http://localhost:5000',\n  featureFlag: import.meta.env.VITE_FEATURE_X === 'true'\n};"
+  },
+  {
+    "id": 47,
+    "title": "Code Splitting Strategies",
+    "subject": "React Day 47: Splitting bundles for faster first loads",
+    "body": "Code splitting divides your JavaScript into smaller chunks that load on demand, reducing the initial download. The easiest wins are route-based splits: lazy-load each top-level page with React.lazy + Suspense. Component-based splits work for heavy modals, rich editors, charts, and admin tools that most users don't need. Route-based is a great default; component-based is a scalpel. Dynamic import() expressions tell bundlers (Vite, webpack) where to cut the bundle. Avoid over-splitting; too many tiny chunks cost latency. Aim for a small initial bundle (under 200 KB gzipped is a common target), then split aggressively at async boundaries. Use the bundle analyzer plugin to see what's heavy — often a huge dependency like date-fns, lodash, or a rich text editor is a great candidate for lazy loading.",
+    "codeExample": "const Admin = lazy(() => import('./Admin'));\nconst RichEditor = lazy(() => import('./RichEditor'));\n\n<Suspense fallback={<Spinner />}>\n  <Routes>\n    <Route path=\"/admin/*\" element={<Admin />} />\n    <Route path=\"/editor\" element={<RichEditor />} />\n  </Routes>\n</Suspense>"
+  },
+  {
+    "id": 48,
+    "title": "Server-Side Rendering",
+    "subject": "React Day 48: Rendering React on the server",
+    "body": "Server-side rendering (SSR) runs React on the server to produce HTML for the initial page load, which the browser hydrates into an interactive app. Benefits include faster first meaningful paint, better SEO (search bots see content without running JS), and lower client compute on low-end devices. Frameworks like Next.js, Remix, and Astro handle the heavy lifting — routing, data fetching, caching, streaming. With React 18's renderToPipeableStream, you can stream chunks of HTML as the server generates them and let browsers start rendering earlier. Hydration must match the server-rendered markup; mismatches cause warnings and sometimes flash-of-unstyled-content. For mostly-static content, static-site generation (SSG) produces even faster loads than SSR. Choose between CSR (SPA), SSR, SSG, and hybrid depending on interactivity and data freshness needs.",
+    "codeExample": "// conceptual: Next.js App Router\n// app/page.tsx (server component)\nasync function Page() {\n  const posts = await fetch('https://api.example.com/posts')\n    .then(r => r.json());\n  return (\n    <ul>\n      {posts.map(p => <li key={p.id}>{p.title}</li>)}\n    </ul>\n  );\n}"
+  },
+  {
+    "id": 49,
+    "title": "Hydration",
+    "subject": "React Day 49: Making server-rendered HTML interactive",
+    "body": "Hydration is the process that turns server-rendered HTML into an interactive React app. React matches the existing markup to its component tree, attaches event handlers, and wires up state — without re-rendering the DOM from scratch. The server-rendered output and the client's first render must match exactly, or React logs a hydration mismatch warning and may have to fall back to a client render. Common causes of mismatch: date formatting that differs between server and client, environment-dependent code (window), random values, or content that depends on browser-only APIs. Gate browser-only logic behind an effect so it runs after hydration. Use useSyncExternalStore for subscriptions that produce different values on server and client. Selective and concurrent hydration in React 18 let you hydrate a subtree on interaction, making pages interactive sooner.",
+    "codeExample": "// only run on client\nfunction ThemeLabel() {\n  const [mounted, setMounted] = useState(false);\n  useEffect(() => setMounted(true), []);\n  if (!mounted) return null;\n  return <span>{document.body.dataset.theme}</span>;\n}"
+  },
+  {
+    "id": 50,
+    "title": "Thinking in React",
+    "subject": "React Day 50: Designing components top-down",
+    "body": "Designing a React UI starts with breaking the design into a tree of components, each with a single responsibility. Then decide what data each needs. Identify the minimal state: the smallest set of pieces from which everything else can be derived. Move state to the lowest common ancestor that needs to know about it. Pass data down as props and events up as callbacks. If the tree becomes awkward to wire, consider Context or a small store. This top-down process keeps complexity bounded. Avoid global state for things that belong to a subtree; avoid local state for things that belong to many places. Writing components becomes mechanical once you've decided on the shape. The design, not the rendering, is where the thinking happens. This mindset scales from a tiny widget to a full product.",
+    "codeExample": "// top-down sketch\nfunction App() {\n  const [filter, setFilter] = useState('');\n  const [products] = useFetch('/api/products');\n  return (\n    <>\n      <SearchBar filter={filter} onChange={setFilter} />\n      <ProductTable products={products} filter={filter} />\n    </>\n  );\n}"
+  },
+  {
+    "id": 51,
+    "title": "Local Storage and React",
+    "subject": "React Day 51: Persisting state to the browser",
+    "body": "To persist a slice of state across reloads, synchronize it with localStorage. Build a custom useLocalStorage hook: read the initial value from localStorage (lazy initializer), and write back in an effect whenever it changes. Wrap the JSON parse in try/catch to handle corrupted data. Remember two subtleties: localStorage is synchronous and blocks the main thread for large writes, and its value is plain strings that need serialization. For complex data, consider IndexedDB via a library like idb. Never store sensitive data — auth tokens, personal info — in localStorage; it's readable by any script on the same origin. For cross-tab sync, listen for the storage event. The pattern is simple but useful for preferences (theme, filters, draft content), and you'll write it once and reuse it everywhere.",
+    "codeExample": "function useLocalStorage(key, initial) {\n  const [value, setValue] = useState(() => {\n    try { return JSON.parse(localStorage.getItem(key)) ?? initial; }\n    catch { return initial; }\n  });\n  useEffect(() => {\n    localStorage.setItem(key, JSON.stringify(value));\n  }, [key, value]);\n  return [value, setValue];\n}"
+  },
+  {
+    "id": 52,
+    "title": "useTransition and useDeferredValue",
+    "subject": "React Day 52: Keeping the UI responsive with transitions",
+    "body": "React 18's concurrent features let you mark updates as low-priority so urgent ones (typing, clicks) stay responsive. useTransition returns [isPending, startTransition]. Wrap a slow state update in startTransition and React may keep the old UI visible while computing the new one, avoiding jank. isPending gives you a chance to show a subtle indicator. useDeferredValue is similar for derived values: pass a value and get a deferred copy that lags behind during heavy work. Both are useful for search filters over large lists, route transitions, and anything where urgent input shouldn't wait for a slow render. They don't make rendering faster — they shift priority so the important bits render first. Use them when a user-visible laggy typing or click is the problem; avoid sprinkling them everywhere.",
+    "codeExample": "const [isPending, startTransition] = useTransition();\n\nfunction handleChange(e) {\n  setQuery(e.target.value);                 // urgent: keep input responsive\n  startTransition(() => {\n    setResults(filter(items, e.target.value)); // low priority\n  });\n}\n\nconst deferredQuery = useDeferredValue(query);"
+  },
+  {
+    "id": 53,
+    "title": "Optimistic UI",
+    "subject": "React Day 53: Showing changes before the server confirms",
+    "body": "Optimistic UI updates the screen assuming the server will succeed, then reconciles when the real response arrives. It makes apps feel instant. Pattern: when the user sends an action, apply the change to local state, fire the request in the background, and on response either keep the change or revert with an error message. Libraries like TanStack Query and Apollo build this into mutations with rollbacks for free. Use optimistic UI for actions where the expected outcome is predictable (toggling a like, adding a todo) and where reverting on failure is safe. Avoid it for critical flows with multiple dependent writes or where inconsistency would confuse the user. React 19 adds useOptimistic, a built-in hook that models the pattern directly. The win is UX: perceived speed is often more important than raw performance.",
+    "codeExample": "// React 19 conceptually\nfunction Likes({ post }) {\n  const [optimistic, addOptimistic] = useOptimistic(\n    post.likes,\n    (state, delta) => state + delta\n  );\n  async function like() {\n    addOptimistic(1);\n    await fetch(`/api/posts/${post.id}/like`, { method: 'POST' });\n  }\n  return <button onClick={like}>♥ {optimistic}</button>;\n}"
+  },
+  {
+    "id": 54,
+    "title": "Forms with Actions (React 19)",
+    "subject": "React Day 54: The action prop",
+    "body": "React 19 integrates forms more tightly with async actions. Pass a function to a form's action prop and React handles the submission for you — preventing default, calling your async function with FormData, and tracking pending state. The new useActionState hook gives you [state, action, isPending] to drive UIs with pending feedback and server errors. This model pairs naturally with server functions in frameworks like Next.js, but it works in client-only apps too. The upside: dramatically less boilerplate for the common form flow, consistent loading states, and automatic reset on success. Existing onSubmit-based forms keep working. For simple cases, switch to actions to reduce code; for complex forms with fine-grained state, React Hook Form is still excellent. Understand both and pick per form.",
+    "codeExample": "// React 19\nasync function submit(formData) {\n  const res = await fetch('/api/signup', {\n    method: 'POST',\n    body: formData\n  });\n  if (!res.ok) return { error: 'Failed' };\n  return { ok: true };\n}\n\nfunction Signup() {\n  const [state, action, pending] = useActionState(submit, null);\n  return (\n    <form action={action}>\n      <input name=\"email\" />\n      <button disabled={pending}>Submit</button>\n      {state?.error && <p>{state.error}</p>}\n    </form>\n  );\n}"
+  },
+  {
+    "id": 55,
+    "title": "Integrating Non-React Libraries",
+    "subject": "React Day 55: Using DOM libraries with React",
+    "body": "Libraries like D3, Chart.js, Leaflet, and rich text editors operate directly on DOM nodes. To integrate them, render a container div with a ref, initialize the library in an effect, and tear it down in the cleanup. Let the library manage its subtree; don't render React children inside the container. Pass props through to the library by calling its imperative update APIs in a second effect whose deps are the changing props. For SSR-incompatible libraries, gate initialization inside useEffect (which never runs on the server) or lazy-load them on the client. Wrapping these libraries in a small custom hook isolates the imperative code in one place. Done well, React components become a clean facade around imperative APIs, giving you the best of both worlds without fighting either.",
+    "codeExample": "function Chart({ data }) {\n  const ref = useRef(null);\n  const chartRef = useRef(null);\n\n  useEffect(() => {\n    chartRef.current = new ChartLib(ref.current, { data });\n    return () => chartRef.current.destroy();\n  }, []);\n\n  useEffect(() => {\n    chartRef.current?.update(data);\n  }, [data]);\n\n  return <div ref={ref} style={{ width: 400, height: 300 }} />;\n}"
+  },
+  {
+    "id": 56,
+    "title": "Patterns: Compound Components",
+    "subject": "React Day 56: Designing flexible component APIs",
+    "body": "Compound components are a pattern where a parent component works together with a set of sibling components to form a cohesive API. <Tabs><Tabs.List><Tabs.Tab /></Tabs.List><Tabs.Panel /></Tabs>. Under the hood, the parent shares state via Context or by cloning children; consumers compose the pieces flexibly. The API reads naturally and mirrors the DOM structure. Compound components shine for widgets with many sub-parts: dropdowns, tabs, menus, accordions. They allow consumers to skip, reorder, or restyle the pieces without sacrificing shared state. Libraries like Radix UI and Headless UI expose compound-component APIs for accessible primitives. Trade-off: the pattern is slightly more complex to implement than a monolithic component. Use it when users of your component want flexibility you can't predict with fixed props.",
+    "codeExample": "const TabsContext = createContext(null);\nfunction Tabs({ value, onChange, children }) {\n  return <TabsContext.Provider value={{ value, onChange }}>{children}</TabsContext.Provider>;\n}\nTabs.Tab = function Tab({ id, children }) {\n  const { value, onChange } = useContext(TabsContext);\n  return <button aria-selected={value === id} onClick={() => onChange(id)}>{children}</button>;\n};\n<Tabs value={tab} onChange={setTab}><Tabs.Tab id=\"a\">A</Tabs.Tab></Tabs>"
+  },
+  {
+    "id": 57,
+    "title": "Patterns: Controlled and Uncontrolled Components",
+    "subject": "React Day 57: Designing dual-mode components",
+    "body": "Many component APIs support both controlled and uncontrolled modes. If the caller provides a value and onChange, the component acts controlled. Otherwise, it falls back to internal state with an optional defaultValue. Implement with useUncontrolled or a custom hook that chooses between props and local state. This pattern is how built-in HTML inputs work and is the standard for reusable form components. It gives callers flexibility: throwaway usage doesn't need wiring, while complex forms can take full control. The hardest part is making sure both modes behave consistently — default values apply only when uncontrolled, and switching between modes mid-life is not supported. Dual-mode components are a signature of polished component libraries; they reduce friction for simple uses without limiting power users.",
+    "codeExample": "function useControllable({ value, defaultValue, onChange }) {\n  const [internal, setInternal] = useState(defaultValue);\n  const isControlled = value !== undefined;\n  const val = isControlled ? value : internal;\n  const set = (v) => {\n    if (!isControlled) setInternal(v);\n    onChange?.(v);\n  };\n  return [val, set];\n}"
+  },
+  {
+    "id": 58,
+    "title": "Rules of Hooks",
+    "subject": "React Day 58: Why hooks have rules",
+    "body": "Hooks rely on being called in the same order on every render. That is why the rules of hooks say: only call hooks at the top level (never inside ifs, loops, or nested functions) and only call them from React function components or other hooks. React identifies each hook by its call index, not its name; reordering calls between renders would associate state with the wrong hook. The eslint-plugin-react-hooks rule enforces both rules automatically and flags common mistakes like missing effect dependencies. If you find yourself needing a hook conditionally, split the component into smaller ones, or always call the hook and let its input control its behavior. The rules are strict but predictable; once you internalize them, hooks become second nature.",
+    "codeExample": "// wrong: conditional hook\nfunction Wrong({ enabled }) {\n  if (enabled) {\n    const [v, setV] = useState(0);\n  }\n}\n\n// right: always call, gate behavior\nfunction Right({ enabled }) {\n  const [v, setV] = useState(0);\n  useEffect(() => {\n    if (!enabled) return;\n    /* ... */\n  }, [enabled]);\n}"
+  },
+  {
+    "id": 59,
+    "title": "File Structure for React Apps",
+    "subject": "React Day 59: Organizing code as it grows",
+    "body": "Early in a project, keep everything in src/components and src/pages. As the app grows, prefer feature-based folders: src/features/users/ with its components, hooks, types, and API calls together. This scales better than purely horizontal folders (all components, all hooks) because features change as units. Keep shared primitives in src/components/ui or src/components/common. Put cross-cutting concerns — auth, routing, query client — in src/lib or src/services. Co-locate tests next to the code they test (Component.test.tsx in the same folder). Absolute imports via tsconfig paths (@/features/users) make refactors easier than deep ../../../. relative paths. Whatever structure you pick, consistency matters more than any particular choice; align the team and document the conventions in README or CONTRIBUTING.",
+    "codeExample": "// src/\n// ├── features/\n// │   ├── users/\n// │   │   ├── UserList.tsx\n// │   │   ├── UserCard.tsx\n// │   │   ├── useUsers.ts\n// │   │   └── api.ts\n// │   └── auth/\n// ├── components/ui/\n// │   ├── Button.tsx\n// │   └── Input.tsx\n// ├── lib/api.ts\n// └── App.tsx"
+  },
+  {
+    "id": 60,
+    "title": "What's Next After React",
+    "subject": "React Day 60: Growing beyond the basics",
+    "body": "You have covered the core of React. The natural next steps depend on what you build. For product apps, learn a meta-framework like Next.js or Remix — they handle routing, data, SSR, and deployment in opinionated ways. For real-time collaboration, look at state sync engines (Yjs, Liveblocks) and WebSockets. For mobile, React Native uses the same mental model with native views. For complex data, dig into TanStack Query and TanStack Router. For design systems, study Radix UI, Tailwind, and headless component patterns. For performance, learn the profiler, memoization, virtualization, and React 19's Compiler. Most importantly, build things. Pick a project a little beyond your comfort, and learn the specific techniques you need for it. Congratulations — you have completed the 60-day React series.",
+    "codeExample": "// Your next project:\n// 1. Pick a real problem.\n// 2. Sketch components.\n// 3. Identify minimal state.\n// 4. Build vertical slices.\n// 5. Ship it.\n//\n// The docs you'll come back to:\n// - react.dev\n// - tanstack.com\n// - react-router.com\n// - testing-library.com"
+  }
+]

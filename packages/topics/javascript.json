@@ -1,0 +1,422 @@
+[
+  {
+    "id": 1,
+    "title": "Variables: let, const, and var",
+    "subject": "JavaScript Day 1: Declaring variables with let, const, and var",
+    "body": "In JavaScript we store data in variables using three keywords: var, let, and const. Think of a variable as a labeled box in memory. The keyword you choose decides how that box behaves. Use const when the value should never be reassigned, which covers most cases in modern code. Use let when you plan to reassign the value later, like a counter in a loop. Avoid var in new code: it was the original keyword but it has quirky rules around scope and hoisting that caused bugs for years. Both let and const are block-scoped, meaning they only exist inside the nearest curly braces. A good habit is to start with const; if the linter tells you the variable is reassigned, switch it to let. Never leave a variable undeclared — that creates an accidental global. Picking the right keyword is the very first design decision in every line of JavaScript you write.",
+    "codeExample": "const name = 'Ada';      // cannot be reassigned\nlet score = 0;           // will change over time\nscore = score + 10;\n\n// const protects the binding, not the contents:\nconst user = { age: 30 };\nuser.age = 31;           // allowed\n// user = {};            // TypeError"
+  },
+  {
+    "id": 2,
+    "title": "Primitive Data Types",
+    "subject": "JavaScript Day 2: The seven primitive types",
+    "body": "Every value in JavaScript is either a primitive or an object. Primitives are the atomic building blocks: string, number, boolean, null, undefined, bigint, and symbol. Strings hold text in quotes, numbers cover both integers and decimals (there is no separate int type), and booleans are just true or false. null is the value you set intentionally to say “nothing here,” while undefined is what JavaScript gives you automatically when a value has not been assigned. bigint handles integers larger than Number.MAX_SAFE_INTEGER, and symbol creates unique identifiers often used as object keys. Primitives are immutable — you cannot change a string in place; you create a new one. They are also compared by value, not by reference. Understanding the primitive types is the foundation for every other topic: operators behave differently per type, functions expect certain types, and many bugs come from mixing them up, especially null versus undefined.",
+    "codeExample": "typeof 'hello';     // 'string'\ntypeof 42;          // 'number'\ntypeof true;        // 'boolean'\ntypeof undefined;   // 'undefined'\ntypeof null;        // 'object' (historical bug)\ntypeof 10n;         // 'bigint'\ntypeof Symbol('x'); // 'symbol'"
+  },
+  {
+    "id": 3,
+    "title": "Operators",
+    "subject": "JavaScript Day 3: Arithmetic, comparison, and logical operators",
+    "body": "Operators are the verbs of JavaScript. Arithmetic operators (+, -, *, /, %, **) do math, with % returning the remainder and ** raising to a power. The + operator is special: between two numbers it adds, but if either side is a string it concatenates — a frequent source of bugs. Comparison operators return booleans: use === and !== for strict equality that checks both value and type, and avoid == and != which perform type coercion. Logical operators && and || are short-circuit: && returns the first falsy value or the last value, || returns the first truthy value or the last value. This lets you write defaults like name || 'Anonymous'. The newer ?? operator only falls back when the left side is null or undefined, which is safer when 0 or '' are valid values. Mastering operators lets you express conditions cleanly and avoid many quiet bugs.",
+    "codeExample": "10 % 3;            // 1\n2 ** 10;           // 1024\n'5' + 1;           // '51'  (concat)\n'5' - 1;           // 4     (numeric)\n0 === false;       // false (strict)\n0 == false;        // true  (loose, avoid)\nnull ?? 'fallback';// 'fallback'\n0 || 'default';    // 'default'\n0 ?? 'default';    // 0"
+  },
+  {
+    "id": 4,
+    "title": "Template Literals",
+    "subject": "JavaScript Day 4: Template literals and string interpolation",
+    "body": "Before ES6, building strings meant gluing pieces together with + and \\n. Template literals changed that. They use backticks instead of quotes, and inside you can drop any expression into ${...}. The expression is evaluated and its result is stringified. Template literals also preserve newlines, so multi-line messages become readable. You can nest them, call functions inside them, and perform math. There is also a tagged template form where a function receives the raw strings and interpolated values separately — useful for building libraries like styled-components or for safely escaping HTML and SQL. A common mistake is using straight single or double quotes when you meant backticks; if ${} does not expand, check the outer quote character. Template literals make the code closer to how humans read a sentence: you write what you want to say, with variables slotted in place.",
+    "codeExample": "const name = 'Sam';\nconst age = 28;\n\nconsole.log(`Hello, ${name}. Next year you'll be ${age + 1}.`);\n\nconst html = `\n  <div>\n    <h1>${name}</h1>\n  </div>\n`;"
+  },
+  {
+    "id": 5,
+    "title": "Conditionals: if, else if, else",
+    "subject": "JavaScript Day 5: Branching with if statements",
+    "body": "An if statement lets the program choose a path based on a condition. The condition inside the parentheses is converted to a boolean: truthy values run the block, falsy values skip it. Chain multiple branches with else if, and cover the remaining cases with a final else. Only one branch of the chain will run. A common style rule is to keep each branch small — if a block grows past a few lines, extract it into a function with a descriptive name, so the if becomes a readable outline. You can also replace simple if/else statements with the ternary operator condition ? a : b when each branch produces a single value. Prefer early returns over deeply nested ifs: handling the failure case first and returning makes the main success path visually linear and easier to follow.",
+    "codeExample": "function grade(score) {\n  if (score < 0 || score > 100) return 'invalid';\n  if (score >= 90) return 'A';\n  if (score >= 80) return 'B';\n  if (score >= 70) return 'C';\n  return 'F';\n}\n\nconst label = age >= 18 ? 'adult' : 'minor';"
+  },
+  {
+    "id": 6,
+    "title": "The switch Statement",
+    "subject": "JavaScript Day 6: Dispatching values with switch",
+    "body": "When you need to compare one value against many discrete possibilities, a switch can be clearer than a long if/else chain. The switch evaluates its expression once, then compares it against each case using strict equality. A case runs until it hits a break, so forgetting break causes fall-through into the next case — sometimes intentional, usually a bug. The default branch handles anything that did not match. Modern JavaScript code increasingly reaches for object lookups instead of switch because they are more compact and easier to extend: build a map from keys to handlers and call map[key](). Still, switch is the right tool when branches involve multiple statements or need fall-through. Remember that switch uses ===, so '1' and 1 are not the same case.",
+    "codeExample": "function describe(day) {\n  switch (day) {\n    case 'Sat':\n    case 'Sun':\n      return 'weekend';\n    case 'Mon':\n    case 'Tue':\n    case 'Wed':\n    case 'Thu':\n    case 'Fri':\n      return 'weekday';\n    default:\n      return 'unknown';\n  }\n}"
+  },
+  {
+    "id": 7,
+    "title": "Loops: for and while",
+    "subject": "JavaScript Day 7: Repeating work with for and while",
+    "body": "Loops run the same block over and over until a condition changes. The classic for loop has three slots: initialization, condition, and increment — perfect when you know the count up front. while loops repeat as long as their condition is truthy, which suits situations where you do not know how many iterations you need. do...while runs the body at least once before checking. Inside any loop, break exits immediately and continue skips to the next iteration. Watch out for infinite loops: if the condition never turns false the browser tab will freeze. In modern JavaScript you rarely need a classic index-based for; array methods like forEach, map, and for...of express intent more clearly. Use the for loop mostly when you need the index itself or when you must short-circuit with break, which array methods do not support.",
+    "codeExample": "for (let i = 0; i < 5; i++) {\n  if (i === 3) break;\n  console.log(i); // 0, 1, 2\n}\n\nlet n = 10;\nwhile (n > 0) {\n  n -= 2;\n}"
+  },
+  {
+    "id": 8,
+    "title": "for...of and for...in",
+    "subject": "JavaScript Day 8: Iterating with for...of and for...in",
+    "body": "JavaScript has two specialized loops that make intent clearer. for...of iterates over the values of any iterable — arrays, strings, Maps, Sets, even generator output. It is the modern replacement for the classic indexed for when you only care about the items, not their position. for...in, by contrast, iterates over the enumerable property keys of an object. It is useful for plain objects but can surprise you on arrays because it returns indices as strings and may include inherited properties. The rule of thumb: for...of for arrays and iterables, for...in for plain object keys, and if you need both index and value on an array, use entries() with for...of. Understanding this distinction prevents a class of bugs that happen when a developer uses for...in on an array and ends up with '0', '1', '2' strings and unexpected keys from prototype chain pollution.",
+    "codeExample": "const fruits = ['apple', 'banana', 'cherry'];\nfor (const f of fruits) console.log(f);\n\nfor (const [i, f] of fruits.entries()) {\n  console.log(i, f); // 0 apple, 1 banana, ...\n}\n\nconst user = { name: 'Ada', age: 30 };\nfor (const key in user) console.log(key, user[key]);"
+  },
+  {
+    "id": 9,
+    "title": "Function Declarations and Expressions",
+    "subject": "JavaScript Day 9: Defining functions",
+    "body": "A function packages a piece of behavior so you can reuse it. There are two main ways to define one. A function declaration starts with the word function and is hoisted — the engine knows about it before the line executes, so you can call it earlier in the file. A function expression stores a function in a variable, and is not hoisted: only the declaration of the variable moves up, not the assignment. Expressions feel lighter and are common as callbacks. Both accept parameters and return values; if you omit return, the function returns undefined. Functions are first-class values in JavaScript: you can store them in variables, pass them as arguments, and return them from other functions, which is the basis for callbacks, higher-order functions, and closures. Name your functions with verbs that describe what they do.",
+    "codeExample": "// Declaration (hoisted)\nfunction add(a, b) {\n  return a + b;\n}\n\n// Expression (not hoisted)\nconst multiply = function (a, b) {\n  return a * b;\n};\n\nconsole.log(add(2, 3));      // 5\nconsole.log(multiply(2, 3)); // 6"
+  },
+  {
+    "id": 10,
+    "title": "Arrow Functions",
+    "subject": "JavaScript Day 10: Arrow function syntax and semantics",
+    "body": "Arrow functions, introduced in ES6, give you a shorter way to write function expressions. Drop the function keyword and put an arrow between the parameter list and the body. If the body is a single expression, you can omit the braces and return keyword — the expression becomes the return value. Arrow functions shine as callbacks for array methods and for small helpers. But they differ from regular functions in two important ways: they do not have their own this, arguments, or super, and they cannot be used as constructors. The lack of a separate this is usually a feature: an arrow inside a class method keeps the outer this so callbacks on event handlers and timers work without .bind(this). Use arrow functions for short callbacks and inline helpers; prefer regular functions for methods on objects or classes.",
+    "codeExample": "const double = n => n * 2;\nconst add = (a, b) => a + b;\n\nconst doubled = [1, 2, 3].map(n => n * 2); // [2, 4, 6]\n\n// arrows inherit outer `this`\nclass Timer {\n  constructor() { this.n = 0; }\n  start() { setInterval(() => this.n++, 1000); }\n}"
+  },
+  {
+    "id": 11,
+    "title": "Function Parameters: Default and Rest",
+    "subject": "JavaScript Day 11: Default and rest parameters",
+    "body": "Default parameters let you give a parameter a fallback value when the caller omits it or passes undefined. Before ES6 you had to write a || b checks inside the function body, which failed for falsy inputs like 0. The new default syntax avoids that trap. Rest parameters, written as ...args, gather any remaining arguments into a real array — unlike the old arguments object, which is array-like but not an array. Rest must be the last parameter. Combined with spread syntax (which has the same ... but does the opposite operation), these features make variadic functions and wrapper functions clean. A common pattern is a function that accepts an options object with defaults, or a logging helper that accepts any number of arguments. Default and rest parameters replace most of the old argument-juggling patterns.",
+    "codeExample": "function greet(name = 'friend', ...titles) {\n  const prefix = titles.length ? titles.join(' ') + ' ' : '';\n  return `Hello, ${prefix}${name}!`;\n}\n\ngreet();                       // 'Hello, friend!'\ngreet('Ada', 'Dr.', 'Prof.');   // 'Hello, Dr. Prof. Ada!'"
+  },
+  {
+    "id": 12,
+    "title": "Scope",
+    "subject": "JavaScript Day 12: Global, function, and block scope",
+    "body": "Scope determines where a variable is visible. JavaScript has three kinds. Global scope holds variables declared outside any function or block — avoid putting things there, as globals collide easily. Function scope wraps variables declared with var inside a function: they exist for the whole function body. Block scope, introduced with let and const, restricts variables to the nearest {}. That is why let inside an if or a for loop does not leak outside. Inner scopes can read variables from outer scopes via the scope chain, but outer scopes cannot see inner variables. Shadowing happens when an inner scope declares a variable with the same name as an outer one; the inner variable wins inside its block. Prefer the smallest scope that works: local variables are easier to reason about and simpler for the engine to optimize.",
+    "codeExample": "let a = 1;                // global\nfunction outer() {\n  let b = 2;              // function scope\n  if (true) {\n    let c = 3;            // block scope\n    console.log(a, b, c); // 1 2 3\n  }\n  // console.log(c);      // ReferenceError\n}"
+  },
+  {
+    "id": 13,
+    "title": "Hoisting",
+    "subject": "JavaScript Day 13: Understanding hoisting",
+    "body": "Hoisting is the name for JavaScript's habit of moving declarations to the top of their scope before any code runs. Function declarations are fully hoisted, so you can call them above the line where they appear. Variables declared with var are also hoisted, but only their declaration, not their assignment — the engine sets them to undefined until the assignment runs. Variables declared with let and const are hoisted too, but they live in the “temporal dead zone” where reading them throws a ReferenceError until the declaration is reached. The practical rule is to declare variables at the top of their scope and treat the TDZ as a feature, not a bug: it catches mistakes where you tried to use a variable too early. Knowing hoisting helps you read unfamiliar code and explains why some functions work “out of order.”",
+    "codeExample": "sayHi(); // works – function declarations hoist\nfunction sayHi() { console.log('hi'); }\n\nconsole.log(x); // undefined (var hoists declaration)\nvar x = 5;\n\n// console.log(y); // ReferenceError (TDZ)\nlet y = 10;"
+  },
+  {
+    "id": 14,
+    "title": "Closures",
+    "subject": "JavaScript Day 14: Closures and captured scope",
+    "body": "A closure is a function that remembers variables from the scope where it was created, even after that scope has finished executing. When a function is defined, it captures a reference to the surrounding variables, and that reference stays alive as long as the function exists. This enables data privacy — variables declared in an outer function cannot be accessed from outside but can be read or updated by inner functions — and it enables factory patterns where you configure a function and return a customized version. Classic examples include counters, event handlers that carry contextual data, and module-like patterns. Closures are everywhere in JavaScript whether you realize it or not, so understanding them unlocks many advanced patterns and debugging skills. If a variable seems to live longer than expected, a closure is probably holding it.",
+    "codeExample": "function makeCounter() {\n  let count = 0;\n  return function () {\n    count += 1;\n    return count;\n  };\n}\n\nconst counter = makeCounter();\ncounter(); // 1\ncounter(); // 2\ncounter(); // 3  — count lives inside the closure"
+  },
+  {
+    "id": 15,
+    "title": "Arrays: Creation and Access",
+    "subject": "JavaScript Day 15: Working with arrays",
+    "body": "Arrays are ordered, zero-indexed lists of values. Create them with square brackets or Array.from / Array.of. The length property is automatically maintained, and you can read or write any index — including ones that don't exist yet, which creates sparse arrays (usually a bug to avoid). Unlike arrays in statically typed languages, a JavaScript array can hold values of any mix of types and can change size at any time. Access elements by index: arr[0] is the first, arr[arr.length - 1] is the last, or use the newer arr.at(-1) which supports negative indices directly. Setting a value at an index higher than length grows the array, filling the gap with undefined. Arrays are objects under the hood, which means they can also hold named properties, but adding them is almost always a design mistake; use an object instead.",
+    "codeExample": "const nums = [10, 20, 30];\nconsole.log(nums[0]);      // 10\nconsole.log(nums.at(-1));  // 30\nconsole.log(nums.length);  // 3\n\nnums[5] = 99;              // creates gaps\nconsole.log(nums.length);  // 6"
+  },
+  {
+    "id": 16,
+    "title": "Array Methods: push, pop, shift, unshift",
+    "subject": "JavaScript Day 16: Mutating array ends",
+    "body": "These four methods let you grow and shrink arrays from either end, and they all mutate the array in place. push adds one or more elements to the end and returns the new length. pop removes and returns the last element. unshift adds to the front and shift removes from the front. push and pop are O(1) operations, making them efficient. shift and unshift are O(n) because every other element must be re-indexed; avoid them on large arrays in tight loops. A common pattern is treating an array as a stack using push and pop, or as a queue using push and shift. Remember that these methods mutate the original array — if you need an immutable version that returns a new array, use spread or concat instead. Mutation in shared state is a frequent source of tricky bugs.",
+    "codeExample": "const stack = [];\nstack.push(1);\nstack.push(2);\nconst top = stack.pop(); // 2, stack is [1]\n\nconst queue = ['a', 'b'];\nqueue.push('c');\nconst head = queue.shift(); // 'a'"
+  },
+  {
+    "id": 17,
+    "title": "Array Methods: slice and splice",
+    "subject": "JavaScript Day 17: slice vs splice",
+    "body": "slice and splice sound alike but behave very differently. slice returns a shallow copy of a portion of the array, leaving the original untouched. It takes start and end indices (end exclusive); negative indices count from the end. It is the standard way to clone an array with slice() and no arguments. splice, on the other hand, mutates the array: it can remove, insert, or replace elements in place, and it returns the removed elements as a new array. splice takes a start index, a delete count, and optional items to insert. A common bug is calling splice when slice was intended, accidentally modifying the input. When in doubt, reach for slice or spread for non-mutating work; save splice for intentional in-place edits. These two methods cover most positional array work you will do.",
+    "codeExample": "const arr = [1, 2, 3, 4, 5];\nconst copy = arr.slice(1, 4);        // [2, 3, 4]; arr unchanged\n\nconst arr2 = [1, 2, 3, 4, 5];\nconst removed = arr2.splice(1, 2, 'a', 'b');\n// arr2:    [1, 'a', 'b', 4, 5]\n// removed: [2, 3]"
+  },
+  {
+    "id": 18,
+    "title": "Array Methods: map",
+    "subject": "JavaScript Day 18: Transforming with map",
+    "body": "map is one of the workhorses of modern JavaScript. It walks through every element of an array, calls the function you pass in with each value (and optionally its index and the array itself), and collects the returned values into a new array of the same length. It does not mutate the original. You use map whenever you want a transformed version of a list: doubling numbers, formatting user objects for display, extracting a field from each item. The result is the same length as the input — if you find yourself mapping then filtering out undefined, you probably wanted filter or reduce instead. In React, map is how you render a list of components from a data array. Always return something from the callback, and always include a key prop when mapping to JSX, so React can update efficiently.",
+    "codeExample": "const nums = [1, 2, 3, 4];\nconst squared = nums.map(n => n * n); // [1, 4, 9, 16]\n\nconst users = [{ name: 'Ada' }, { name: 'Sam' }];\nconst names = users.map(u => u.name); // ['Ada', 'Sam']"
+  },
+  {
+    "id": 19,
+    "title": "Array Methods: filter",
+    "subject": "JavaScript Day 19: Selecting with filter",
+    "body": "filter returns a new array containing only the elements for which the predicate function returns a truthy value. Like map, it is non-mutating, so the original is preserved. filter is the natural fit when you want a subset — active users, completed todos, numbers above a threshold. Unlike map, the output length is usually smaller than the input. You can chain filter with map to transform and select in one pipeline: read such chains left to right to understand the dataflow. Keep the predicate pure and small; if you need side effects, filter is not the right tool. A common beginner mistake is returning a boolean that is inverted, producing the opposite result — when debugging, console.log the predicate's return value on a sample item. filter is your selector; map is your transformer.",
+    "codeExample": "const nums = [1, 2, 3, 4, 5, 6];\nconst evens = nums.filter(n => n % 2 === 0); // [2, 4, 6]\n\nconst users = [\n  { name: 'Ada', active: true },\n  { name: 'Sam', active: false }\n];\nconst active = users.filter(u => u.active); // [{ name: 'Ada', ... }]"
+  },
+  {
+    "id": 20,
+    "title": "Array Methods: reduce",
+    "subject": "JavaScript Day 20: Aggregating with reduce",
+    "body": "reduce collapses an array into a single value by repeatedly combining elements. You give it a reducer function (accumulator, current) => newAccumulator and an initial value. It walks left to right, threading the accumulator through. reduce is the most general array method: map, filter, and many custom operations can be built from it. Use it to sum numbers, build an object index from a list, group items by a key, or compute statistics in one pass. Always pass the initial value explicitly; relying on the array's first element leads to surprises with empty arrays or mixed types. When the logic gets gnarly, consider reaching for a clearer combination of map and filter instead. reduce is powerful but can be hard to read, so favor clarity over cleverness.",
+    "codeExample": "const nums = [1, 2, 3, 4];\nconst sum = nums.reduce((acc, n) => acc + n, 0); // 10\n\nconst words = ['ant', 'bee', 'cat', 'ant'];\nconst counts = words.reduce((acc, w) => {\n  acc[w] = (acc[w] || 0) + 1;\n  return acc;\n}, {});\n// { ant: 2, bee: 1, cat: 1 }"
+  },
+  {
+    "id": 21,
+    "title": "Array Methods: forEach",
+    "subject": "JavaScript Day 21: Iterating with forEach",
+    "body": "forEach is the side-effect companion to map. It runs a function on each element but does not return anything and does not build a new array. Use it when you need to perform an action per element — logging, mutating an external object, triggering DOM updates — and not when you are transforming or filtering. Two things to remember: forEach cannot be stopped early with break or return, so if you need to short-circuit, use for...of or .some/.every; and forEach ignores the return value of its callback, so returning something does nothing. If you catch yourself calling forEach followed by push into a new array, you almost certainly wanted map. Prefer the method that expresses intent most clearly — readers will thank you.",
+    "codeExample": "const users = ['Ada', 'Sam', 'Lee'];\n\nusers.forEach((name, i) => {\n  console.log(`${i + 1}: ${name}`);\n});\n\n// cannot break — use for...of instead\nfor (const name of users) {\n  if (name === 'Sam') break;\n  console.log(name);\n}"
+  },
+  {
+    "id": 22,
+    "title": "Array Methods: find and findIndex",
+    "subject": "JavaScript Day 22: Searching with find and findIndex",
+    "body": "find returns the first element in an array that satisfies a predicate function, or undefined if no match is found. findIndex returns the index of that element, or -1. Both stop as soon as they hit a match, making them efficient for lookups. Use find when you want the item; use findIndex when you want its position, often to splice or replace it. findLast and findLastIndex are the mirror versions that search from the end. A very common pattern is const user = users.find(u => u.id === id). Always handle the undefined case — optional chaining (user?.name) or a default with ?? keeps that clean. Before reaching for filter and then [0], use find: it is clearer and avoids scanning the rest of the array once a match is found.",
+    "codeExample": "const users = [\n  { id: 1, name: 'Ada' },\n  { id: 2, name: 'Sam' }\n];\n\nconst user = users.find(u => u.id === 2);      // { id: 2, name: 'Sam' }\nconst idx  = users.findIndex(u => u.id === 2); // 1\nconst missing = users.find(u => u.id === 99);  // undefined"
+  },
+  {
+    "id": 23,
+    "title": "Array Methods: some and every",
+    "subject": "JavaScript Day 23: Booleans over arrays with some and every",
+    "body": "some checks whether at least one element in the array satisfies a predicate — it returns true on the first truthy result and stops. every checks whether all elements satisfy the predicate — it returns false on the first falsy result and stops. Both answer yes/no questions about a list: “is any cart item out of stock?” or “are all fields valid?” They short-circuit, so they are efficient on large arrays. A handy edge case: every on an empty array returns true (vacuously true), while some on an empty array returns false. This matches mathematical logic but can surprise you in UI checks. Pair them with destructuring and arrow functions for tight, readable guards. They often replace manual for loops with boolean flags.",
+    "codeExample": "const nums = [1, 2, 3, 4];\n\nnums.some(n => n > 3);    // true\nnums.every(n => n > 0);   // true\nnums.every(n => n > 2);   // false\n\n[].every(() => false);    // true  (vacuous)\n[].some(() => true);      // false"
+  },
+  {
+    "id": 24,
+    "title": "Spread Operator",
+    "subject": "JavaScript Day 24: Spreading arrays and objects",
+    "body": "The spread operator (...) expands an iterable or object into its individual elements or properties. You can spread an array into function arguments, clone an array with [...arr], merge arrays with [...a, ...b], or turn a string into an array of characters. For objects, { ...obj } creates a shallow copy, and { ...a, ...b } merges properties with later ones winning. Spread is the modern, immutable way to produce a new collection based on existing ones — critical for React state updates and Redux reducers, where you should never mutate existing state. Remember that spread only copies one level deep: nested objects and arrays are still shared references. For deep cloning, use structuredClone or a library. Spread looks identical to rest parameters but does the opposite operation, which is worth keeping straight.",
+    "codeExample": "const a = [1, 2], b = [3, 4];\nconst combined = [...a, ...b];                 // [1,2,3,4]\n\nconst user = { name: 'Ada', age: 30 };\nconst updated = { ...user, age: 31 };          // { name: 'Ada', age: 31 }\n\nMath.max(...[5, 1, 9, 2]);                     // 9"
+  },
+  {
+    "id": 25,
+    "title": "Destructuring",
+    "subject": "JavaScript Day 25: Destructuring arrays and objects",
+    "body": "Destructuring lets you pull values out of arrays or properties out of objects into local variables in a single statement. For arrays, position matters: [a, b] = [1, 2] assigns 1 to a and 2 to b. Skip items with empty slots, collect the rest with ...rest. For objects, the variable name must match the property name, but you can rename with { name: userName } and provide defaults with { name = 'Anon' }. Destructuring shines in function signatures: take apart the options object right in the parameter list and the body reads the individual names. Combined with default values, it removes piles of boilerplate. Nested destructuring pulls deep values at once but can become hard to read — when it does, assign the outer value first and destructure the inner part on the next line.",
+    "codeExample": "const [a, b, ...rest] = [1, 2, 3, 4, 5];\n// a=1, b=2, rest=[3,4,5]\n\nconst { name, age = 0 } = { name: 'Ada' };\n// name='Ada', age=0\n\nfunction draw({ x = 0, y = 0, color = 'black' } = {}) {\n  console.log(x, y, color);\n}\ndraw({ x: 10, color: 'red' });"
+  },
+  {
+    "id": 26,
+    "title": "Objects: Creation and Access",
+    "subject": "JavaScript Day 26: Working with objects",
+    "body": "Objects are unordered collections of key-value pairs. The keys are strings (or symbols) and the values can be anything. Create an object with literal syntax { key: value }, assign properties with dot or bracket notation, and delete them with the delete operator (rare in practice). Dot notation is shorter and used for known, valid identifier keys; bracket notation is required for dynamic keys or keys with spaces or special characters. Shorthand property names let you write { name } instead of { name: name } when the variable and property have the same name, and computed property keys use [expr] inside the literal. Objects are the core data structure of JavaScript: JSON, function parameters, class instances, and React props are all objects. Understanding their creation, mutation, and reference behavior is a foundation for everything else.",
+    "codeExample": "const user = {\n  name: 'Ada',\n  age: 30,\n  'favorite color': 'blue'\n};\n\nuser.age = 31;                  // update\nuser.email = 'a@x.com';         // add\nconsole.log(user['favorite color']);\n\nconst key = 'age';\nconsole.log(user[key]);         // dynamic access"
+  },
+  {
+    "id": 27,
+    "title": "Object Methods",
+    "subject": "JavaScript Day 27: Methods and the this keyword",
+    "body": "A method is simply a function stored as a property on an object. When you invoke it with dot notation, the method's this points to the object. This lets methods read and update sibling properties without knowing their outer variable name. The shorthand method syntax { greet() {...} } is equivalent to { greet: function() {...} } but reads more cleanly. Arrow functions do not create their own this, so avoid them for object methods that need to reference the host object. Method chaining is a pattern where methods return this so you can stack calls — a style common in builder APIs and libraries like jQuery. Design objects by thinking about the operations they support, not just the data they hold; methods turn a data bag into a meaningful abstraction.",
+    "codeExample": "const user = {\n  name: 'Ada',\n  greet() {\n    return `Hi, I'm ${this.name}`;\n  },\n  rename(newName) {\n    this.name = newName;\n    return this;\n  }\n};\n\nuser.rename('Grace').greet(); // \"Hi, I'm Grace\""
+  },
+  {
+    "id": 28,
+    "title": "Object.keys, values, and entries",
+    "subject": "JavaScript Day 28: Iterating objects",
+    "body": "Objects are not directly iterable, but you can project them into arrays with three static methods. Object.keys returns an array of an object's own enumerable string keys. Object.values returns the corresponding values. Object.entries returns an array of [key, value] pairs, which is the most flexible form — you can map, filter, and convert back to an object with Object.fromEntries. Together these methods replace the old for...in pattern in most modern code, because they skip inherited properties by default and work nicely with array methods. A common recipe is Object.fromEntries(Object.entries(obj).filter(...)) to drop properties by predicate. When iterating, remember that the order of keys is mostly insertion order for string keys, with integer-like keys placed first in ascending order — mostly predictable, but don't depend on order for correctness.",
+    "codeExample": "const user = { name: 'Ada', age: 30, city: 'Paris' };\n\nObject.keys(user);    // ['name', 'age', 'city']\nObject.values(user);  // ['Ada', 30, 'Paris']\nObject.entries(user); // [['name','Ada'], ['age',30], ['city','Paris']]\n\nconst onlyStrings = Object.fromEntries(\n  Object.entries(user).filter(([, v]) => typeof v === 'string')\n);"
+  },
+  {
+    "id": 29,
+    "title": "String Methods",
+    "subject": "JavaScript Day 29: The most useful string methods",
+    "body": "Strings in JavaScript come with a rich set of built-in methods. length gives the character count. Case conversion: toUpperCase and toLowerCase. Slicing: slice(start, end) is usually the right choice; substring is similar but less forgiving; substr is deprecated. Splitting: split(separator) produces an array — 'a,b,c'.split(',') gives ['a','b','c']. Joining the reverse direction uses Array.prototype.join. Searches: includes, startsWith, endsWith return booleans; indexOf returns a position or -1. Replacement: replace handles one match (or all with the /g regex flag); replaceAll is a newer, clearer alternative for plain strings. Trimming: trim, trimStart, trimEnd clean up whitespace. Padding: padStart, padEnd format strings to a fixed width. All string methods return new strings because strings are immutable — the original is never modified.",
+    "codeExample": "const s = '  Hello, World  ';\ns.trim();                     // 'Hello, World'\ns.toUpperCase();              // '  HELLO, WORLD  '\ns.includes('World');          // true\ns.replaceAll('l', 'L');       // '  HeLLo, WorLd  '\n'1,2,3'.split(',');           // ['1','2','3']\n'7'.padStart(3, '0');         // '007'"
+  },
+  {
+    "id": 30,
+    "title": "JSON",
+    "subject": "JavaScript Day 30: JSON parse and stringify",
+    "body": "JSON (JavaScript Object Notation) is a lightweight text format for exchanging data between systems. Most web APIs send and receive JSON. Its syntax is a strict subset of JavaScript object syntax: only double-quoted strings, numbers, booleans, null, arrays, and objects — no functions, undefined, comments, or trailing commas. Use JSON.stringify(value, replacer, space) to turn an object into a string. The third argument (often 2) produces pretty-printed output. Use JSON.parse(text) to turn a JSON string back into a JavaScript value — wrap it in try/catch because invalid input throws. JSON is also the fastest way to deep-clone objects made entirely of JSON-safe values: JSON.parse(JSON.stringify(obj)), though structuredClone is now the recommended built-in. Be aware that stringify drops undefined values, functions, and symbols — they simply disappear.",
+    "codeExample": "const user = { name: 'Ada', age: 30, active: true };\n\nconst text = JSON.stringify(user, null, 2);\n// {\n//   \"name\": \"Ada\",\n//   \"age\": 30,\n//   \"active\": true\n// }\n\nconst parsed = JSON.parse(text);\nconsole.log(parsed.name); // 'Ada'"
+  },
+  {
+    "id": 31,
+    "title": "Type Coercion and Equality",
+    "subject": "JavaScript Day 31: Coercion and the equality operators",
+    "body": "JavaScript converts values between types automatically in many situations — a feature called coercion. When you use the + operator with a string and a number, the number becomes a string. When you use - or *, the string becomes a number. The classic gotcha is ==, which coerces operands before comparing: '0' == false is true, null == undefined is true, and NaN == NaN is false. These rules are complex and hard to remember, so modern code uses ===, which never coerces: '0' === 0 is false. Explicit conversion is always clearer: Number(x), String(x), Boolean(x), parseInt(x, 10). Understanding coercion still matters because it shows up in conditions like if (value) and in template literals. Favor === and explicit conversion; reach for loose equality only when you deliberately want the coercion.",
+    "codeExample": "1 + '2';        // '12'  (number → string)\n'3' - 1;        // 2     (string → number)\nBoolean('');    // false\nBoolean('0');   // true\nNumber('10px'); // NaN\nparseInt('10px', 10); // 10\n\n0 == false;     // true  (loose)\n0 === false;    // false (strict)"
+  },
+  {
+    "id": 32,
+    "title": "Truthy and Falsy Values",
+    "subject": "JavaScript Day 32: Understanding truthiness",
+    "body": "Every JavaScript value is either truthy or falsy in a boolean context. Falsy values are a short, memorizable list: false, 0, -0, 0n, '' (empty string), null, undefined, and NaN. Everything else is truthy, including '0', 'false', empty arrays, and empty objects — which surprises beginners. Truthiness controls if statements, while loops, the ternary operator, and short-circuit boolean evaluation. This is why if (value) is often used as a shorthand for “value is present” — but be careful when 0 or '' are legitimate values you want to keep. In those cases, compare explicitly: value != null (catches both null and undefined) or value !== undefined. The newer nullish coalescing (??) respects truthiness only for null and undefined, making it safer than || when 0 or '' matter.",
+    "codeExample": "if ([]) console.log('empty array is truthy');\nif ({}) console.log('empty object is truthy');\n\nconst name = '';\nconsole.log(name || 'Anon');    // 'Anon' (wrong if '' is valid)\nconsole.log(name ?? 'Anon');    // '' (correct)\n\nfor (const v of [0, '', null, NaN, false, undefined]) {\n  console.log(Boolean(v)); // all false\n}"
+  },
+  {
+    "id": 33,
+    "title": "The DOM",
+    "subject": "JavaScript Day 33: What the DOM is",
+    "body": "The DOM (Document Object Model) is the browser's in-memory representation of an HTML page. Every element, attribute, and piece of text becomes a node in a tree, and JavaScript can read and modify that tree at runtime. The root is document. Each node is an object with properties (id, className, textContent, innerHTML) and methods (querySelector, appendChild, remove). When you change the DOM, the browser re-renders the affected part of the page. Because the DOM is separate from the JavaScript engine, every interaction crosses a boundary — doing thousands of DOM operations in a tight loop is slow, which is why virtual DOM libraries like React batch them. Learn the DOM directly even if you plan to use a framework; it remains the low-level API that everything eventually calls, and understanding it prevents many framework mysteries.",
+    "codeExample": "// In the browser, not Node\nconst title = document.querySelector('h1');\nconsole.log(title.textContent);\n\ntitle.textContent = 'New title';\ntitle.classList.add('highlight');\ntitle.setAttribute('data-updated', 'true');"
+  },
+  {
+    "id": 34,
+    "title": "Selecting DOM Elements",
+    "subject": "JavaScript Day 34: Finding elements in the DOM",
+    "body": "Selecting elements is the starting point of any DOM interaction. document.getElementById returns a single element by its unique id; it is fast but limited. document.getElementsByClassName and getElementsByTagName return live HTMLCollections — they update as the DOM changes, which can lead to subtle bugs in loops. The modern, preferred API is document.querySelector, which accepts any CSS selector and returns the first match, and document.querySelectorAll, which returns a static NodeList of all matches. NodeList supports forEach but not every array method; convert with [...nodes] or Array.from for full flexibility. You can also scope queries to a specific element: card.querySelector('.title') only searches inside card. Prefer a single, specific selector over chaining multiple lookups; it is clearer and often faster.",
+    "codeExample": "const header = document.querySelector('header');\nconst buttons = document.querySelectorAll('button.primary');\n\nbuttons.forEach(btn => btn.disabled = true);\n\n// scoped query\nconst card = document.querySelector('#featured');\nconst title = card.querySelector('.title');"
+  },
+  {
+    "id": 35,
+    "title": "Manipulating the DOM",
+    "subject": "JavaScript Day 35: Creating and changing elements",
+    "body": "Once you have a reference to an element, you can change its content, attributes, styles, and structure. textContent replaces only text — safe from HTML injection. innerHTML replaces the inner markup — never use it with untrusted input. classList.add, remove, and toggle manage CSS classes. setAttribute and removeAttribute handle any attribute; for special properties like value or checked, use the property directly. Create new elements with document.createElement, set their properties, and attach them with append, prepend, or insertBefore. Remove nodes with node.remove() or parent.removeChild(node). Avoid heavy innerHTML concatenation in loops; each write re-parses the whole subtree. For batched updates, build a DocumentFragment, append children into it, then insert the fragment once. Good DOM hygiene keeps even small vanilla-JS apps fast and safe.",
+    "codeExample": "const list = document.querySelector('ul');\n['Ada', 'Sam', 'Lee'].forEach(name => {\n  const li = document.createElement('li');\n  li.textContent = name;\n  li.classList.add('user');\n  list.appendChild(li);\n});\n\ndocument.querySelector('#old')?.remove();"
+  },
+  {
+    "id": 36,
+    "title": "Events and Event Listeners",
+    "subject": "JavaScript Day 36: Responding to user actions",
+    "body": "Events are the way the browser notifies your code that something happened — a click, a key press, a scroll, a network response. Attach a listener with element.addEventListener('event', handler). The handler receives an event object containing details like target, currentTarget, clientX, and key. Call event.preventDefault() to stop the browser's default behavior (like following a link or submitting a form) and event.stopPropagation() to prevent the event from bubbling up. Always remove listeners you no longer need, especially if the elements come and go, to avoid memory leaks — keep a reference to the handler so you can pass the same one to removeEventListener. Prefer addEventListener to on* properties because it supports multiple handlers and explicit cleanup. Handlers should be small; move logic into named functions for testability.",
+    "codeExample": "const btn = document.querySelector('#save');\n\nfunction handleClick(e) {\n  e.preventDefault();\n  console.log('clicked', e.currentTarget);\n}\n\nbtn.addEventListener('click', handleClick);\n// later: btn.removeEventListener('click', handleClick);"
+  },
+  {
+    "id": 37,
+    "title": "Event Delegation",
+    "subject": "JavaScript Day 37: Handling many elements with one listener",
+    "body": "Event delegation exploits event bubbling: events on a child propagate up to ancestors, so you can attach a single listener to a common parent and figure out which child was clicked using event.target. This is essential for long lists, dynamically added elements, and performance. Instead of adding a click handler to every table row, add one to the table; inside the handler, call event.target.closest('tr') to find the relevant row. Delegation lets you keep listeners on stable elements and avoid re-attaching them every time the list changes. Watch out for clicks on nested children: closest helps walk up from the target until you find the right ancestor. It also pairs nicely with data-* attributes on the elements, where you store the context (like a record id) that the handler needs.",
+    "codeExample": "const list = document.querySelector('#users');\nlist.addEventListener('click', e => {\n  const row = e.target.closest('[data-id]');\n  if (!row) return;\n  console.log('user id:', row.dataset.id);\n});"
+  },
+  {
+    "id": 38,
+    "title": "ES6 Modules",
+    "subject": "JavaScript Day 38: import and export",
+    "body": "Modules let you split code across files and share only what you choose. Each file is its own scope; variables declared at the top level do not leak unless you export them. Use named exports (export const x = ...) for many values per file, and a single default export (export default fn) when the file provides one main thing. On the other side, import imports what was exported: import { x, y } from './utils.js'; import fn from './helper.js'. Imports are hoisted and resolved at module graph load time, so side effects in modules happen once. Default and named imports can coexist: import fn, { x } from '...'. In Node.js, modules work when package.json has \"type\": \"module\", or use the .mjs extension. Modules replace the old IIFE and global patterns.",
+    "codeExample": "// math.js\nexport const PI = 3.14159;\nexport function square(n) { return n * n; }\nexport default function add(a, b) { return a + b; }\n\n// app.js\nimport add, { PI, square } from './math.js';\nconsole.log(add(2, 3), square(4), PI);"
+  },
+  {
+    "id": 39,
+    "title": "Classes",
+    "subject": "JavaScript Day 39: Writing classes",
+    "body": "ES6 classes are syntactic sugar over the existing prototype system, giving a familiar class syntax to model object blueprints. Declare fields and methods inside a class block. The constructor is a special method called when you use new. this inside methods refers to the instance. You can define instance methods, static methods (called on the class itself), getters and setters, and private fields prefixed with #. Use classes when you have related data and behavior that you want to stamp out multiple times, like a Timer, a Request, or an Animal. Prefer composition — plain objects and functions — for simple cases; classes shine when they model an entity with identity, lifecycle, or inheritance. Remember: under the hood a class is still just a function with a prototype object.",
+    "codeExample": "class User {\n  #password; // private field\n  constructor(name, password) {\n    this.name = name;\n    this.#password = password;\n  }\n  greet() { return `Hi, ${this.name}`; }\n  check(pw) { return pw === this.#password; }\n  static fromJSON(j) { return new User(j.name, j.password); }\n}\n\nconst u = new User('Ada', 's3cret');\nu.greet();"
+  },
+  {
+    "id": 40,
+    "title": "Class Inheritance",
+    "subject": "JavaScript Day 40: Extending classes",
+    "body": "A class can extend another class to inherit its fields and methods. Inside the subclass constructor, call super(...) before using this, to let the parent initialize the instance. Subclass methods can override parent methods; call super.method() to access the overridden version. Inheritance is powerful but easy to overuse. Favor composition over inheritance: many problems are cleaner when you pass collaborator objects as arguments instead of building tall class hierarchies. When inheritance fits naturally — a Button is a kind of UIElement, a Circle is a Shape — it gives you polymorphism cheaply. instanceof checks the prototype chain, so it returns true for descendants too. Avoid more than two or three levels of depth; deeper trees become hard to follow and refactor.",
+    "codeExample": "class Animal {\n  constructor(name) { this.name = name; }\n  speak() { return `${this.name} makes a sound`; }\n}\n\nclass Dog extends Animal {\n  speak() { return `${this.name} barks`; }\n}\n\nconst d = new Dog('Rex');\nd.speak();                // 'Rex barks'\nd instanceof Animal;      // true"
+  },
+  {
+    "id": 41,
+    "title": "Prototypes",
+    "subject": "JavaScript Day 41: The prototype chain",
+    "body": "Every JavaScript object has an internal link to another object called its prototype. When you read a property that doesn't exist on the object itself, the engine walks up the prototype chain looking for it. That is how instance methods are shared: the methods live on the prototype, not on each instance. You can inspect the chain with Object.getPrototypeOf(obj) or the older __proto__ property. Class syntax is just a modern wrapper around this: class User { greet() {...} } puts greet on User.prototype. Before ES6, people built the chain manually with constructor functions and Object.create. Prototypes enable cheap code sharing — one method, many instances — but the dynamic nature also enables monkey-patching built-ins, which almost always causes problems. Understand prototypes so the chain is visible, not magical.",
+    "codeExample": "function User(name) { this.name = name; }\nUser.prototype.greet = function () {\n  return `Hi, ${this.name}`;\n};\n\nconst u = new User('Ada');\nu.greet();                              // 'Hi, Ada'\nObject.getPrototypeOf(u) === User.prototype; // true"
+  },
+  {
+    "id": 42,
+    "title": "The this Keyword",
+    "subject": "JavaScript Day 42: What does this refer to?",
+    "body": "this is one of the most misunderstood parts of JavaScript. In a regular function, this is determined by how the function is called, not where it is defined. Called as obj.method(), this is obj. Called as a plain function in strict mode, this is undefined (in non-strict mode, the global object). Called with new, this is the new instance. Call, apply, and bind let you set this explicitly. Arrow functions are different: they capture this from the surrounding lexical scope, which is why they are perfect for callbacks inside class methods. Common bugs come from passing a method as a callback: button.addEventListener('click', user.greet) loses the binding. Fix it with user.greet.bind(user) or an arrow wrapper () => user.greet(). Remember: the call site determines this, unless it is an arrow.",
+    "codeExample": "const user = {\n  name: 'Ada',\n  greet() { return `Hi, ${this.name}`; }\n};\n\nuser.greet();               // 'Hi, Ada'\nconst fn = user.greet;\nfn();                       // 'Hi, undefined' (this lost)\nconst bound = user.greet.bind(user);\nbound();                    // 'Hi, Ada'"
+  },
+  {
+    "id": 43,
+    "title": "call, apply, bind",
+    "subject": "JavaScript Day 43: Controlling this manually",
+    "body": "Every function has three inherited methods for controlling this. call invokes the function immediately with a given this value and arguments listed one by one. apply does the same but takes the arguments as an array — convenient when you already have an array of parameters. bind does not invoke the function; it returns a new function with this permanently fixed, and optionally some leading arguments preset (partial application). You use bind to preserve context for callbacks and event handlers, especially before arrow functions were available. With modern JavaScript, arrow functions and spread have replaced many uses: fn(...args) replaces fn.apply(null, args). But bind is still the right tool when you need a new function whose this is locked in for later use.",
+    "codeExample": "function greet(greeting, punct) {\n  return `${greeting}, ${this.name}${punct}`;\n}\n\nconst user = { name: 'Ada' };\ngreet.call(user, 'Hi', '!');           // 'Hi, Ada!'\ngreet.apply(user, ['Hello', '.']);     // 'Hello, Ada.'\nconst sayHi = greet.bind(user, 'Hey');\nsayHi('?');                            // 'Hey, Ada?'"
+  },
+  {
+    "id": 44,
+    "title": "Promises",
+    "subject": "JavaScript Day 44: Async with promises",
+    "body": "A Promise represents the eventual result of an asynchronous operation. It has three states: pending, fulfilled (with a value), or rejected (with a reason). You consume a promise with .then(onFulfilled, onRejected), or more commonly chain then for success and catch for errors, and finally for cleanup that runs in either case. Every .then returns a new promise, so you can chain many steps linearly instead of nesting callbacks. A function that returns a promise composes with others: Promise.all runs an array in parallel and waits for all, Promise.race resolves as soon as the first settles, Promise.allSettled returns results for each regardless of success or failure. Always return promises from then callbacks if you want the chain to wait, and always handle rejections with catch — unhandled rejections become runtime warnings.",
+    "codeExample": "function wait(ms) {\n  return new Promise(res => setTimeout(res, ms));\n}\n\nwait(500)\n  .then(() => fetch('/api/user'))\n  .then(r => r.json())\n  .then(user => console.log(user))\n  .catch(err => console.error(err))\n  .finally(() => console.log('done'));"
+  },
+  {
+    "id": 45,
+    "title": "async and await",
+    "subject": "JavaScript Day 45: Writing promises synchronously",
+    "body": "async/await is syntactic sugar over promises that lets you write asynchronous code in a style that reads top to bottom. Declare a function with async to make it automatically return a promise. Inside it, await pauses until a promise resolves and evaluates to its fulfilled value; if the promise rejects, the await throws, so you can catch errors with ordinary try/catch. This removes the need for .then chains in most code and makes asynchronous control flow look like synchronous code. Remember that await only works inside async functions (or at the top level of modern modules). Running things in parallel needs a small trick: start the promises first, then await them together with Promise.all, instead of awaiting each one in sequence. Sequential awaits are easy to write but often slower than necessary.",
+    "codeExample": "async function loadUser(id) {\n  try {\n    const res = await fetch(`/api/users/${id}`);\n    if (!res.ok) throw new Error(res.statusText);\n    return await res.json();\n  } catch (err) {\n    console.error(err);\n    return null;\n  }\n}\n\n// parallel\nconst [a, b] = await Promise.all([loadUser(1), loadUser(2)]);"
+  },
+  {
+    "id": 46,
+    "title": "The Fetch API",
+    "subject": "JavaScript Day 46: Making HTTP requests with fetch",
+    "body": "fetch is the modern browser API for making HTTP requests. Call fetch(url, options) and it returns a promise that resolves to a Response object. Note two gotchas: the promise only rejects on network errors, not on HTTP 4xx/5xx — check response.ok or response.status. And the body is consumed once, usually with response.json() or response.text(), which return promises themselves. Pass options like method, headers, body, and credentials to customize the request. For JSON bodies, stringify them and set Content-Type: application/json. An AbortController lets you cancel a fetch by passing its signal; call controller.abort() to stop pending requests, useful for unmounted components. fetch is also available in modern Node.js (v18+). For anything beyond a couple of calls, wrap it in a helper that centralizes error handling and auth headers.",
+    "codeExample": "async function createUser(data) {\n  const res = await fetch('/api/users', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(data)\n  });\n  if (!res.ok) throw new Error(`HTTP ${res.status}`);\n  return res.json();\n}"
+  },
+  {
+    "id": 47,
+    "title": "Error Handling with try/catch",
+    "subject": "JavaScript Day 47: Catching errors cleanly",
+    "body": "try/catch is the main tool for handling runtime errors. Code inside try runs, and if anything throws, control jumps to the catch block with the error value. An optional finally block runs afterward whether or not there was an error, great for cleanup like closing resources. Inside async functions, try/catch also catches rejected promises you await, unifying sync and async error handling. Best practices: catch specific errors, not everything — if you don't know what to do, rethrow so a higher layer can handle it. Avoid swallowing errors silently; at minimum log them. Create custom Error subclasses to distinguish expected failures like ValidationError from unexpected bugs. Validate inputs at boundaries and let internal code trust its inputs. Robust error handling is a design concern, not just a safety net.",
+    "codeExample": "async function safe() {\n  try {\n    const data = await loadUser(1);\n    return data;\n  } catch (err) {\n    if (err.name === 'NetworkError') {\n      return null;\n    }\n    throw err;             // rethrow unknown errors\n  } finally {\n    console.log('request finished');\n  }\n}"
+  },
+  {
+    "id": 48,
+    "title": "Custom Errors",
+    "subject": "JavaScript Day 48: Subclassing Error",
+    "body": "You can throw any value in JavaScript, but throwing Error objects — or subclasses of Error — is the convention. Create your own classes by extending Error. Set a name in the constructor so error.name matches the class, and always call super(message). Custom error types help callers distinguish cases: a ValidationError from user input is handled very differently from a DatabaseError. Add extra fields, like fieldName or statusCode, to carry context. In catch blocks, use instanceof to branch by type rather than checking error.message, which is brittle. Libraries and frameworks usually expose their own error subclasses for the same reason. For application code, even a couple of hierarchies (AppError, NotFoundError, ValidationError) make error handling much cleaner and logs more searchable.",
+    "codeExample": "class ValidationError extends Error {\n  constructor(message, field) {\n    super(message);\n    this.name = 'ValidationError';\n    this.field = field;\n  }\n}\n\ntry {\n  throw new ValidationError('Email required', 'email');\n} catch (e) {\n  if (e instanceof ValidationError) {\n    console.log(e.field, e.message);\n  }\n}"
+  },
+  {
+    "id": 49,
+    "title": "setTimeout and setInterval",
+    "subject": "JavaScript Day 49: Scheduling work",
+    "body": "setTimeout schedules a function to run once after a delay; setInterval runs it repeatedly at intervals. Both take a callback and a delay in milliseconds, and both return an id you can pass to clearTimeout or clearInterval to cancel. The delays are minimums, not guarantees — the browser or Node event loop runs the callback after the delay and when it is free. setTimeout(fn, 0) is a common trick to defer work to the next tick, letting the browser render or process other events first. For intervals, remember that heavy callbacks can overlap with future ticks; prefer chaining setTimeout calls from the end of the previous callback when timing matters. Always clear timers when components unmount or pages unload, to prevent zombie callbacks and memory leaks.",
+    "codeExample": "const id = setTimeout(() => console.log('later'), 1000);\nclearTimeout(id);\n\nlet count = 0;\nconst tick = setInterval(() => {\n  console.log(++count);\n  if (count === 5) clearInterval(tick);\n}, 1000);"
+  },
+  {
+    "id": 50,
+    "title": "The Event Loop",
+    "subject": "JavaScript Day 50: How JavaScript runs async code",
+    "body": "JavaScript runs on a single thread, but it appears concurrent thanks to the event loop. The loop picks tasks from queues and runs them one at a time. Synchronous code runs first in the call stack. When an async operation completes (a fetch returns, a timer fires), its callback is pushed into a task queue. The event loop runs whatever is on the stack until it is empty, then takes the next task. Microtasks (promise callbacks, queueMicrotask) run before the next macrotask (setTimeout, I/O), so a chain of resolved promises can starve timers. Understanding the event loop explains many bugs: setTimeout(fn, 0) does not run immediately, UI updates happen between ticks, and blocking synchronous work freezes the whole page. Keep tasks short and defer heavy work so the loop stays responsive.",
+    "codeExample": "console.log('1');\nsetTimeout(() => console.log('3 (macrotask)'), 0);\nPromise.resolve().then(() => console.log('2 (microtask)'));\nconsole.log('end');\n\n// 1, end, 2 (microtask), 3 (macrotask)"
+  },
+  {
+    "id": 51,
+    "title": "Higher-Order Functions",
+    "subject": "JavaScript Day 51: Functions that accept or return functions",
+    "body": "A higher-order function takes another function as an argument, returns a function, or both. The array methods map, filter, reduce, and forEach are the canonical examples — they accept a function you pass in. Returning a function enables factory patterns and partial application: write a function that takes configuration and returns a customized function. Higher-order functions are the backbone of functional programming in JavaScript and make code more declarative: describe what you want, not how to loop. They also enable middleware patterns (Express, Redux), memoization, and throttling helpers. The only cost is a small indirection — the engine is great at optimizing this — and readability if you nest too deep. When you see a function that just wraps a single call to another, you can often lift it out and pass the inner function directly.",
+    "codeExample": "function withLogging(fn) {\n  return function (...args) {\n    console.log('calling with', args);\n    const result = fn(...args);\n    console.log('got', result);\n    return result;\n  };\n}\n\nconst addLogged = withLogging((a, b) => a + b);\naddLogged(2, 3);"
+  },
+  {
+    "id": 52,
+    "title": "Callbacks",
+    "subject": "JavaScript Day 52: Callbacks and continuation-style code",
+    "body": "A callback is a function you pass to another function so it can call it back later — after an event, a timer, or an async operation. Callbacks were the original way to handle asynchrony in JavaScript before promises and async/await. Error-first callbacks, common in older Node.js APIs, take err as the first argument and data as the second. Callbacks still appear everywhere: array methods, event listeners, setTimeout, and many browser APIs. The biggest pitfall is callback hell — deeply nested callbacks whose indentation grows with each step. Promises and async/await solve this for asynchronous flows. For event-style callbacks, keep them small and named so the call site is readable. Understand callbacks deeply before moving on, because promises and async/await are built on the same idea of “give me a function to run when ready.”",
+    "codeExample": "function loadData(url, callback) {\n  setTimeout(() => {\n    if (!url) return callback(new Error('missing url'));\n    callback(null, { ok: true, url });\n  }, 200);\n}\n\nloadData('/api', (err, data) => {\n  if (err) return console.error(err);\n  console.log(data);\n});"
+  },
+  {
+    "id": 53,
+    "title": "localStorage and sessionStorage",
+    "subject": "JavaScript Day 53: Storing data in the browser",
+    "body": "Web browsers give pages two simple key-value stores. localStorage persists data indefinitely (until the user clears it); sessionStorage lasts only for the current tab's session. Both expose the same API: setItem, getItem, removeItem, clear, and key. Values must be strings, so you typically stringify JSON on write and parse it on read. Both are synchronous and limited to around 5–10 MB per origin. Use them for small persistent preferences, caches, and draft form data. Never store secrets or auth tokens that matter — localStorage is readable by any script on the same origin, making it vulnerable to XSS. Prefer httpOnly cookies for session tokens. Remember that JSON.parse of invalid data throws, and getItem of a missing key returns null, so defensive parsing helps avoid runtime errors.",
+    "codeExample": "localStorage.setItem('theme', 'dark');\nconst theme = localStorage.getItem('theme'); // 'dark'\n\nconst draft = { title: 'Hi', body: '' };\nlocalStorage.setItem('draft', JSON.stringify(draft));\nconst saved = JSON.parse(localStorage.getItem('draft') || '{}');\n\nlocalStorage.removeItem('theme');"
+  },
+  {
+    "id": 54,
+    "title": "Debounce",
+    "subject": "JavaScript Day 54: Debouncing to reduce calls",
+    "body": "Debouncing is a technique that delays a function call until a given amount of time has passed since the last trigger. It is perfect for events that fire rapidly but only the final state matters — search input, window resize, saving a draft. Each new call resets the timer, so the function only runs once the user pauses. Implement it by keeping a timer id in a closure: clear it at the start of every call, then set a new one. Libraries like Lodash provide robust versions with leading/trailing options, but a dozen-line implementation is enough for most cases. Debounce is different from throttle: debounce waits for silence; throttle enforces a maximum rate. Picking the right one changes UX: debounce feels responsive when the user stops typing; throttle feels smooth during continuous scrolling.",
+    "codeExample": "function debounce(fn, wait) {\n  let timer;\n  return function (...args) {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn.apply(this, args), wait);\n  };\n}\n\nconst onSearch = debounce(q => fetch(`/search?q=${q}`), 300);\ninput.addEventListener('input', e => onSearch(e.target.value));"
+  },
+  {
+    "id": 55,
+    "title": "Throttle",
+    "subject": "JavaScript Day 55: Throttling to cap the rate",
+    "body": "Throttling ensures a function runs at most once in a given time window, no matter how often it is triggered. It is the right tool for scroll, mousemove, and resize handlers where you want regular updates but not a storm of them. A simple implementation uses a timestamp: remember when you last ran, and skip calls until enough time has passed. More sophisticated versions queue a trailing call so the final event is not lost — important for scroll positions that matter at the end. Debounce collapses bursts into a single trailing call; throttle spreads the calls evenly. Measure before optimizing: browsers already throttle some internal events, and a simple handler may not need either pattern. When the UI stutters during rapid events, throttle first, then memoize any expensive calculation inside.",
+    "codeExample": "function throttle(fn, wait) {\n  let last = 0;\n  return function (...args) {\n    const now = Date.now();\n    if (now - last >= wait) {\n      last = now;\n      fn.apply(this, args);\n    }\n  };\n}\n\nwindow.addEventListener('scroll', throttle(() => {\n  console.log(window.scrollY);\n}, 100));"
+  },
+  {
+    "id": 56,
+    "title": "Memoization",
+    "subject": "JavaScript Day 56: Caching expensive function results",
+    "body": "Memoization is an optimization that caches the result of a function for a given input, so repeated calls with the same input return instantly. It works for pure functions — functions where the output depends only on the input and has no side effects. Implement it with a closure that holds a Map keyed by the arguments. For primitive single-argument keys, a plain object works; for multi-argument keys, serialize them or use a nested Map structure. Use memoization when a function is expensive and called repeatedly with repeated inputs: parsing, formatting, heavy math, or selectors in state libraries. Avoid it when the input is rarely repeated or when memory is tight, since the cache grows with each unique input. React's useMemo and libraries like reselect apply the same idea inside components and state pipelines.",
+    "codeExample": "function memoize(fn) {\n  const cache = new Map();\n  return function (arg) {\n    if (cache.has(arg)) return cache.get(arg);\n    const result = fn(arg);\n    cache.set(arg, result);\n    return result;\n  };\n}\n\nconst slowSquare = n => (console.log('calc'), n * n);\nconst fastSquare = memoize(slowSquare);\nfastSquare(4); fastSquare(4); // 'calc' logged once"
+  },
+  {
+    "id": 57,
+    "title": "Currying",
+    "subject": "JavaScript Day 57: Turning multi-arg functions into chains",
+    "body": "Currying transforms a function that takes multiple arguments into a sequence of functions that each take one argument. curriedAdd(1)(2)(3) is the curried form of add(1, 2, 3). The main benefit is partial application: bind some arguments now and provide the rest later. This makes code more composable — you can preconfigure a function and pass it around. Arrow functions make manual currying concise: a => b => c => a + b + c. Libraries like Ramda and Lodash/fp do it automatically for any function, often with a placeholder for skipping positions. You rarely need deep currying in everyday JavaScript, but partial application is common: a logger bound to a level, a fetch helper bound to a base URL, or a handler bound to a specific item's id. Currying is the foundation of that flexibility.",
+    "codeExample": "const add = a => b => c => a + b + c;\nadd(1)(2)(3); // 6\n\nconst log = level => message => console.log(`[${level}] ${message}`);\nconst warn = log('warn');\nwarn('disk almost full');"
+  },
+  {
+    "id": 58,
+    "title": "Generators",
+    "subject": "JavaScript Day 58: Writing generator functions",
+    "body": "Generators are functions that can pause and resume. Declare one with function*, and use yield inside to emit values one at a time. Calling the generator returns an iterator: each call to .next() runs up to the next yield and returns { value, done }. When done is true, the generator has finished. Because the function state is preserved between yields, generators are great for producing sequences — paginated data, infinite streams, custom iteration over a tree — without building a full array in memory. They are also iterable, so you can use them in for...of and spread. More advanced uses include two-way communication: .next(x) passes x back into the generator as the result of the current yield. Generators inspired async/await, and they remain the right tool for custom lazy sequences.",
+    "codeExample": "function* range(start, end) {\n  for (let i = start; i < end; i++) yield i;\n}\n\nfor (const n of range(1, 4)) console.log(n); // 1, 2, 3\n\nfunction* ids() {\n  let id = 1;\n  while (true) yield id++;\n}\nconst g = ids();\ng.next().value; // 1\ng.next().value; // 2"
+  },
+  {
+    "id": 59,
+    "title": "Symbols",
+    "subject": "JavaScript Day 59: Unique identifiers with Symbol",
+    "body": "A Symbol is a unique, immutable primitive. Create one with Symbol('description'). Two symbols are never equal, even if their descriptions match — that uniqueness is the point. Symbols are used mostly as object keys you want to be collision-free: libraries can attach internal fields to user objects without risking name clashes. Well-known symbols such as Symbol.iterator and Symbol.asyncIterator let you customize how objects behave with for...of and await-for-of. To make your own object iterable, implement an [Symbol.iterator] method that returns an iterator. Symbols are not enumerable by default in for...in or Object.keys, though you can get them with Object.getOwnPropertySymbols. In everyday app code you may rarely reach for Symbol, but you will encounter it in framework source and custom protocols, so it helps to understand the tool when you see it.",
+    "codeExample": "const id = Symbol('id');\nconst user = { name: 'Ada', [id]: 42 };\n\nconsole.log(user[id]); // 42\n\nclass Range {\n  constructor(s, e) { this.s = s; this.e = e; }\n  *[Symbol.iterator]() { for (let i = this.s; i < this.e; i++) yield i; }\n}\nfor (const n of new Range(1, 4)) console.log(n);"
+  },
+  {
+    "id": 60,
+    "title": "Optional Chaining and Nullish Coalescing",
+    "subject": "JavaScript Day 60: ?. and ?? — your final lesson",
+    "body": "Optional chaining (?.) lets you read deep properties without worrying that an intermediate value might be null or undefined. Instead of user && user.address && user.address.city, you write user?.address?.city — if any step is nullish, the whole expression is undefined. It also works on function calls (fn?.()) and array indices (arr?.[0]). Nullish coalescing (??) provides a default only when the left side is null or undefined, unlike || which also kicks in for 0, '', and false. Together they remove piles of defensive code. Use ?? when 0 and '' are legal values: value ?? 10 keeps 0 but supplies 10 for undefined. Avoid sprinkling ?. everywhere; if a value should never be nullish, use an assertion or a guard at the boundary so the rest of the code can trust the shape. This is where many teams start tightening their types.",
+    "codeExample": "const user = { profile: { name: 'Ada' } };\nconst city = user?.profile?.address?.city;   // undefined\nconst name = user?.profile?.name ?? 'Anon';  // 'Ada'\nconst count = 0;\nconst display = count ?? 'n/a';              // 0 (nullish respects 0)\nconst fallback = count || 'n/a';             // 'n/a' (wrong here)\n\nconst result = obj?.method?.();              // safe call"
+  }
+]

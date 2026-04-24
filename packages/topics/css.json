@@ -1,0 +1,422 @@
+[
+  {
+    "id": 1,
+    "title": "CSS Syntax and Selectors",
+    "subject": "CSS Day 1: How a CSS rule is structured",
+    "body": "A CSS rule has two parts: a selector and a declaration block. The selector chooses which elements the rule applies to; the block contains property-value pairs that describe how those elements should look. Selectors range from simple (h1, .card, #main) to complex (nav > ul li:first-child). Each declaration is property: value; inside braces. Semicolons separate declarations; forgetting the last one is the most common beginner mistake in multi-line rules. Properties are standardized names that the browser understands; unknown properties are ignored. Values depend on the property — colors, lengths, numbers, keywords, or functions. Comments use /* ... */ and can span lines. The browser applies CSS by parsing these rules and matching them against elements at render time. Keep selectors specific enough to target the right elements but loose enough to stay maintainable.",
+    "codeExample": "/* selector */   /* declaration block */\nh1 { color: #1a202c; font-size: 2rem; }\n\n.card {\n  padding: 16px;\n  border-radius: 8px;\n  background: #fff;\n}\n\n#hero {\n  min-height: 400px;\n}"
+  },
+  {
+    "id": 2,
+    "title": "Selectors: Type, Class, ID",
+    "subject": "CSS Day 2: The three primary selectors",
+    "body": "The three selectors you'll use most are the type (tag) selector, the class selector, and the ID selector. Type selectors match elements by tag name: h1, p, button. Class selectors match the class attribute and are prefixed with a dot: .card, .btn-primary. ID selectors match the id attribute and are prefixed with a hash: #header. IDs must be unique on a page; classes can appear on many elements. Favor classes in day-to-day CSS because they scale — a class can be reused across any element. Keep ID selectors for truly unique things like #main-nav. Type selectors are great for baseline styling (body, a, img) but less so for components because they're not specific. Combining selectors, like .card.featured or h1.title, creates more specific rules when you need them.",
+    "codeExample": "/* type */\np { line-height: 1.5; }\n\n/* class */\n.card { padding: 1rem; }\n\n/* id */\n#page-header { border-bottom: 1px solid #eee; }\n\n/* combined */\n.card.featured { border: 2px solid gold; }\nh1.title { font-size: 2.5rem; }"
+  },
+  {
+    "id": 3,
+    "title": "Combinators and Descendant Selectors",
+    "subject": "CSS Day 3: Combining selectors by relationship",
+    "body": "Combinators let you select elements based on their relationship to other elements. A space between selectors is the descendant combinator: .card p matches any paragraph inside a .card, at any depth. > is the child combinator: .menu > li matches li elements that are direct children, not grandchildren. + is the adjacent sibling combinator: h2 + p matches a paragraph that immediately follows an h2. ~ is the general sibling combinator: matches any sibling that comes after, not just the immediate next. Descendant selectors are common but can accidentally match deeply nested children you didn't intend; the child combinator is tighter when you want just one level. Keep selectors shallow — long chains are hard to read and slow to match. For component styling, a single class on the component is usually clearer than three-level descendant chains.",
+    "codeExample": "nav a { color: #4f46e5; }            /* descendant */\nnav > ul > li { padding: 8px; }      /* child */\nh2 + p { margin-top: 0.5rem; }       /* adjacent sibling */\nh2 ~ p { color: #666; }               /* general sibling */"
+  },
+  {
+    "id": 4,
+    "title": "The Box Model",
+    "subject": "CSS Day 4: Content, padding, border, margin",
+    "body": "Every element in CSS is a rectangular box with four concentric layers: the content, the padding, the border, and the margin. Width and height describe the content area by default, but adding padding and border grows the visible size — which is why box-sizing: border-box is almost universally set as a reset: it makes width include padding and border, so 300px means 300px total. Margin sits outside the box and creates space between adjacent elements. Vertical margins between block elements collapse: two adjacent 20px margins produce a 20px gap, not 40px. Understanding the box model is the foundation for every layout decision — sizing, spacing, alignment. Start with the border-box reset in every project; it removes an entire class of sizing surprises and matches the way most designers think about dimensions.",
+    "codeExample": "* { box-sizing: border-box; }\n\n.card {\n  width: 300px;\n  padding: 16px;\n  border: 1px solid #ddd;\n  margin: 16px;\n  /* total rendered width: 300px (border-box) */\n}"
+  },
+  {
+    "id": 5,
+    "title": "Display Property",
+    "subject": "CSS Day 5: The display property",
+    "body": "display controls how an element participates in layout. The key values are block, inline, inline-block, none, flex, and grid. Block elements take the full available width and start on a new line — divs, headings, paragraphs. Inline elements flow with text, only taking the width of their content; they ignore width and height. Inline-block hybridizes: it flows inline but respects dimensions. display: none removes the element from layout entirely (and from the accessibility tree) — unlike visibility: hidden, which still takes up space. flex and grid are the modern layout systems covered later. Changing display is a powerful way to alter layout behavior: a nav's li children are block by default, but set the ul to display: flex and they line up horizontally. Know the defaults for common elements so changes are deliberate.",
+    "codeExample": ".hidden { display: none; }\n\nnav ul { display: flex; gap: 1rem; }\n\n.badge {\n  display: inline-block;\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: #eee;\n}"
+  },
+  {
+    "id": 6,
+    "title": "Colors",
+    "subject": "CSS Day 6: Color values in CSS",
+    "body": "CSS supports several color notations. Named colors like red, cornflowerblue are simple but limited. Hex codes (#f00, #ff0000) are compact and universal. rgb() and rgba() accept 0–255 channel values and optional alpha: rgba(255, 0, 0, 0.5). hsl() and hsla() use hue (0–360), saturation, and lightness, which make color variations intuitive — add 10% lightness to get a hover shade. Modern CSS adds oklch() and oklab() with perceptually uniform spaces, and the color() function for wide-gamut displays. For transparency, prefer alpha values over opacity — opacity affects the whole element including text, while rgba() or a transparent background keeps child text opaque. Pick one notation per project for consistency; HSL and OKLCH are the best for designing palettes because you can rotate hue and tweak lightness to build harmonious variants.",
+    "codeExample": ".warning { color: #d97706; }\n.warning-bg { background: rgba(217, 119, 6, 0.1); }\n\nbutton {\n  background: hsl(220, 90%, 50%);\n}\nbutton:hover {\n  background: hsl(220, 90%, 60%);\n}"
+  },
+  {
+    "id": 7,
+    "title": "Units: px, em, rem, %, vw, vh",
+    "subject": "CSS Day 7: Lengths and when to use each",
+    "body": "CSS lengths come in absolute and relative flavors. px is the most common absolute unit; one CSS pixel is roughly one device pixel, scaled for device pixel density. em is relative to the current element's font size; nesting multiplies it, which can produce surprises. rem is relative to the root element's font size (usually 16px), giving you a consistent base across the document. Use rem for typography and spacing tied to text; use px for borders and small fixed values. Percentages are relative to a parent property and are common for widths. vw and vh are percentages of the viewport, useful for hero sections and modal sizes. Avoid hard-coding huge values; prefer scales and design tokens so spacing and type feel cohesive. Modern CSS also has clamp(min, preferred, max) for fluid, responsive sizing in a single declaration.",
+    "codeExample": "html { font-size: 16px; }\nbody { font-size: 1rem; }\n\n.section { padding: 2rem 1rem; }\n.hero    { min-height: 80vh; }\nh1       { font-size: clamp(1.5rem, 4vw, 3rem); }"
+  },
+  {
+    "id": 8,
+    "title": "Typography Basics",
+    "subject": "CSS Day 8: Text styling fundamentals",
+    "body": "Typography is arguably the most important visual aspect of a page. font-family sets the typeface, with a fallback stack: 'Inter', system-ui, sans-serif. font-size controls size; rem-based values scale with the root. font-weight goes from 100 (thin) to 900 (black), with 400 regular and 700 bold most common. line-height controls vertical spacing between lines; a unitless 1.5 is a safe default for body text. letter-spacing tightens or opens up tracking. text-transform handles caps (uppercase, capitalize). color chooses the ink. For readable paragraphs, aim for a max-width around 60–75 characters. Web fonts load asynchronously; set font-display: swap on @font-face or use <link rel=\"preload\"> so text shows quickly. Good type is a stack of small decisions; spend time here and the whole page improves.",
+    "codeExample": "body {\n  font-family: 'Inter', system-ui, sans-serif;\n  font-size: 1rem;\n  line-height: 1.6;\n  color: #1a202c;\n}\n\nh1 { font-size: 2.5rem; font-weight: 700; letter-spacing: -0.02em; }\np  { max-width: 65ch; }"
+  },
+  {
+    "id": 9,
+    "title": "Backgrounds",
+    "subject": "CSS Day 9: Background properties",
+    "body": "The background shorthand packs several properties into one declaration: color, image, position, size, repeat, attachment, origin, clip. Use specific properties (background-color, background-image) when you only set some of them. Images can be URLs or gradients: linear-gradient, radial-gradient, conic-gradient. Multiple backgrounds layer with commas: the first is topmost. background-size: cover stretches the image to cover the element while preserving aspect ratio; contain fits it inside. background-position chooses the anchor point (center, top right, 50% 25%). For fixed-position effects during scroll, background-attachment: fixed works but is expensive on mobile — consider a sticky element instead. Modern CSS supports background-clip: text to paint a gradient onto text, a stylish effect for headings paired with -webkit-text-fill-color: transparent.",
+    "codeExample": ".hero {\n  background:\n    linear-gradient(135deg, rgba(79,70,229,.9), rgba(124,58,237,.9)),\n    url('/img/hero.jpg') center / cover no-repeat;\n}\n\n.gradient-text {\n  background: linear-gradient(90deg, #4f46e5, #7c3aed);\n  -webkit-background-clip: text;\n  background-clip: text;\n  color: transparent;\n}"
+  },
+  {
+    "id": 10,
+    "title": "Borders and Radius",
+    "subject": "CSS Day 10: Borders, radii, and shadow outlines",
+    "body": "border is another shorthand: border: 1px solid #ddd; sets width, style, and color all at once. Styles include solid, dashed, dotted, double, none. Set individual sides with border-top, border-right, border-bottom, border-left. border-radius rounds corners; a single value applies to all four corners, two values to diagonal pairs, four values to each corner in clockwise order starting at top-left. A radius of 999px (larger than the element) makes a pill shape; 50% on a square makes a circle. border is painted inside the box and affects layout; outline is painted outside and doesn't affect layout, which makes it perfect for focus indicators. Never remove outline entirely on focus — users navigating by keyboard need it. Replace it with a clearer style, like a colored box-shadow ring.",
+    "codeExample": ".card {\n  border: 1px solid #e5e7eb;\n  border-radius: 12px;\n}\n\n.pill { border-radius: 999px; }\n.avatar { border-radius: 50%; }\n\nbutton:focus-visible {\n  outline: none;\n  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.4);\n}"
+  },
+  {
+    "id": 11,
+    "title": "Positioning",
+    "subject": "CSS Day 11: static, relative, absolute, fixed, sticky",
+    "body": "position controls how an element sits in the layout. static (the default) follows normal document flow. relative places it in flow but lets you nudge it with top/left/right/bottom — useful as a reference for absolute children. absolute removes the element from flow and positions it relative to the nearest positioned ancestor (any ancestor with position other than static). fixed positions relative to the viewport and stays there during scroll — ideal for fixed headers or floating buttons. sticky is a hybrid: behaves as relative until it reaches a threshold, then sticks like fixed within its parent. Use z-index on positioned elements to control stacking order. Positioning is the escape hatch for layouts that grid and flex can't express; reach for it for overlays, tooltips, modals, and small badge accents, not for main layouts.",
+    "codeExample": ".dropdown { position: relative; }\n.dropdown-menu {\n  position: absolute;\n  top: 100%;\n  left: 0;\n}\n\n.top-bar { position: sticky; top: 0; z-index: 10; }\n.fab     { position: fixed; bottom: 24px; right: 24px; }"
+  },
+  {
+    "id": 12,
+    "title": "Flexbox: The Container",
+    "subject": "CSS Day 12: Getting started with Flexbox",
+    "body": "Flexbox is a one-dimensional layout system: it lays items out along a single axis, either horizontally (the default) or vertically. Turn any element into a flex container with display: flex. Its direct children become flex items. The main axis is set by flex-direction (row, row-reverse, column, column-reverse). justify-content aligns items along the main axis: flex-start, flex-end, center, space-between, space-around, space-evenly. align-items aligns along the cross axis: stretch (default), flex-start, flex-end, center, baseline. flex-wrap controls whether items wrap onto new lines. The gap property adds consistent spacing between items without margins. Flexbox is the right tool for navigation bars, toolbars, form rows, and card groups — anywhere a handful of items need alignment along one direction.",
+    "codeExample": "nav {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 1rem;\n  padding: 1rem;\n}\n\n.card-grid {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 16px;\n}"
+  },
+  {
+    "id": 13,
+    "title": "Flexbox: The Items",
+    "subject": "CSS Day 13: Sizing and ordering flex items",
+    "body": "Each flex item has its own alignment and sizing properties. flex-grow sets how much free space an item should absorb. flex-shrink sets how much it gives up when space is tight. flex-basis sets the starting size along the main axis. The flex shorthand combines them: flex: 1 gives the item grow 1, shrink 1, basis 0%, which is the go-to for items that should share space equally. flex: 0 0 auto keeps the item at its natural size. align-self overrides the container's align-items for one item. order changes the visual order without changing the DOM, useful for responsive reshuffles — but don't move keyboard focus order, which can hurt accessibility. Mastering these five properties (direction, justify, align, flex, gap) gets you to 90% of real-world layouts without Grid.",
+    "codeExample": ".bar { display: flex; }\n.bar .title   { flex: 0 0 auto; }\n.bar .search  { flex: 1; }\n.bar .actions { flex: 0 0 auto; }\n\n.right-only { align-self: flex-end; }"
+  },
+  {
+    "id": 14,
+    "title": "Grid: The Container",
+    "subject": "CSS Day 14: Getting started with CSS Grid",
+    "body": "CSS Grid is a two-dimensional layout system. Turn any element into a grid container with display: grid. Define columns with grid-template-columns and rows with grid-template-rows. Units include fixed lengths, percentages, and the flexible fr unit: grid-template-columns: 1fr 2fr makes the second column twice as wide as the first. The repeat() function avoids duplication: repeat(3, 1fr) creates three equal columns. gap adds spacing between cells, like in Flexbox. grid-auto-flow controls how items flow into implicit tracks; dense packing can fill holes from smaller items. Grid is the right tool for page-level layouts, dashboards, photo galleries, and anything where both rows and columns matter simultaneously. It also pairs beautifully with auto-fit and minmax() for responsive grids that add or remove columns based on container width.",
+    "codeExample": ".layout {\n  display: grid;\n  grid-template-columns: 240px 1fr;\n  grid-template-rows: 64px 1fr;\n  gap: 16px;\n  min-height: 100vh;\n}\n\n.card-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));\n  gap: 16px;\n}"
+  },
+  {
+    "id": 15,
+    "title": "Grid: Placing Items",
+    "subject": "CSS Day 15: grid-column, grid-row, and named areas",
+    "body": "Grid items flow into cells automatically, but you can place them anywhere. grid-column and grid-row accept a start and end line: grid-column: 1 / 3 spans from column line 1 to line 3 (two columns wide). span N syntax is handy: grid-column: span 2. Named grid areas are the most readable placement system: define a template with grid-template-areas, then assign items with grid-area. The visual layout in the template literal mirrors the final page, making it easy to understand at a glance. Combined with media queries, named areas produce beautiful responsive layouts by redefining the template per breakpoint. Items can also auto-place with grid-auto-flow: dense, which backfills smaller items into earlier gaps. Grid's placement system is one of the most powerful additions to CSS in the last decade.",
+    "codeExample": ".layout {\n  display: grid;\n  grid-template-columns: 240px 1fr;\n  grid-template-areas:\n    \"sidebar header\"\n    \"sidebar content\";\n}\n.layout header  { grid-area: header; }\n.layout aside   { grid-area: sidebar; }\n.layout main    { grid-area: content; }\n\n.hero { grid-column: 1 / -1; }"
+  },
+  {
+    "id": 16,
+    "title": "Responsive Design Basics",
+    "subject": "CSS Day 16: Building for many screen sizes",
+    "body": "Responsive design means a single codebase that adapts to phones, tablets, and desktops. Start mobile-first: write the default styles for the smallest screen, then add media queries that add complexity as the viewport widens. This tends to produce simpler CSS than desktop-first. Use relative units (rem, em, %, fr) instead of fixed pixel widths. Let grids use auto-fit with minmax to naturally add columns as space grows. Use clamp() for fluid typography and spacing. Avoid fixed heights on containers that hold text — let content decide. Test on real devices and with the browser's device emulator. The viewport meta tag in HTML is required: <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> — without it, mobile browsers render at desktop widths and zoom out, making everything tiny.",
+    "codeExample": ".grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));\n  gap: 16px;\n}\n\nh1 { font-size: clamp(1.5rem, 3vw + 1rem, 3rem); }\n\n.container { width: min(100% - 2rem, 72rem); margin-inline: auto; }"
+  },
+  {
+    "id": 17,
+    "title": "Media Queries",
+    "subject": "CSS Day 17: Style rules with conditions",
+    "body": "A media query applies styles only when the viewport matches a condition. @media (min-width: 768px) means “at tablet width and above.” Combine queries with and, list alternatives with commas, negate with not. Common breakpoints are 640px (sm), 768px (md), 1024px (lg), 1280px (xl), though the right breakpoints come from your content, not from arbitrary device sizes. Beyond width, media queries can target orientation (portrait/landscape), print output, hover capability (@media (hover: hover)), and reduced motion (@media (prefers-reduced-motion: reduce)). Use prefers-color-scheme to adapt to light/dark mode, and pair with custom properties to swap palettes in one line. Container queries (a newer feature) let components react to the size of their container, not the viewport — huge for reusable components.",
+    "codeExample": ".sidebar { display: none; }\n@media (min-width: 768px) {\n  .sidebar { display: block; }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  * { animation: none !important; transition: none !important; }\n}\n\n@media (prefers-color-scheme: dark) {\n  :root { --bg: #0f172a; --fg: #f1f5f9; }\n}"
+  },
+  {
+    "id": 18,
+    "title": "CSS Variables (Custom Properties)",
+    "subject": "CSS Day 18: Reusing values with --variables",
+    "body": "CSS custom properties (often called CSS variables) let you define reusable values with a --name and use them with var(--name). Unlike Sass variables, they are live at runtime — you can change them with JavaScript or with pseudo-class selectors, and every element using them updates immediately. Define them on :root for global tokens: --color-brand, --space-4, --radius. Define them on components for local overrides. They cascade and inherit like any property. Pair with theming for light/dark modes: swap the variable values in a [data-theme=\"dark\"] selector, and the whole UI retints without touching any other rule. Fallbacks go in var(): var(--accent, #4f46e5). Combined with calc() and clamp(), custom properties become the backbone of a flexible design system that's readable and maintainable.",
+    "codeExample": ":root {\n  --color-bg: #ffffff;\n  --color-fg: #1a202c;\n  --space-4: 1rem;\n  --radius: 8px;\n}\n\n[data-theme=\"dark\"] {\n  --color-bg: #0f172a;\n  --color-fg: #f1f5f9;\n}\n\nbody { background: var(--color-bg); color: var(--color-fg); }\n.card { padding: var(--space-4); border-radius: var(--radius); }"
+  },
+  {
+    "id": 19,
+    "title": "Animations: Transitions",
+    "subject": "CSS Day 19: Smooth changes with transition",
+    "body": "transition animates a property change over time. transition: property duration timing-function delay;. Common properties to animate: color, background, transform, opacity. Animate transform and opacity for performance — they run on the GPU and don't trigger layout. Easing functions like ease, ease-in-out, and cubic-bezier(...) shape the curve of motion; linear is robotic, ease is the default. Keep durations short for interactive feedback (150–300ms) and longer for entrance animations (400–600ms). Use transition: all sparingly — it animates every property change, which can surprise you; list specific properties instead. Pair transitions with pseudo-classes (:hover, :focus, :active) for hover states that feel polished. Respect prefers-reduced-motion to disable transitions for users who prefer less motion.",
+    "codeExample": "button {\n  background: #4f46e5;\n  transform: translateY(0);\n  transition: background 0.15s ease, transform 0.15s ease;\n}\nbutton:hover {\n  background: #6366f1;\n  transform: translateY(-2px);\n}"
+  },
+  {
+    "id": 20,
+    "title": "Animations: Keyframes",
+    "subject": "CSS Day 20: @keyframes for multi-step animations",
+    "body": "Transitions are limited to single property changes between two states. Keyframe animations let you define multiple waypoints. Declare an animation with @keyframes name { 0% {} 50% {} 100% {} } or with from/to. Apply it with animation: name duration timing-function iteration-count. The animation shorthand accepts direction (reverse, alternate), fill-mode (forwards to keep the end state), and delay. Use animations for loading spinners, attention-grabbing entrances, and decorative motion. Keep them purposeful: motion directs the eye and signals change. Performance-wise, animate transform and opacity; avoid animating width, height, top, or left which trigger expensive layout. Combine multiple animations with commas in one declaration. Pause and resume dynamically by adding or removing a class; animations can also be controlled programmatically via the Web Animations API.",
+    "codeExample": "@keyframes spin {\n  from { transform: rotate(0deg); }\n  to   { transform: rotate(360deg); }\n}\n\n.loader {\n  width: 24px; height: 24px;\n  border: 2px solid #ddd;\n  border-top-color: #4f46e5;\n  border-radius: 50%;\n  animation: spin 0.8s linear infinite;\n}"
+  },
+  {
+    "id": 21,
+    "title": "Transforms",
+    "subject": "CSS Day 21: 2D and 3D transforms",
+    "body": "transform moves, scales, rotates, or skews an element without affecting the surrounding layout. Common functions: translate(x, y), rotate(angle), scale(factor), skew(x, y). Combine them in one value: transform: translate(10px, 20px) rotate(5deg). The order matters — later transforms apply to the new coordinate system. transform-origin moves the pivot point (default center). 3D transforms add a z-axis: translate3d, rotate3d, plus perspective on the parent for true 3D depth. Because transforms are GPU-accelerated and don't trigger layout, they are the preferred way to animate position changes — much smoother than animating left or top. Use will-change: transform as a hint when animating heavy elements, but don't sprinkle it everywhere or you'll waste memory. Transforms also pair with transitions for hover effects that feel instantly responsive.",
+    "codeExample": ".card {\n  transition: transform 0.2s ease, box-shadow 0.2s ease;\n}\n.card:hover {\n  transform: translateY(-4px) scale(1.02);\n  box-shadow: 0 10px 30px rgba(0,0,0,0.1);\n}"
+  },
+  {
+    "id": 22,
+    "title": "Pseudo-classes",
+    "subject": "CSS Day 22: State-based selectors",
+    "body": "Pseudo-classes are appended with a colon: a:hover, input:focus, li:first-child. They match elements based on state or position. Interaction states: :hover, :focus, :focus-visible (only keyboard-focused), :active (pressed). Form states: :checked, :disabled, :invalid, :required. Structural selectors: :first-child, :last-child, :nth-child(even), :nth-child(3n+1). :not(...) negates a selector. :is(...) and :where(...) group selectors, with :where having zero specificity — great for baseline styles that are easy to override. :has(...) is the relational selector that lets a parent react to a child's state, like a card highlighting when it contains a focused input. Pseudo-classes make your styles dynamic without any JavaScript; they are a pillar of interactive, accessible CSS.",
+    "codeExample": "a:hover { text-decoration: underline; }\nbutton:disabled { opacity: 0.5; cursor: not-allowed; }\n\nli:nth-child(odd) { background: #fafafa; }\n\n.card:has(input:focus) { box-shadow: 0 0 0 3px rgba(79,70,229,0.2); }"
+  },
+  {
+    "id": 23,
+    "title": "Pseudo-elements",
+    "subject": "CSS Day 23: Styling parts of elements",
+    "body": "Pseudo-elements use :: and let you style parts of an element that aren't in the DOM. ::before and ::after insert generated content that you can style like a regular element; they require a content property, even if it's an empty string content: ''. Use them for decorative icons, tooltips, fancy dividers, quote marks. ::first-line and ::first-letter style the start of text blocks. ::placeholder styles form input placeholders. ::selection styles the text selection highlight. ::marker styles list bullets or numbers. Pseudo-elements don't exist in the DOM, so they're not directly scriptable, but they're perfect for presentational flourishes that shouldn't clutter markup. Keep content values simple; overusing ::before/::after for layout-critical content hurts accessibility since screen readers may skip it.",
+    "codeExample": ".quote::before {\n  content: '“';\n  font-size: 3rem;\n  color: #ccc;\n  margin-right: 0.25em;\n  vertical-align: -0.4em;\n}\n\ninput::placeholder { color: #9ca3af; }\n::selection { background: rgba(79,70,229,0.2); }"
+  },
+  {
+    "id": 24,
+    "title": "Specificity and the Cascade",
+    "subject": "CSS Day 24: Which rule wins",
+    "body": "When multiple rules target the same element, the browser resolves them using specificity, source order, and origin. Specificity counts three categories: id selectors, class/attribute/pseudo-class selectors, and type/pseudo-element selectors. Higher counts win; ties break by later-defined rules. Inline style attributes beat most selectors. !important overrides everything but makes later overrides harder and should be a last resort. Keep specificity low and flat by preferring classes over ids, and by avoiding deeply chained selectors. Utility-first frameworks sidestep specificity wars by using single-class rules. The newer @layer rule lets you group styles with explicit priority, giving you cascade control without specificity hacks. Understanding specificity is the difference between fighting CSS and steering it — small changes in selectors can dramatically reduce the need for overrides.",
+    "codeExample": "/* specificity: 0,1,0 */\n.btn { background: blue; }\n\n/* specificity: 0,2,0 */\n.btn.primary { background: red; }\n\n/* specificity: 1,0,0 — wins */\n#cta { background: green; }\n\n/* use @layer for explicit cascade order */\n@layer base, components, utilities;"
+  },
+  {
+    "id": 25,
+    "title": "Z-index and Stacking Contexts",
+    "subject": "CSS Day 25: Controlling what's on top",
+    "body": "z-index determines the stacking order of overlapping elements — higher values appear above lower ones. But z-index only applies to positioned elements (position other than static) and to flex/grid children with z-index. Stacking contexts complicate this: certain properties (position with z-index, opacity less than 1, transform, filter, isolation: isolate) create a new stacking context, and z-index values inside only compete with siblings in the same context. This is why a modal with z-index: 9999 can still be hidden behind a parent with transform: translate — the modal's z-index only matters within its parent's context. Use isolation: isolate to intentionally create a new context and contain z-index fights. Keep z-index values small and from a defined scale (--z-modal: 50, --z-toast: 60); avoid the 9999 wars.",
+    "codeExample": ":root {\n  --z-dropdown: 10;\n  --z-sticky: 20;\n  --z-modal: 50;\n  --z-toast: 60;\n}\n\n.modal   { position: fixed; z-index: var(--z-modal); }\n.toast   { position: fixed; z-index: var(--z-toast); }\n.section { isolation: isolate; }"
+  },
+  {
+    "id": 26,
+    "title": "Overflow",
+    "subject": "CSS Day 26: Controlling content that exceeds its box",
+    "body": "overflow controls what happens when content is larger than its container. Values: visible (default, content spills out), hidden (clipped, no scrollbar), scroll (always show scrollbars), auto (show scrollbars only when needed). Use overflow-x and overflow-y separately for axis-specific behavior. overflow: hidden is commonly used to clip children that shouldn't be visible — for example, inside a rounded card with child images that would otherwise poke out of the border-radius. It also establishes a block formatting context, which helps with float clearing and margin collapse. Be careful: overflow: hidden on a parent can hide tooltips or dropdowns that should escape the parent. Use clip-path or positioned overlays in those cases. For scrollable panels, combine overflow: auto with a max-height.",
+    "codeExample": ".modal-body {\n  max-height: 70vh;\n  overflow-y: auto;\n}\n\n.card {\n  overflow: hidden;      /* clip image to the rounded corners */\n  border-radius: 12px;\n}\n\n.text-clip {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}"
+  },
+  {
+    "id": 27,
+    "title": "Shadows",
+    "subject": "CSS Day 27: box-shadow and text-shadow",
+    "body": "box-shadow paints a shadow around an element. Values: offset-x offset-y blur-radius spread-radius color, optionally with inset. Multiple shadows go in one declaration separated by commas, stacked top to bottom. Use subtle shadows for elevation (0 2px 4px rgba(0,0,0,0.1) for resting cards, stronger for floating elements). Inset shadows create inner glows and pressed states. Offset-only shadows look like retro borders. Pair shadows with transforms in hover states for cards that lift off the page. text-shadow adds a shadow to text — useful for legibility on photographic backgrounds. Shadows are a GPU-accelerated effect but excessive blur on many elements can slow rendering. For semi-transparent overlays and depth, filter: drop-shadow respects the visible outline of a shape (including transparency), unlike box-shadow which follows the bounding box.",
+    "codeExample": ".card {\n  box-shadow:\n    0 1px 3px rgba(0,0,0,0.05),\n    0 4px 20px rgba(0,0,0,0.08);\n  transition: box-shadow 0.2s ease, transform 0.2s ease;\n}\n.card:hover {\n  box-shadow:\n    0 8px 30px rgba(0,0,0,0.12);\n  transform: translateY(-2px);\n}"
+  },
+  {
+    "id": 28,
+    "title": "Gradients",
+    "subject": "CSS Day 28: Linear, radial, and conic gradients",
+    "body": "CSS gradients create smooth color transitions without image files. linear-gradient(angle, color, color, ...) goes in one direction (0deg is up, 90deg is right, or use keywords like to right). radial-gradient emanates from a point; conic-gradient rotates around a center, perfect for pie charts and color wheels. Multiple color stops shape the transition: linear-gradient(to right, red 0%, yellow 50%, green 100%). Hard stops with two colors at the same position create stripes or flags. Use transparent colors (rgba(0,0,0,0)) for fade-outs. Stack gradients over images in the background shorthand for tinted overlays. Use background-clip: text to paint a gradient onto text — a stylish heading trick. Keep gradients subtle for buttons and cards; dramatic gradients suit hero sections and decorative accents.",
+    "codeExample": ".button-primary {\n  background: linear-gradient(135deg, #4f46e5, #7c3aed);\n  color: white;\n}\n\n.hero {\n  background:\n    linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),\n    url('/img/hero.jpg') center / cover;\n}\n\n.radial {\n  background: radial-gradient(circle at top right, #fbbf24, transparent 60%);\n}"
+  },
+  {
+    "id": 29,
+    "title": "Filters and Blend Modes",
+    "subject": "CSS Day 29: Visual effects with filter",
+    "body": "filter applies graphical effects like blur, brightness, saturation, and grayscale to an element. filter: blur(8px) saturate(1.2). Combine multiple functions separated by spaces. backdrop-filter applies effects to what's behind a semi-transparent element, enabling frosted-glass effects on modals and navbars. mix-blend-mode controls how an element's colors blend with what's underneath, mimicking Photoshop layer blending: multiply for shadows, screen for highlights. background-blend-mode does the same within an element's own layered backgrounds. Use filters and blend modes sparingly — they're expensive on low-end devices, and animating them can jank. Test on real hardware. They shine for hover effects (desaturating a card then restoring on hover), image adjustments (unifying an image gallery's look with a subtle filter), and modern frosted UI patterns.",
+    "codeExample": ".frosted-nav {\n  backdrop-filter: blur(12px) saturate(1.2);\n  background: rgba(255,255,255,0.7);\n}\n\n.gallery img {\n  filter: saturate(0.9) contrast(1.05);\n  transition: filter 0.2s ease;\n}\n.gallery img:hover { filter: none; }"
+  },
+  {
+    "id": 30,
+    "title": "Flex vs Grid: Choosing the Right Tool",
+    "subject": "CSS Day 30: When to reach for Flexbox or Grid",
+    "body": "Flexbox and Grid overlap, but each has a sweet spot. Flexbox shines for one-dimensional layouts: navbars, toolbars, single rows or columns of items, equal-height flex siblings. Grid shines for two-dimensional layouts: page structures with distinct rows and columns, galleries, dashboards. Use Grid when you want explicit control over both axes — you say where each piece goes. Use Flex when you want items to fluidly fit based on content. They compose: a Grid cell can contain a Flex row. Both can be responsive — Grid with auto-fit + minmax, Flex with flex-wrap. The modern answer to most layouts is: page layouts are Grid, components inside are Flex. There's no wrong answer for many cases; pick the one whose mental model fits the problem, not the newest tool.",
+    "codeExample": "/* Grid: page shell */\n.app {\n  display: grid;\n  grid-template-columns: 240px 1fr;\n  grid-template-rows: 64px 1fr;\n}\n\n/* Flex: inside header */\n.app header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 16px;\n}"
+  },
+  {
+    "id": 31,
+    "title": "Aspect Ratio",
+    "subject": "CSS Day 31: Keeping proportional boxes",
+    "body": "The aspect-ratio property maintains a proportional relationship between width and height. Set aspect-ratio: 16 / 9 on a video placeholder and its height automatically follows its width. Before aspect-ratio was supported, developers used the padding-bottom hack; now a single declaration replaces all of it. Common ratios: 1 / 1 for avatars and Instagram tiles, 16 / 9 for video, 4 / 3 for photos, 3 / 2 for landscape. Combined with object-fit: cover on an <img> inside, you get a placeholder that always maintains its shape no matter what image fills it. aspect-ratio interacts with height: if height is set explicitly, it wins. The property is well-supported across modern browsers and is the right default for any media container where preserving shape matters.",
+    "codeExample": ".thumb {\n  aspect-ratio: 16 / 9;\n  background: #eee;\n  overflow: hidden;\n  border-radius: 8px;\n}\n.thumb img {\n  width: 100%;\n  height: 100%;\n  object-fit: cover;\n}"
+  },
+  {
+    "id": 32,
+    "title": "object-fit and object-position",
+    "subject": "CSS Day 32: Placing images inside their boxes",
+    "body": "object-fit controls how an <img> or <video> fits into its container when the element has an explicit size that differs from the media's natural dimensions. cover fills the box while preserving aspect ratio, cropping as needed — the most common choice for hero images and avatars. contain fits the media entirely inside the box with possible letterboxing. fill stretches it, distorting the image (usually unwanted). none shows the media at its original size. scale-down acts like none or contain, whichever is smaller. object-position acts like background-position: decide where inside the box the media is anchored when cropped. object-position: center top keeps the top visible in a cover crop. These two properties make responsive images predictable without awkward background-image hacks.",
+    "codeExample": ".avatar {\n  width: 64px;\n  height: 64px;\n  border-radius: 50%;\n  object-fit: cover;\n  object-position: center;\n}\n\n.hero img {\n  width: 100%;\n  height: 400px;\n  object-fit: cover;\n  object-position: center 25%;\n}"
+  },
+  {
+    "id": 33,
+    "title": "Sticky Positioning",
+    "subject": "CSS Day 33: sticky for sticky headers and labels",
+    "body": "position: sticky combines relative and fixed behaviors. A sticky element flows normally until it reaches a defined offset, then sticks inside its containing block. It is ideal for sticky table headers, sticky sidebars, sticky section labels in long content. The element must have top, bottom, left, or right set to define the sticky threshold. It is constrained to its parent; once the parent scrolls past, the sticky element scrolls away with it — unlike fixed, which sticks to the viewport forever. A common gotcha is a parent with overflow: hidden or overflow: auto that clips the sticky element unexpectedly — sticky works best when the scrolling ancestor is the viewport itself or a dedicated scroll container. When implemented correctly, sticky produces smooth, scroll-aware UI without JavaScript.",
+    "codeExample": ".page {\n  display: grid;\n  grid-template-columns: 240px 1fr;\n}\n\n.sidebar {\n  position: sticky;\n  top: 1rem;\n  align-self: start;\n  max-height: calc(100vh - 2rem);\n  overflow: auto;\n}"
+  },
+  {
+    "id": 34,
+    "title": "Pseudo-class :has()",
+    "subject": "CSS Day 34: The parent selector",
+    "body": "For years CSS had no parent selector. :has() changed that. A:has(B) matches A when it contains a descendant matching B. This unlocks patterns that used to require JavaScript: a form that highlights when an input is invalid, a card that changes style when it contains an image, a list row that gets a different background when its checkbox is checked. Combine with other pseudo-classes for rich interactions: .card:has(input:focus), .row:has(> button:hover). Specificity of :has() is the greatest of its arguments, which can be surprising — test carefully. Browser support is now widespread. Use :has() to reduce state-sync JavaScript; the parent reacts to its descendants naturally. It is one of the most impactful modern CSS additions for declarative, dynamic styling.",
+    "codeExample": "/* highlight a form field with a focused input */\n.field:has(input:focus) {\n  outline: 2px solid #4f46e5;\n  outline-offset: 2px;\n}\n\n/* different layout if a card has an image */\n.card:has(img) { padding-top: 0; }\n\n/* disable a submit when fields are invalid */\nform:has(input:invalid) button[type=\"submit\"] {\n  opacity: 0.5;\n  pointer-events: none;\n}"
+  },
+  {
+    "id": 35,
+    "title": "CSS Logical Properties",
+    "subject": "CSS Day 35: margin-inline, padding-block, and friends",
+    "body": "Logical properties replace physical directions (left, right, top, bottom) with flow-relative terms (inline-start, inline-end, block-start, block-end). margin-inline and padding-block handle both sides at once — margin-inline: auto is a cleaner left/right: auto for centering. Logical properties automatically adapt to right-to-left languages and to vertical writing modes, making internationalization essentially free. For common use, margin-block and padding-inline replace the old shorthand for top/bottom and left/right. Border logical properties exist too (border-inline-start-color). If you are starting a new project, default to logical properties; you get the same behavior in LTR languages plus automatic RTL support. Browser support is broad, and the naming, while verbose at first, makes layout intent clearer once you adjust.",
+    "codeExample": ".container { margin-inline: auto; max-width: 72rem; }\n.section   { padding-block: 3rem; padding-inline: 1rem; }\n\n.flag {\n  border-inline-start: 4px solid #4f46e5;\n  padding-inline-start: 12px;\n}"
+  },
+  {
+    "id": 36,
+    "title": "Container Queries",
+    "subject": "CSS Day 36: Component-level responsiveness",
+    "body": "Media queries respond to the viewport, but reusable components often need to respond to their own container. Container queries solve this. Declare a container with container-type: inline-size (and optionally container-name), then write rules inside @container ... { }. A card can switch from single-column to two-column layout based on the container it's placed in, whether that's a wide main column or a narrow sidebar. This decouples components from the page layout — drop the same card anywhere and it adapts. Container queries are in stable browsers now and are transformative for component-based design systems. They don't replace media queries — use media queries for overall page layout, container queries for components. Learning both tools together produces UIs that are truly flexible across contexts.",
+    "codeExample": ".card-list { container-type: inline-size; container-name: cards; }\n\n.card { display: grid; gap: 8px; }\n\n@container cards (min-width: 480px) {\n  .card {\n    grid-template-columns: 120px 1fr;\n    gap: 16px;\n  }\n}"
+  },
+  {
+    "id": 37,
+    "title": "The @supports Rule",
+    "subject": "CSS Day 37: Feature detection in CSS",
+    "body": "@supports lets you apply styles only if the browser understands a given feature, enabling progressive enhancement without JavaScript. Syntax: @supports (display: grid) { ... }. You can negate with not and combine with and/or. Use it to give modern browsers a better experience while older ones get a reasonable fallback. Pair with @supports not to provide fallback styles for browsers missing a feature. This pattern lets you adopt cutting-edge CSS safely: ship Grid layouts with a Flexbox fallback, or use subgrid where supported and fall back to repeated columns otherwise. Most modern CSS doesn't need @supports because the target features are universally supported, but for new APIs like color-mix, anchor positioning, or view transitions, @supports is the safety net that lets you adopt early without breaking anyone.",
+    "codeExample": "@supports (display: grid) {\n  .layout { display: grid; grid-template-columns: 1fr 2fr; }\n}\n\n@supports not (display: grid) {\n  .layout { display: flex; }\n  .layout > * { flex: 1; }\n}\n\n@supports (color: color-mix(in srgb, red, blue)) {\n  .accent { color: color-mix(in srgb, var(--brand) 80%, black); }\n}"
+  },
+  {
+    "id": 38,
+    "title": "Scroll Snap",
+    "subject": "CSS Day 38: Smooth carousels and scroll snapping",
+    "body": "CSS scroll snap makes horizontal and vertical scroll snap to logical stops without JavaScript. On the scroll container, set scroll-snap-type: x mandatory (or y, with proximity as an alternative to mandatory). On each child, set scroll-snap-align: start (or center, end) to mark a snap point. The result: carousels that feel native, vertical page sections that snap to viewport. Pair with scroll-padding on the container to leave space for fixed headers when snapping. overscroll-behavior: contain prevents scroll chaining into parent containers. scroll-snap is well supported and replaces many carousel libraries for simple cases. Use it sparingly on the main document — users dislike overridden natural scrolling — but it's perfect for horizontal product galleries, image strips, and fullscreen section pages.",
+    "codeExample": ".carousel {\n  display: flex;\n  overflow-x: auto;\n  scroll-snap-type: x mandatory;\n  gap: 16px;\n}\n.carousel > .card {\n  flex: 0 0 80%;\n  scroll-snap-align: start;\n}"
+  },
+  {
+    "id": 39,
+    "title": "Sticky and Smooth Scrolling",
+    "subject": "CSS Day 39: Controlling scroll behavior",
+    "body": "scroll-behavior: smooth on the html element makes anchor jumps smoothly animate instead of snapping instantly. It's a single line that dramatically improves navigation within a long page. Combine with scroll-margin-top on anchor targets so the heading doesn't land under a fixed header. Respect prefers-reduced-motion: users may have vestibular sensitivities and set scroll-behavior: auto in that query. For programmatic smooth scrolling from JavaScript, window.scrollTo({ top, behavior: 'smooth' }) uses the same mechanism. Avoid smooth scrolling on very long pages — it can be slow on low-end devices. Other scroll properties include scroll-snap (carousels), overscroll-behavior (stops pull-to-refresh chain), and scroll-timeline (newer, drives animations from scroll position). Small scroll improvements compound into a much nicer browsing feel.",
+    "codeExample": "html { scroll-behavior: smooth; }\n\nh2 { scroll-margin-top: 80px; }\n\n@media (prefers-reduced-motion: reduce) {\n  html { scroll-behavior: auto; }\n}"
+  },
+  {
+    "id": 40,
+    "title": "Cursor and Pointer",
+    "subject": "CSS Day 40: Customizing the cursor",
+    "body": "cursor controls the mouse pointer's appearance over an element. Common values: pointer for clickable things, default for normal text, not-allowed for disabled, grab/grabbing for draggable, wait for loading, zoom-in/zoom-out for images, help for tooltipped elements. Use pointer on buttons, links, and custom clickable divs; users rely on the hand icon to know something is interactive. cursor: none hides the cursor, useful for fullscreen presentations. Custom cursors via cursor: url('icon.png'), auto work but should stay small (32×32) and include a fallback. Avoid changing cursors for decoration — pointer on non-clickable text confuses users. pointer-events: none makes an element ignore mouse events, useful for overlays that shouldn't block clicks beneath. user-select: none prevents text selection, handy for UI controls that look like text but are buttons.",
+    "codeExample": "button, a { cursor: pointer; }\n[disabled] { cursor: not-allowed; }\n\n.draggable { cursor: grab; }\n.draggable:active { cursor: grabbing; }\n\n.overlay { pointer-events: none; }\n.ui-label { user-select: none; }"
+  },
+  {
+    "id": 41,
+    "title": "CSS Reset and Normalize",
+    "subject": "CSS Day 41: Starting from a clean slate",
+    "body": "Browsers apply default styles that differ subtly, so projects usually start with a reset. A reset zeroes out margins, paddings, and borders; Normalize (a classic library) instead smooths out inconsistencies while keeping useful defaults. Modern hybrid resets like Josh Comeau's reset or Tailwind's preflight take a middle road: box-sizing: border-box on everything, no default margins, better image defaults, and accessible typography. A minimal personal reset might include *, *::before, *::after { box-sizing: border-box; }, body { margin: 0; line-height: 1.5; }, img, picture, video, canvas, svg { display: block; max-width: 100%; }, and input, button, textarea, select { font: inherit; }. That's 80% of the value in a few lines. Keep your reset small and explain each rule; it's the foundation every other rule stands on.",
+    "codeExample": "*, *::before, *::after { box-sizing: border-box; }\n* { margin: 0; }\n\nbody {\n  line-height: 1.5;\n  -webkit-font-smoothing: antialiased;\n}\n\nimg, picture, video, canvas, svg {\n  display: block;\n  max-width: 100%;\n}\n\ninput, button, textarea, select { font: inherit; }"
+  },
+  {
+    "id": 42,
+    "title": "Naming Conventions: BEM",
+    "subject": "CSS Day 42: Block, Element, Modifier",
+    "body": "BEM (Block, Element, Modifier) is a class naming methodology that keeps CSS predictable in large projects. A block is a standalone component: .card. An element is a part of that block: .card__title, .card__body. A modifier is a variation: .card--featured, .card__title--large. Double underscore separates block from element; double hyphen marks a modifier. The convention keeps specificity flat — everything is a single class — and makes class names self-documenting: you can tell what a class belongs to at a glance. BEM plays well with component-based architectures (React, Vue) because each component owns a block. Alternatives include utility-first (Tailwind), CSS Modules (scoped class names), and CSS-in-JS. Pick one style and stick with it; consistency matters more than which convention you pick.",
+    "codeExample": ".card { padding: 1rem; border-radius: 8px; }\n.card__header { margin-bottom: 0.75rem; }\n.card__title  { font-size: 1.25rem; font-weight: 600; }\n.card__body   { line-height: 1.6; }\n.card--featured { border: 2px solid gold; }\n.card__title--large { font-size: 1.75rem; }"
+  },
+  {
+    "id": 43,
+    "title": "CSS Grid Tracks and Gap",
+    "subject": "CSS Day 43: Precise grid track control",
+    "body": "Grid tracks are the rows and columns of a grid. grid-template-columns accepts any mix of fixed lengths (200px), percentages (50%), flexible units (1fr), the repeat() function, and minmax(min, max). minmax is essential: minmax(200px, 1fr) makes a column that's at least 200px but can grow. repeat(auto-fit, minmax(200px, 1fr)) creates as many 200-minimum columns as fit, perfect for responsive card grids without media queries. auto-fill is similar but keeps empty tracks. gap (previously grid-gap) sets spacing between tracks; use column-gap and row-gap for axis-specific values. Grid also has implicit tracks: items placed outside the defined grid get placed into auto-sized implicit tracks controlled by grid-auto-rows and grid-auto-columns. Mastering tracks unlocks precise control over every dimension.",
+    "codeExample": ".gallery {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));\n  gap: 16px;\n}\n\n.dashboard {\n  display: grid;\n  grid-template-columns: 240px minmax(0, 1fr) 320px;\n  grid-auto-rows: minmax(120px, auto);\n  gap: 24px;\n}"
+  },
+  {
+    "id": 44,
+    "title": "Subgrid",
+    "subject": "CSS Day 44: Inheriting parent grid tracks",
+    "body": "Subgrid lets a child grid inherit the track lines of its parent, instead of defining its own. Set grid-template-columns: subgrid on the child, and its own children align to the parent's columns. This is transformative for consistent alignment across nested components: a list of cards where each card has a title, body, and footer that line up perfectly across all cards, even when content lengths vary. Before subgrid, achieving this required tight coordination or brittle fixed heights. Subgrid is supported in all modern browsers now. Pair it with named grid lines for even more readable layouts. Subgrid is the final piece that makes Grid feel complete — you can compose nested grids that participate in a larger design rather than being islands.",
+    "codeExample": ".cards {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));\n  grid-template-rows: auto 1fr auto;\n  gap: 8px;\n}\n\n.card {\n  display: grid;\n  grid-row: span 3;\n  grid-template-rows: subgrid;   /* inherit parent's three rows */\n}"
+  },
+  {
+    "id": 45,
+    "title": "CSS Nesting",
+    "subject": "CSS Day 45: Native nesting",
+    "body": "CSS now supports native nesting, similar to preprocessor features in Sass. Inside a rule, you can write another rule that is scoped to the parent. The & refers to the parent selector when you want to chain pseudo-classes or combine. Keep nesting shallow — two levels deep is usually the maximum before readability suffers. Nesting is great for component styles: the block at the top, its elements and modifiers indented below. It replaces a lot of repeated selector prefixes. Native nesting means no build step is required; your browser parses it directly. Browser support is broad in modern browsers. Don't use nesting to recreate deep descendant chains — the same specificity rules apply, and deep nesting produces high specificity that's hard to override.",
+    "codeExample": ".card {\n  padding: 1rem;\n  border-radius: 8px;\n\n  & .title { font-size: 1.25rem; }\n  & .body  { line-height: 1.6; }\n\n  &:hover {\n    box-shadow: 0 4px 16px rgba(0,0,0,0.1);\n  }\n\n  &.featured { border: 2px solid gold; }\n}"
+  },
+  {
+    "id": 46,
+    "title": "Print Styles",
+    "subject": "CSS Day 46: Styling for paper",
+    "body": "Users still print web pages. A few print-specific styles make the difference between useful and ugly. Use @media print { ... } to scope styles to printing. Hide nav, ads, and interactive UI that doesn't make sense on paper: display: none. Expand hidden content that should appear on paper. Set margins with @page { margin: 1in }. Switch to black text on white, reset background colors to save ink, and use print-friendly fonts like Georgia or Helvetica. Show link URLs next to the link text using a::after { content: \" (\" attr(href) \")\" } so readers can find referenced sites offline. Use page-break-inside: avoid to keep elements together across pages, and page-break-before for section starts. Print styles are a small investment that earns a lot of goodwill from users who actually print.",
+    "codeExample": "@media print {\n  nav, footer, .no-print { display: none; }\n  body { color: #000; background: #fff; }\n  a { color: #000; text-decoration: underline; }\n  a[href^=\"http\"]::after {\n    content: \" (\" attr(href) \")\";\n    font-size: 0.8em;\n  }\n  h2 { page-break-before: always; }\n}"
+  },
+  {
+    "id": 47,
+    "title": "Accessibility and CSS",
+    "subject": "CSS Day 47: CSS habits that help everyone",
+    "body": "CSS can make UI more or less accessible. Preserve focus styles — never display: none or outline: none on interactive elements without a replacement. Use :focus-visible to show a focus ring only for keyboard users, not on mouse click. Maintain sufficient color contrast (WCAG AA: 4.5:1 for body text, 3:1 for large text) between text and background — check with a contrast tool. Size click targets to at least 44×44 pixels for touch accessibility. Respect user preferences: @media (prefers-reduced-motion: reduce) to disable motion, @media (prefers-color-scheme: dark) to match their system theme. Don't rely on color alone to convey meaning (error states need icons or text). Use relative units for font size so users can zoom. Hidden accessible text (sr-only pattern) helps when visual context isn't enough for a screen reader.",
+    "codeExample": ":focus-visible {\n  outline: 2px solid #4f46e5;\n  outline-offset: 2px;\n}\n\n.sr-only {\n  position: absolute; width: 1px; height: 1px;\n  padding: 0; margin: -1px; overflow: hidden;\n  clip: rect(0,0,0,0); white-space: nowrap; border: 0;\n}\n\n@media (prefers-reduced-motion: reduce) {\n  * { animation: none !important; transition: none !important; }\n}"
+  },
+  {
+    "id": 48,
+    "title": "Centering Things",
+    "subject": "CSS Day 48: The many ways to center",
+    "body": "Centering used to be an old CSS joke; now there are several clean solutions. Horizontal centering for block elements: margin-inline: auto with a max-width. Centering text: text-align: center. Centering a flex item: display: flex; justify-content: center; align-items: center. Centering with Grid: display: grid; place-items: center. Absolute positioning: position: absolute; inset: 0; margin: auto on a sized element, or top: 50%; left: 50%; transform: translate(-50%, -50%) for unknown sizes. Modern Flex or Grid is almost always the right choice for layout-centering. Reach for absolute positioning only for overlays. The place-items: center combo is the shortest way to center a single child in a container, and it's a reliable default you can paste into any “I need to center this” moment.",
+    "codeExample": ".stage {\n  display: grid;\n  place-items: center;\n  min-height: 50vh;\n}\n\n.modal {\n  position: fixed;\n  top: 50%; left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.container {\n  max-width: 60rem;\n  margin-inline: auto;\n}"
+  },
+  {
+    "id": 49,
+    "title": "Advanced Selectors: :is and :where",
+    "subject": "CSS Day 49: Grouping selectors elegantly",
+    "body": ":is() accepts a list of selectors and matches any of them, flattening long, repeated selector chains into one. Instead of h1 a:hover, h2 a:hover, h3 a:hover, write :is(h1, h2, h3) a:hover. :where() is identical in matching behavior but takes zero specificity, regardless of what you put inside. That's great for baseline styles that should be easy to override: :where(h1, h2, h3) { margin: 0; } doesn't bump specificity, so a class like .hero h1 { margin: 1rem; } still wins with normal cascade rules. Use :is() when you want the grouping's specificity to reflect the highest selector inside; use :where() for resets, defaults, and opinionated-but-defeatable styles. Both take a comma-separated list and match if any inner selector matches. Modern browsers support both widely.",
+    "codeExample": ":where(h1, h2, h3, h4, h5, h6) {\n  margin: 0;\n  line-height: 1.2;\n}\n\n:is(article, section) :is(h1, h2) {\n  color: var(--color-heading);\n}"
+  },
+  {
+    "id": 50,
+    "title": "Color Functions",
+    "subject": "CSS Day 50: color-mix, light-dark, and relative colors",
+    "body": "Modern CSS has powerful color functions. color-mix(in srgb, var(--brand) 80%, black) blends two colors with a percentage in a specified color space. It's perfect for deriving hover/active variants from a single brand color without maintaining a separate palette. Relative colors let you take an existing color and adjust channels: hsl(from var(--brand) h s calc(l * 0.9)) produces a darker brand color by reducing lightness by 10%. light-dark(a, b) swaps between two values based on prefers-color-scheme, ideal for theming with a single declaration. These new tools, combined with custom properties, replace entire palette-generation scripts. Browser support is expanding; pair with @supports for progressive enhancement where needed. The result: color systems that are simpler to maintain and more consistent across states.",
+    "codeExample": ":root { --brand: #4f46e5; }\n\nbutton {\n  background: var(--brand);\n  &:hover  { background: color-mix(in srgb, var(--brand) 85%, white); }\n  &:active { background: color-mix(in srgb, var(--brand) 85%, black); }\n}\n\n:root {\n  color-scheme: light dark;\n  --bg: light-dark(#fff, #0f172a);\n  --fg: light-dark(#111, #eee);\n}"
+  },
+  {
+    "id": 51,
+    "title": "clamp, min, max",
+    "subject": "CSS Day 51: Fluid values without media queries",
+    "body": "min(), max(), and clamp() are math functions that take multiple arguments and pick based on context. min(a, b) returns the smaller; max(a, b) returns the larger; clamp(min, preferred, max) is shorthand for max(min, min(preferred, max)). Use clamp for fluid typography: font-size: clamp(1rem, 2vw + 0.5rem, 1.5rem) smoothly scales between 1rem on narrow screens and 1.5rem on wide ones, with no breakpoints. Use min() for container widths: width: min(100% - 2rem, 72rem) caps at 72rem but shrinks with page padding on small screens. These functions work wherever a length is accepted. They replace many media-query lines with a single declaration that describes the relationship directly. Use them sparingly for things that should feel fluid; stick to fixed values for design tokens that should be stable.",
+    "codeExample": "html { font-size: clamp(1rem, 0.9rem + 0.3vw, 1.125rem); }\nh1 { font-size: clamp(2rem, 4vw + 1rem, 4rem); }\n\n.container {\n  width: min(100% - 2rem, 72rem);\n  margin-inline: auto;\n}\n\n.image { max-width: min(600px, 100%); }"
+  },
+  {
+    "id": 52,
+    "title": "calc()",
+    "subject": "CSS Day 52: Arithmetic in CSS",
+    "body": "calc() performs math with CSS values, mixing units freely. calc(100% - 2rem) subtracts a fixed amount from a percentage — impossible without calc(). Combine units: calc(100vw - 4rem), calc(50% + 16px). Use calc() with custom properties for dynamic sizing: calc(var(--space) * 2). Multiplication and division require one side to be unitless. Operators must have spaces around them (calc(100% - 10px), not calc(100%-10px)). calc() is evaluated lazily, so you can nest and layer it freely. Common uses: centering with knowable offsets, leaving room for fixed headers with padding-top: calc(var(--header-height) + 1rem), building grid gap math, computing contrast-aware colors. Pair with min, max, clamp for even richer expressions. calc() is one of CSS's most underappreciated tools for responsive, precise layouts.",
+    "codeExample": ":root { --header-h: 64px; --gap: 16px; }\n\nmain { padding-top: calc(var(--header-h) + 1rem); }\n\n.grid {\n  display: grid;\n  gap: var(--gap);\n  grid-template-columns: repeat(3, calc((100% - 2 * var(--gap)) / 3));\n}"
+  },
+  {
+    "id": 53,
+    "title": "SVG and CSS",
+    "subject": "CSS Day 53: Styling SVG with CSS",
+    "body": "SVGs are XML graphics, and most of their presentation attributes can be controlled with CSS. Inline SVGs inherit CSS from the page; you can target their parts with class or id selectors. Use fill, stroke, stroke-width as CSS properties — not just SVG attributes. currentColor is a magic value that inherits the parent's text color, perfect for icons that match surrounding text. Animate SVG paths with transitions on stroke-dasharray/stroke-dashoffset to create drawing effects. Mask images and clip paths on SVG unlock creative layouts. For icon systems, inline SVG with a single currentColor fill is the most flexible approach — one SVG file per icon, styled by CSS. External SVG files used as <img> can't be restyled by CSS; inline the SVG or use <use href=\"#id\" /> to keep them editable.",
+    "codeExample": ".icon {\n  width: 1em;\n  height: 1em;\n  fill: currentColor;\n  vertical-align: -0.125em;\n}\n\nbutton { color: #4f46e5; }\nbutton:hover { color: #6366f1; }\n/* icon color follows the button color automatically */"
+  },
+  {
+    "id": 54,
+    "title": "Print and Media Types",
+    "subject": "CSS Day 54: @media types beyond screen",
+    "body": "@media accepts a media type before the query expression: screen (default, most browsers), print (when printing), all (everyone). Most CSS is implicitly for screen. Combined with features, you can target exactly the right context: @media screen and (min-width: 768px), @media print and (orientation: landscape). Beyond media types, the concept has expanded: @container targets container-query conditions, @supports targets feature-detection, @layer organizes the cascade explicitly. Each of these at-rules gives you an orthogonal way to scope styles. Stacking them produces precise, maintainable style systems. For example: @media print @supports (display: grid) { ... }. Keep the common styles outside at-rules and branch only where behavior differs; this keeps the CSS compact and readable, and minimizes the places where a change needs to be made.",
+    "codeExample": "@media screen and (min-width: 768px) {\n  .grid { grid-template-columns: repeat(3, 1fr); }\n}\n\n@media print {\n  nav, footer { display: none; }\n  body { font-size: 10pt; }\n}"
+  },
+  {
+    "id": 55,
+    "title": "Modern Reset: The Short Version",
+    "subject": "CSS Day 55: A practical modern reset",
+    "body": "A good reset is tiny and explicit. Start with *, *::before, *::after { box-sizing: border-box; } to make sizing predictable. Zero the default margin: * { margin: 0; }. Set a comfortable body line-height (1.5) and turn on antialiasing on macOS. Make media elements display as blocks and cap their width at 100% so images never overflow their container. Inherit font properties on form elements so your site-wide font applies to buttons and inputs. Stop text from growing on iOS orientation changes with -webkit-text-size-adjust: 100%. Optionally, give h1-h6 a sensible line-height (1.2). That's a dozen lines that fix 90% of browser-default annoyances. Build your component styles on top with confidence that the foundation is clean, without the weight of a full normalize.css.",
+    "codeExample": "*, *::before, *::after { box-sizing: border-box; }\n* { margin: 0; }\n\nhtml, body { height: 100%; }\nbody {\n  line-height: 1.5;\n  -webkit-font-smoothing: antialiased;\n  -webkit-text-size-adjust: 100%;\n}\n\nimg, picture, video, canvas, svg {\n  display: block; max-width: 100%;\n}\n\ninput, button, textarea, select { font: inherit; }"
+  },
+  {
+    "id": 56,
+    "title": "CSS Variables with JavaScript",
+    "subject": "CSS Day 56: Reading and writing CSS variables in JS",
+    "body": "Custom properties are reactive across CSS and JavaScript. Read them with getComputedStyle(el).getPropertyValue('--name'). Write them with el.style.setProperty('--name', value). The DOM updates instantly; any rule using var(--name) re-renders. This makes theme switching, color picking, and dynamic spacing trivial without touching classes. Set variables on :root (document.documentElement) for global effects or on a component for local ones. Combine with CSS calc() to compute derived values from JS-set primitives (set --x, have --doubleX = calc(var(--x) * 2)). Custom properties also power useful patterns: mouse-follower effects that update --mx/--my on pointer move, scroll-linked animations that update --scroll in a scroll handler. The interop between CSS variables and JavaScript is one of the most productive pairings in modern web development.",
+    "codeExample": "document.documentElement.style.setProperty('--brand', '#10b981');\n\nfunction setTheme(theme) {\n  document.documentElement.dataset.theme = theme;\n}\n\nel.addEventListener('pointermove', (e) => {\n  const rect = el.getBoundingClientRect();\n  el.style.setProperty('--mx', `${e.clientX - rect.left}px`);\n  el.style.setProperty('--my', `${e.clientY - rect.top}px`);\n});"
+  },
+  {
+    "id": 57,
+    "title": "Dark Mode",
+    "subject": "CSS Day 57: Implementing light and dark themes",
+    "body": "Dark mode is two strategies combined. First, respect the user's system preference with @media (prefers-color-scheme: dark), automatically applying dark tokens. Second, let users override it with a data-theme attribute on html or body. Put your tokens in custom properties: --bg, --fg, --card, etc. Define the defaults on :root (light) and override in both selectors. Use color-scheme: light dark to make native form controls (inputs, scrollbars) adapt. Store the user's choice in localStorage and apply it before the first paint with a small inline script, to avoid a flash of the wrong theme. For images, swap sources with <picture> and prefers-color-scheme, or apply filter: invert/hue-rotate carefully. Dark mode is mostly about disciplined token usage; once the tokens are right, the rest falls out naturally.",
+    "codeExample": ":root {\n  color-scheme: light dark;\n  --bg: #ffffff;\n  --fg: #1a202c;\n}\n\n[data-theme=\"dark\"], :root:has([data-theme=\"dark\"]) {\n  --bg: #0f172a;\n  --fg: #f1f5f9;\n}\n\n@media (prefers-color-scheme: dark) {\n  :root:not([data-theme=\"light\"]) {\n    --bg: #0f172a;\n    --fg: #f1f5f9;\n  }\n}\n\nbody { background: var(--bg); color: var(--fg); }"
+  },
+  {
+    "id": 58,
+    "title": "Utility-First vs Component-Based CSS",
+    "subject": "CSS Day 58: Approaches to scalable CSS",
+    "body": "Utility-first CSS (Tailwind is the poster child) composes styles from many tiny classes applied directly in HTML: <div class=\"p-4 rounded bg-white shadow\">. Benefits: no naming, no dead CSS, tight design-token enforcement, good performance through purging. Drawbacks: HTML gets noisy, and common patterns repeat across components. Component-based CSS (CSS Modules, styled-components, BEM) keeps markup clean and styles co-located with components. Benefits: readable markup, encapsulated styles. Drawbacks: more naming decisions, style drift across components. Neither is universally better. Many teams use a hybrid: utilities for layout and spacing, component styles for complex reusable pieces. Design systems increasingly combine both: utility primitives for rapid composition plus pre-styled components for complex widgets. Choose based on team size, design maturity, and personal taste.",
+    "codeExample": "<!-- Utility-first (Tailwind) -->\n<button class=\"px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700\">\n  Save\n</button>\n\n<!-- Component-based -->\n<button class=\"btn btn-primary\">Save</button>\n\n/* btn.css */\n.btn { padding: 0.5rem 1rem; border-radius: 0.375rem; }\n.btn-primary { background: #4f46e5; color: white; }"
+  },
+  {
+    "id": 59,
+    "title": "CSS Performance",
+    "subject": "CSS Day 59: Making styles fast",
+    "body": "CSS performance usually hinges on three things: the amount of CSS downloaded, the time to apply it, and how often the browser has to re-render. Keep CSS small: tree-shake unused rules (Tailwind's PurgeCSS, CSS Modules), split per-route CSS for code-split apps, and avoid monolithic global sheets. Prefer simple selectors: long descendant chains slow down matching. Avoid animating expensive properties; stick to transform and opacity. content-visibility: auto tells the browser it can skip rendering off-screen content, dramatically speeding long pages. will-change hints at future changes but shouldn't be overused. Avoid excessive shadows, filters, and backdrop-filters on many elements at once. Test on real mid-range devices; high-end Macs hide a lot of performance issues. Measure before optimizing — the Lighthouse audit and DevTools performance tab show where CSS is actually slow.",
+    "codeExample": "/* skip rendering off-screen sections */\n.section { content-visibility: auto; contain-intrinsic-size: 400px; }\n\n/* hint to browser about an upcoming animation */\n.card.entering { will-change: transform; }\n\n/* prefer cheap animations */\n.card { transition: transform 0.2s; }   /* good */\n/* transition: height 0.2s; */            /* expensive */"
+  },
+  {
+    "id": 60,
+    "title": "Putting It All Together",
+    "subject": "CSS Day 60: Designing a modern CSS architecture",
+    "body": "You have built up a toolbox: box model, Flexbox, Grid, custom properties, modern selectors, container queries, animations, and accessibility habits. A modern CSS architecture combines them into a small, sustainable system. Start with a short reset. Define tokens on :root: colors, spacing, radii, shadows, typography. Write layout with Grid and Flex; avoid floats. Use clamp() and min/max for fluid sizing, @media for page-level breakpoints, @container for component-level. Respect user preferences: reduced motion, color scheme. Keep specificity flat using @layer, :where, and one-class conventions. Document the tokens and conventions so new contributors adopt them fast. Build small, reusable components; resist the urge to do layout inside every one. The goal is CSS that's easy to read, change, and extend for years. Congratulations — you have finished the 60-day CSS series!",
+    "codeExample": "@layer reset, tokens, base, components, utilities;\n\n@layer reset {\n  *, *::before, *::after { box-sizing: border-box; }\n  * { margin: 0; }\n}\n\n@layer tokens {\n  :root {\n    --space-4: 1rem;\n    --radius: 0.5rem;\n    --color-brand: #4f46e5;\n    --font-body: 'Inter', system-ui, sans-serif;\n  }\n}\n\n@layer base {\n  body { font-family: var(--font-body); line-height: 1.5; }\n}"
+  }
+]

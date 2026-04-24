@@ -1,0 +1,422 @@
+[
+  {
+    "id": 1,
+    "title": "Variables and Assignment",
+    "subject": "Python Day 1: Your first variables",
+    "body": "In Python, a variable is a name bound to a value. Unlike many languages, you do not declare types — Python figures them out at runtime. Assignment uses a single equals sign: name = value. Names must start with a letter or underscore, can contain letters, digits, and underscores, and are case-sensitive. Conventional style is snake_case for variables and functions. A variable can be reassigned to any type at any time; the name just points to a different object. You can assign multiple variables in one line, which reads nicely for swapping or tuple unpacking. Constants, by convention, are written in ALL_CAPS, though Python does not enforce immutability. Because assignment binds names to objects, understanding the difference between a name and the object it refers to is the foundation for many later topics like mutability, scope, and references.",
+    "codeExample": "name = 'Ada'\nage = 30\nis_active = True\n\n# multiple assignment\nx, y = 1, 2\nx, y = y, x            # swap\n\nPI = 3.14159           # constant by convention"
+  },
+  {
+    "id": 2,
+    "title": "Data Types Overview",
+    "subject": "Python Day 2: The built-in types you will use every day",
+    "body": "Python has a small set of built-in types that cover most needs. Numbers come in int (whole numbers of arbitrary size), float (decimals), and complex (rarely used). str holds text, always Unicode. bool is True or False and is actually a subclass of int — True equals 1. None is Python's null, a singleton used to mean “no value.” For collections you have list (ordered, mutable), tuple (ordered, immutable), set (unordered, unique), and dict (key-value pairs). All of these are objects with methods and a type you can inspect with type(x) or check with isinstance(x, int). Because values carry their type, not variables, the same name can hold different types over time, but mixing types carelessly leads to runtime errors. Know the built-ins; most programs are just combinations of them.",
+    "codeExample": "a = 42             # int\nb = 3.14           # float\nc = 'hello'        # str\nd = True           # bool\ne = None           # NoneType\nf = [1, 2, 3]      # list\ng = (1, 2)         # tuple\nh = {1, 2, 3}      # set\ni = {'k': 'v'}     # dict\n\ntype(a)            # <class 'int'>\nisinstance(b, float) # True"
+  },
+  {
+    "id": 3,
+    "title": "Strings",
+    "subject": "Python Day 3: Working with text",
+    "body": "Strings are sequences of Unicode characters, written in single, double, or triple quotes. Triple-quoted strings can span multiple lines and are also used for docstrings. Strings are immutable — methods that seem to modify them actually return new strings. Common operations include indexing with s[0], slicing with s[1:4], concatenation with +, and repetition with *. Built-in methods cover most needs: upper, lower, strip, replace, split, join, startswith, endswith. Use len(s) for length. For combining values into strings, f-strings are the modern choice: they embed expressions inside the literal with {}. Escape sequences like \\n, \\t, and \\\\ are standard. Remember that strings are indexed by character, and Python 3 is always Unicode, so 'café'[3] gives the é as you would expect.",
+    "codeExample": "name = 'Ada'\ngreeting = f'Hello, {name}!'     # 'Hello, Ada!'\n\nsentence = 'the quick brown fox'\nwords = sentence.split()          # ['the', 'quick', 'brown', 'fox']\njoined = '-'.join(words)          # 'the-quick-brown-fox'\nupper = sentence.upper()\nfirst_three = sentence[:3]"
+  },
+  {
+    "id": 4,
+    "title": "Numbers: int and float",
+    "subject": "Python Day 4: Integer and floating-point math",
+    "body": "Python's int has arbitrary precision — you can compute factorials of huge numbers without overflow. float uses 64-bit IEEE 754, the same as most languages, and inherits its quirks: 0.1 + 0.2 is 0.30000000000000004. For exact decimal math, use the decimal module; for rational math, fractions. The arithmetic operators are +, -, *, / (always float), // (floor division), % (remainder), and ** (power). Built-in functions include abs, round, min, max, and sum. Converting between types is explicit: int('42'), float('3.14'), str(10). Comparisons between int and float work as expected: 1 == 1.0 is True. For numeric work, the standard library's math module has trig, log, and constants; for arrays of numbers, NumPy is the go-to library outside the standard library.",
+    "codeExample": "10 / 3          # 3.333...\n10 // 3         # 3\n10 % 3          # 1\n2 ** 10         # 1024\n\nround(3.14159, 2)   # 3.14\nmax(5, 2, 8)        # 8\nint('42')           # 42\nfloat('1e3')        # 1000.0\n\nimport math\nmath.sqrt(16)       # 4.0\nmath.pi             # 3.141592..."
+  },
+  {
+    "id": 5,
+    "title": "Booleans and Truthiness",
+    "subject": "Python Day 5: True, False, and what counts as truthy",
+    "body": "Booleans in Python are written True and False, capitalized. They are actual objects of type bool, which subclasses int, so True + 1 equals 2. In boolean contexts — if statements, while loops, and logical operators — many values are treated as true or false. The falsy values are: False, None, 0, 0.0, empty string '', empty list, empty tuple, empty dict, empty set, and any custom object whose __bool__ returns False. Everything else is truthy. This makes idioms like if items: or if not name: concise. The logical operators and, or, not short-circuit and return one of the operands, not a forced boolean: 'a' or 'b' evaluates to 'a'. Use == and != for value equality, is and is not for identity. is None is the preferred None check because None is a singleton.",
+    "codeExample": "bool(0)          # False\nbool('hello')    # True\nbool([])         # False\nbool([0])        # True\n\nif items:        # equivalent to if len(items) > 0\n    print('has items')\n\nresult = x or 'default'\nvalue is None    # preferred over value == None"
+  },
+  {
+    "id": 6,
+    "title": "print() and input()",
+    "subject": "Python Day 6: Talking to the terminal",
+    "body": "print writes values to standard output. By default it separates arguments with a space and ends with a newline, but you can change both with the sep and end keyword arguments. Pass file= to redirect to a file, and flush=True to force immediate output. print converts every argument to its string representation using str(). input reads a line from standard input and returns it as a string, without the trailing newline. If you pass a prompt argument, input prints it before waiting. Because input always returns a string, convert to the type you need: int(input('age: ')). Wrap the conversion in try/except to handle bad input gracefully. These two are the first I/O tools you will use; they make simple scripts interactive and are perfect for small utilities and learning exercises.",
+    "codeExample": "print('hello', 'world')             # hello world\nprint('a', 'b', sep='-')            # a-b\nprint('no newline', end='')\n\nname = input('What is your name? ')\nprint(f'Hi, {name}')\n\nage = int(input('Age: '))           # converts string to int"
+  },
+  {
+    "id": 7,
+    "title": "Comments and Docstrings",
+    "subject": "Python Day 7: Writing comments and docstrings",
+    "body": "Comments in Python start with a hash # and go to the end of the line. Everything after # is ignored by the interpreter. Use comments sparingly to explain why a line exists, not what it does — well-named code answers the what. Docstrings are different: they are string literals placed at the top of a module, function, class, or method, typically triple-quoted. The Python runtime stores them in __doc__, and tools like help() and Sphinx use them to generate documentation. Follow a consistent style — PEP 257 is a good starting point — so readers know where to find the purpose, parameters, and return value. Avoid block comments at the top of every function; docstrings are the place for that. Good comments age well; clever but cryptic ones turn into lies as code evolves.",
+    "codeExample": "# This is a line comment.\n\ndef add(a, b):\n    \"\"\"Return the sum of a and b.\"\"\"\n    return a + b\n\nprint(add.__doc__)\nhelp(add)"
+  },
+  {
+    "id": 8,
+    "title": "if, elif, else",
+    "subject": "Python Day 8: Branching",
+    "body": "Python's branching is indentation-based, not brace-based. Write if condition:, then indent the block by four spaces. Chain alternatives with elif, and optionally finish with else. Only one branch runs. Conditions can be any expression; falsy values skip the block. You can combine conditions with and, or, not and group with parentheses. Python also has a conditional expression — value = a if cond else b — useful when you want a single value based on a condition. Keep each branch small; move complex logic into helper functions so the structure reads like a list of cases. A common mistake is mixing tabs and spaces for indentation, which Python disallows in the same block. Use the guard clause pattern: handle the failure or edge case first and return or raise, so the main path stays flat.",
+    "codeExample": "def grade(score):\n    if score < 0 or score > 100:\n        raise ValueError('invalid')\n    if score >= 90:\n        return 'A'\n    elif score >= 80:\n        return 'B'\n    else:\n        return 'F'\n\nlabel = 'adult' if age >= 18 else 'minor'"
+  },
+  {
+    "id": 9,
+    "title": "for Loops",
+    "subject": "Python Day 9: Iterating with for",
+    "body": "Python's for loop iterates over any iterable: lists, tuples, strings, dictionaries, sets, files, generators. It is not an index-based loop; the loop variable receives each item in turn. To loop a number of times, use range(n) or range(start, stop, step). range is memory-efficient — it does not build a list. Inside a loop, break exits early and continue skips to the next iteration. An else clause attached to a for runs only if the loop completed without break, useful for search patterns. When you need the index and the value, use enumerate(items) to get pairs (i, item). When you iterate two sequences in parallel, use zip. Prefer iterating the sequence directly over range-plus-index; it is clearer and more Pythonic.",
+    "codeExample": "for name in ['Ada', 'Sam', 'Lee']:\n    print(name)\n\nfor i in range(5):\n    print(i)\n\nfor i, name in enumerate(['Ada', 'Sam']):\n    print(i, name)\n\nfor a, b in zip([1, 2, 3], ['x', 'y', 'z']):\n    print(a, b)"
+  },
+  {
+    "id": 10,
+    "title": "while Loops",
+    "subject": "Python Day 10: while loops and loop control",
+    "body": "A while loop runs as long as its condition is truthy. It is the right tool when you do not know how many iterations you need up front — waiting for input, polling a state, processing a queue. Always ensure the condition will eventually become false, or you have an infinite loop. break exits the loop early, continue skips the rest of the current iteration, and an else clause runs only if the loop exited normally (without break). A common pattern is the sentinel loop: read values until a special value is received. Another is processing a mutable collection by shrinking it each iteration. When iterating a known sequence, prefer for; reach for while when the stopping condition is dynamic. Also consider the walrus operator := (Python 3.8+) to assign and test in one expression, which makes some while patterns much cleaner.",
+    "codeExample": "count = 0\nwhile count < 5:\n    print(count)\n    count += 1\n\n# sentinel loop with walrus\nwhile (line := input('> ')) != 'quit':\n    print('you said:', line)"
+  },
+  {
+    "id": 11,
+    "title": "break, continue, pass",
+    "subject": "Python Day 11: Loop control keywords",
+    "body": "break, continue, and pass are three small keywords that change flow. break immediately exits the nearest enclosing for or while loop — handy when you find what you were searching for and do not need to keep scanning. continue skips to the next iteration, used to filter out cases you do not want to process. pass is a null statement that does nothing; Python's syntax requires a statement where you want an empty block, so pass fills the space. You will use pass in placeholder function bodies, empty classes, and exception handlers that should silently ignore a specific error (rarely a good idea in practice). None of these three replace proper control structures; if you find yourself using many breaks or continues, consider whether a restructured loop or a helper function would be clearer.",
+    "codeExample": "for n in range(10):\n    if n == 5:\n        break           # stop\n    if n % 2 == 0:\n        continue        # skip evens\n    print(n)            # 1, 3\n\nclass TODO:\n    pass                # placeholder"
+  },
+  {
+    "id": 12,
+    "title": "Lists",
+    "subject": "Python Day 12: Python's workhorse sequence",
+    "body": "A list is an ordered, mutable collection of items. Create one with square brackets: [1, 2, 3], or with the list() constructor. Lists can hold any mix of types, though homogeneous lists are easier to reason about. Access items by zero-based index; negative indices count from the end, so items[-1] is the last. Slicing with items[start:stop:step] gives sublists without mutating the original. len(items) returns the count. Lists support many operations: + concatenates, * repeats, in tests membership. Mutation methods include append, extend, insert, remove, pop, and clear. Because lists are mutable and passed by reference, a function can modify a list the caller owns — be deliberate about when that is what you want. For fixed, immutable sequences, prefer tuples.",
+    "codeExample": "nums = [1, 2, 3, 4, 5]\nnums[0]            # 1\nnums[-1]           # 5\nnums[1:4]          # [2, 3, 4]\nnums[::-1]         # [5, 4, 3, 2, 1]\nlen(nums)          # 5\n3 in nums          # True"
+  },
+  {
+    "id": 13,
+    "title": "List Methods",
+    "subject": "Python Day 13: Common list operations",
+    "body": "Lists come with a rich set of methods that modify them in place. append adds a single item to the end. extend adds all items from an iterable — useful when you would otherwise write a for loop full of appends. insert(i, x) puts x at index i, shifting later items. remove(x) removes the first matching item by value; pop(i) removes and returns the item at index i (or the last one if no index). sort sorts in place, optionally with key and reverse. reverse reverses in place. For a non-mutating sorted copy, use the built-in sorted(iterable). index(x) and count(x) answer where-and-how-many. Many of these mutate, so when you need a copy first, slice with items[:] or call list(items). Chaining methods that return None (like sort) is a common beginner bug.",
+    "codeExample": "nums = [3, 1, 4, 1, 5]\nnums.append(9)          # [3, 1, 4, 1, 5, 9]\nnums.sort()             # sorts in place\nsorted_copy = sorted(nums, reverse=True)\nnums.count(1)           # 2\nnums.remove(1)          # removes first 1\nlast = nums.pop()\nnums.extend([10, 20])"
+  },
+  {
+    "id": 14,
+    "title": "List Comprehensions",
+    "subject": "Python Day 14: Building lists the Pythonic way",
+    "body": "A list comprehension builds a new list from an iterable in one expression. The syntax is [expression for item in iterable if condition]. It is often clearer than the equivalent for loop with append and is usually faster. You can nest multiple for clauses to flatten or produce Cartesian products, though deep nesting quickly hurts readability — if it gets hairy, switch to a regular loop. Comprehensions shine for simple map/filter pipelines: squaring values, picking matching items, projecting fields out of dict rows. A common mistake is putting side effects inside a comprehension; use a loop instead. Python also has set, dict, and generator comprehensions with the same pattern but different brackets. Generator expressions, written with parentheses, produce values lazily and are better for large data.",
+    "codeExample": "squares = [n * n for n in range(10)]\nevens = [n for n in range(20) if n % 2 == 0]\n\nmatrix = [[1, 2], [3, 4]]\nflat = [x for row in matrix for x in row]    # [1, 2, 3, 4]\n\nlengths = {name: len(name) for name in ['Ada', 'Sam']}"
+  },
+  {
+    "id": 15,
+    "title": "Tuples",
+    "subject": "Python Day 15: Immutable sequences",
+    "body": "A tuple is an ordered, immutable sequence. Create one with parentheses or just commas: (1, 2, 3) or 1, 2, 3. The single-element tuple needs a trailing comma: (1,). Tuples support indexing, slicing, len, and in, just like lists. Their immutability makes them hashable, so tuples can be dictionary keys and set elements (lists cannot). Use tuples for fixed groupings of related values — coordinates, RGB colors, returning multiple values from a function. The tuple syntax also powers multiple assignment and function return-unpacking. For data with named fields, consider collections.namedtuple or typing.NamedTuple to get dot access while keeping the immutability and lightweight feel. Tuples are often just a little faster and use slightly less memory than lists, but those differences are rarely the reason to pick them; the real reason is to signal “this group will not change.”",
+    "codeExample": "point = (3, 4)\nx, y = point                  # unpacking\n\ndef divmod_(a, b):\n    return a // b, a % b      # returns tuple\nq, r = divmod_(10, 3)\n\ncache = {}\ncache[(1, 2)] = 'ok'           # tuple as key"
+  },
+  {
+    "id": 16,
+    "title": "Sets",
+    "subject": "Python Day 16: Unordered collections of unique values",
+    "body": "A set is an unordered collection of unique, hashable items. Create one with curly braces or the set() constructor — note that {} creates an empty dict, not an empty set, so use set() for an empty one. Sets support add, remove, discard (no error if missing), pop, and clear. The power of sets comes from mathematical operations: union (| or union), intersection (& or intersection), difference (- or difference), and symmetric_difference (^). Membership tests (item in set) are O(1), so sets are the right choice for quickly eliminating duplicates or answering “have I seen this?” questions. A frozenset is an immutable version you can use as a dict key or set element. Choose between list and set based on whether order and duplicates matter.",
+    "codeExample": "a = {1, 2, 3, 4}\nb = {3, 4, 5, 6}\n\na | b          # {1, 2, 3, 4, 5, 6}\na & b          # {3, 4}\na - b          # {1, 2}\na ^ b          # {1, 2, 5, 6}\n\nseen = set()\nif x not in seen:\n    seen.add(x)"
+  },
+  {
+    "id": 17,
+    "title": "Set Operations in Depth",
+    "subject": "Python Day 17: Using sets to solve problems",
+    "body": "Sets shine when the problem involves membership, uniqueness, or set theory. Deduplicate a list with list(set(items)) — but beware that the order is not preserved; for order-preserving dedup, use dict.fromkeys(items). Find common items across two lists with intersection, or the items unique to one with difference. Use sets to find missing keys between two data sources: expected - seen gives what is missing, seen - expected gives what is unexpected. The is_subset (<=) and is_superset (>=) operators check containment of one set inside another. Remember sets are unordered and elements must be hashable, so sets of dicts or sets of lists will not work; use tuples or frozensets. In performance-sensitive code, a set lookup is dramatically faster than scanning a list, especially as data grows.",
+    "codeExample": "expected = {'name', 'email', 'age'}\nreceived = {'name', 'email'}\nmissing = expected - received      # {'age'}\n\ntags = ['py', 'js', 'py', 'go']\nunique_ordered = list(dict.fromkeys(tags))  # ['py','js','go']\n\n{1, 2} <= {1, 2, 3}  # True"
+  },
+  {
+    "id": 18,
+    "title": "Dictionaries",
+    "subject": "Python Day 18: Key-value data with dict",
+    "body": "A dict maps hashable keys to values. Create one with curly braces and colons or with dict(). Access a value by key with square brackets; a missing key raises KeyError. The safer get(key, default) returns a default when the key is absent. Use in to test membership without fetching. Iteration over a dict yields keys; use .keys(), .values(), and .items() explicitly for clarity. Since Python 3.7, dicts preserve insertion order. Keys must be hashable — strings, numbers, tuples of hashables, frozensets. Dicts are everywhere in Python programs: JSON data, function keyword arguments, object attributes (via __dict__), caches. Prefer dict comprehensions or dict.fromkeys for construction patterns, and dict.setdefault or collections.defaultdict when you need “get-or-create” semantics. Dicts are fast: all the basic operations are O(1) on average.",
+    "codeExample": "user = {'name': 'Ada', 'age': 30}\nuser['name']              # 'Ada'\nuser.get('email', 'n/a')\n\nif 'name' in user:\n    print('present')\n\nfor k, v in user.items():\n    print(k, v)"
+  },
+  {
+    "id": 19,
+    "title": "Dict Methods",
+    "subject": "Python Day 19: Useful dict operations",
+    "body": "Dict methods cover most things you need to do with key-value data. update(other) merges another dict's keys into this one, overwriting existing keys. pop(key, default) removes and returns a value, with an optional default instead of KeyError. setdefault(key, default) returns the existing value or inserts and returns the default — perfect for grouping patterns. keys(), values(), and items() return view objects that reflect live dict state; convert to list if you need a snapshot. Dict unions use | and |= operators (3.9+): a | b merges into a new dict. When building a dict from an iterable of (key, value) pairs, use dict(pairs). collections.defaultdict is like a dict where missing keys automatically produce a default value — ideal for counters and grouping without the setdefault boilerplate.",
+    "codeExample": "a = {'x': 1}\nb = {'y': 2}\nmerged = a | b                # {'x': 1, 'y': 2}\n\ngrouped = {}\nfor word in ['a','b','a']:\n    grouped.setdefault(word, []).append(word)\n\nfrom collections import defaultdict\ncounts = defaultdict(int)\nfor w in ['a','b','a']:\n    counts[w] += 1"
+  },
+  {
+    "id": 20,
+    "title": "Dict and Set Comprehensions",
+    "subject": "Python Day 20: Comprehension syntax for dicts and sets",
+    "body": "After you know list comprehensions, dict and set comprehensions are a short hop. A dict comprehension uses {key: value for ... in ...}, producing a dict from any iterable. A set comprehension uses {expression for ... in ...}, giving a set of the results without duplicates. Both support an if filter clause and can have multiple for clauses for nested iteration, but the usual advice applies: keep them readable, or fall back to a for loop. These comprehensions are the idiomatic way to build a lookup table from a list of items, invert a dict (value-to-key), or collect unique transformed results. Beware of accidentally writing a set comprehension when you wanted a dict — the difference is whether the expression contains a colon.",
+    "codeExample": "users = [{'id': 1, 'name': 'Ada'}, {'id': 2, 'name': 'Sam'}]\n\nby_id = {u['id']: u for u in users}\nnames = {u['name'] for u in users}        # set of names\n\nsquares_map = {n: n * n for n in range(5)}\n# {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}"
+  },
+  {
+    "id": 21,
+    "title": "Functions",
+    "subject": "Python Day 21: Defining functions with def",
+    "body": "Functions in Python are declared with def name(params):. The body is indented, and return sends a value back (None by default). Functions are first-class objects: you can assign them to variables, pass them as arguments, and return them from other functions. Name them with verbs describing what they do. Keep them short and focused — if a function grows past a screen, consider splitting it. Every function can have a docstring as the first statement, which tools and help() display. Parameters without defaults are required and must come before parameters with defaults. When calling, you can pass arguments positionally or by keyword — keyword arguments are often clearer at the call site. Return early from invalid cases to keep the happy path un-nested. Functions are how you turn scripts into reusable code.",
+    "codeExample": "def greet(name, greeting='Hello'):\n    \"\"\"Return a greeting string.\"\"\"\n    return f'{greeting}, {name}!'\n\ngreet('Ada')                  # 'Hello, Ada!'\ngreet('Sam', greeting='Hi')   # 'Hi, Sam!'"
+  },
+  {
+    "id": 22,
+    "title": "Function Arguments: *args and **kwargs",
+    "subject": "Python Day 22: Flexible parameter lists",
+    "body": "Python functions can accept variable numbers of positional and keyword arguments using two special syntaxes. *args collects extra positional arguments into a tuple; **kwargs collects extra keyword arguments into a dict. The names args and kwargs are conventions — the asterisks are the syntax. These let you write wrapper functions and decorators that forward arguments without knowing them in advance. On the call side, * and ** unpack sequences and dicts into arguments: fn(*items) or fn(**options). Parameters have an order: positional, *args, keyword-only (after *), **kwargs. You can force keyword-only arguments by putting them after a bare *. Similarly, you can force positional-only with /. Use *args and **kwargs sparingly in public APIs — explicit parameters are self-documenting and easier to call safely. They are essential, though, for decorators and generic wrappers.",
+    "codeExample": "def log(*args, sep=' ', **kwargs):\n    text = sep.join(str(a) for a in args)\n    print(text, kwargs)\n\nlog('a', 'b', 'c', level='info', tag='x')\n\ndef forward(*args, **kwargs):\n    return other_fn(*args, **kwargs)"
+  },
+  {
+    "id": 23,
+    "title": "Return Values and Multiple Returns",
+    "subject": "Python Day 23: Returning data from functions",
+    "body": "Every Python function returns something — if you omit return, it returns None. A function can have multiple return statements, and the first one reached wins. To return multiple values, return a tuple: return a, b. The caller can unpack it immediately into multiple variables. When the values are heterogeneous and have names, consider a dataclass or a NamedTuple for clarity — callers then use dot access. Avoid overloading a return value with “success or error” tuples; either raise an exception for true errors or return a specific sentinel like None, and document which. Use consistent return shapes: a function that sometimes returns a list and sometimes None is harder to use than one that always returns a list (possibly empty). Good return design makes callers simple.",
+    "codeExample": "def split_name(full):\n    first, *rest = full.split()\n    return first, ' '.join(rest)\n\nfirst, last = split_name('Ada Lovelace')\n\nfrom collections import namedtuple\nPoint = namedtuple('Point', 'x y')\ndef origin():\n    return Point(0, 0)"
+  },
+  {
+    "id": 24,
+    "title": "Lambda Functions",
+    "subject": "Python Day 24: Anonymous inline functions",
+    "body": "A lambda is a small, anonymous function written as a single expression. Syntax: lambda params: expression. It implicitly returns the expression's value. Lambdas are ideal as throwaway callbacks for sorting keys, functional helpers, and light transformations. They cannot contain statements, multiple expressions, or type annotations; if you find yourself wanting those, use a regular def. Python's style guide discourages assigning lambdas to names — if you need a named function, def is more readable and keeps a proper __name__. Lambdas shine when inline: sorted(users, key=lambda u: u.age), filter(lambda x: x > 0, nums), or map(lambda x: x.upper(), words). Remember that list comprehensions and generator expressions are often an even more Pythonic choice than map/filter with lambdas.",
+    "codeExample": "square = lambda x: x * x\nsquare(4)               # 16\n\nnames = ['Ada', 'Sam', 'Grace']\nsorted_by_len = sorted(names, key=lambda n: len(n))\n\nevens = list(filter(lambda n: n % 2 == 0, range(10)))"
+  },
+  {
+    "id": 25,
+    "title": "Scope: LEGB",
+    "subject": "Python Day 25: How Python resolves names",
+    "body": "Python looks up names in a specific order called LEGB: Local, Enclosing, Global, Built-in. Local is the current function. Enclosing is the scope of any enclosing function (for nested functions and closures). Global is the module's top level. Built-in is Python's own built-in names like len or print. To assign to a name in an outer scope, you need a declaration: global for the module level, nonlocal for an enclosing function. Without it, an assignment inside a function creates a new local variable that shadows outer ones. Reading variables does not need a declaration — the LEGB lookup handles it. Avoid global state when you can; pass data through parameters and return values. Closures, which capture variables from the enclosing scope, are the natural way to configure a function with state without using globals.",
+    "codeExample": "x = 10            # global\n\ndef outer():\n    y = 20        # enclosing\n    def inner():\n        z = 30    # local\n        print(x, y, z)\n    inner()\n\ncounter = 0\ndef bump():\n    global counter\n    counter += 1"
+  },
+  {
+    "id": 26,
+    "title": "Modules and Imports",
+    "subject": "Python Day 26: Organizing code with modules",
+    "body": "A module is a Python file. Any .py file you create is importable from another file. Use import math to bring in the whole module and access its contents as math.sqrt, or from math import sqrt to pull specific names into the current namespace. You can alias with as: import numpy as np. Avoid from module import *, which pollutes your namespace and hides where names come from. A package is a directory containing an __init__.py file; it groups related modules and can be imported with dotted paths like package.subpackage.module. Python searches for modules in sys.path, which starts with the current directory and includes the installed library locations. Good modules have a clear purpose and expose a small, stable API — it is how Python projects stay navigable as they grow.",
+    "codeExample": "import math\nmath.sqrt(16)\n\nfrom datetime import datetime, timedelta\nnow = datetime.now()\ntomorrow = now + timedelta(days=1)\n\nimport json as j\nj.dumps({'a': 1})"
+  },
+  {
+    "id": 27,
+    "title": "if __name__ == '__main__'",
+    "subject": "Python Day 27: Making scripts importable",
+    "body": "When Python runs a file, it sets a special variable __name__ to '__main__' for the top-level script and to the module's name when the file is imported. The idiom if __name__ == '__main__': checks which case you are in, letting you put code that should only run when the file is executed directly, not when imported. This is how many scripts expose a library of functions and also a command-line entry point. Inside the block, call a main() function that contains your script logic. This structure keeps the file import-safe: testing, reuse, and documentation tools can import the module without accidentally running its side effects. It is a small convention but it separates library code from script code cleanly, and writing it from the start keeps options open later.",
+    "codeExample": "def add(a, b):\n    return a + b\n\ndef main():\n    print('running directly')\n    print(add(2, 3))\n\nif __name__ == '__main__':\n    main()"
+  },
+  {
+    "id": 28,
+    "title": "Classes and Objects",
+    "subject": "Python Day 28: Your first class",
+    "body": "A class is a blueprint for creating objects that bundle state and behavior. Define a class with class Name:, then add methods (functions inside the class) and attributes. Create an instance by calling the class like a function: User('Ada'). Each instance has its own data. Methods receive the instance as the first argument, conventionally named self. This is Python's explicit alternative to the implicit this in other languages. Classes help model entities in your domain — users, orders, animations — and group behavior with the data it operates on. Start simple: a few attributes and methods, no inheritance. Reach for a class when you find yourself passing the same group of arguments to many functions, or when multiple pieces of state and behavior form a natural unit. For purely-data containers, consider @dataclass for less boilerplate.",
+    "codeExample": "class User:\n    def __init__(self, name):\n        self.name = name\n    def greet(self):\n        return f'Hi, {self.name}'\n\nu = User('Ada')\nu.greet()       # 'Hi, Ada'"
+  },
+  {
+    "id": 29,
+    "title": "The __init__ Method",
+    "subject": "Python Day 29: Constructors in Python",
+    "body": "__init__ is the initializer method Python calls when you create a new instance. It receives self and any arguments you pass when calling the class. Use it to set up instance attributes. Python also has __new__, which creates the instance, but you rarely need to override it. Inside __init__, validate arguments and set initial state; avoid doing heavy work like network calls, because instantiation should be cheap. Use default parameter values for optional attributes, and mutable defaults only as None sentinels — default lists or dicts are a classic trap, shared across calls. If you find __init__ growing long or your class has many optional fields, a @dataclass class removes the boilerplate and generates __init__, __repr__, and __eq__ for you. Dataclasses are the modern default for pure data objects.",
+    "codeExample": "class User:\n    def __init__(self, name, email, tags=None):\n        self.name = name\n        self.email = email\n        self.tags = tags if tags is not None else []\n\nfrom dataclasses import dataclass, field\n@dataclass\nclass UserDC:\n    name: str\n    email: str\n    tags: list = field(default_factory=list)"
+  },
+  {
+    "id": 30,
+    "title": "Instance vs Class Variables",
+    "subject": "Python Day 30: Where the data lives",
+    "body": "Instance variables live on an individual object and are set through self. Class variables are declared in the class body and are shared among all instances. Use class variables for constants and defaults that do not change per instance. Writing to an attribute via self.x creates a per-instance copy that shadows any class variable of the same name — which can be surprising with mutable class variables like lists and dicts: if you append to a class-level list via self, you are mutating the shared object across all instances. The rule of thumb is: instance data on self, shared constants on the class, and never use mutable class-level defaults unless you deliberately want sharing. Class methods (decorated with @classmethod) access class state through cls; static methods (@staticmethod) access neither self nor cls.",
+    "codeExample": "class Counter:\n    total = 0            # class variable (shared)\n    def __init__(self):\n        self.value = 0   # instance variable\n    def bump(self):\n        self.value += 1\n        Counter.total += 1\n\na, b = Counter(), Counter()\na.bump(); b.bump()\nCounter.total    # 2"
+  },
+  {
+    "id": 31,
+    "title": "Methods",
+    "subject": "Python Day 31: Instance, class, and static methods",
+    "body": "Python supports three kinds of methods on a class. An instance method is the default — it takes self as its first parameter and operates on an instance. A class method, decorated with @classmethod, takes cls as its first parameter and operates on the class itself; it is typically used for alternative constructors like User.from_json(data). A static method, decorated with @staticmethod, takes neither self nor cls; it is a plain function scoped inside a class for organizational purposes, used when the logic is related to the class but does not need its state. Choose instance methods by default. Reach for classmethod when the method creates or modifies things at the class level; use staticmethod when the code belongs near the class for readability but does not need any instance.",
+    "codeExample": "class Temperature:\n    def __init__(self, celsius):\n        self.celsius = celsius\n    def to_f(self):                           # instance\n        return self.celsius * 9 / 5 + 32\n    @classmethod\n    def from_fahrenheit(cls, f):               # class\n        return cls((f - 32) * 5 / 9)\n    @staticmethod\n    def units():                               # static\n        return ['C', 'F']"
+  },
+  {
+    "id": 32,
+    "title": "Inheritance",
+    "subject": "Python Day 32: Extending classes",
+    "body": "A class can inherit from another with class Child(Parent):. The child gets all the parent's methods and attributes and can override any of them. Use super() inside the child to call the parent's method — typically in __init__ to run the parent's initialization. Python supports multiple inheritance, where a class has more than one parent; method resolution order (MRO) uses the C3 linearization algorithm to determine which parent's method runs when there is a conflict. Multiple inheritance is powerful for mixins but complex; favor composition unless you really mean it. instanceof and issubclass check the inheritance chain at runtime. Abstract base classes (ABC) from abc let you declare a class or method abstract, preventing instantiation until the subclass implements the required methods. Keep hierarchies shallow for maintainability.",
+    "codeExample": "class Animal:\n    def __init__(self, name):\n        self.name = name\n    def speak(self):\n        return 'some sound'\n\nclass Dog(Animal):\n    def speak(self):\n        return 'woof'\n    def describe(self):\n        return f'{self.name} says {self.speak()}'\n\nDog('Rex').describe()   # 'Rex says woof'"
+  },
+  {
+    "id": 33,
+    "title": "Encapsulation",
+    "subject": "Python Day 33: Private by convention",
+    "body": "Python does not enforce access modifiers; everything is public. Instead, the community follows naming conventions. A leading underscore (like _counter) marks an attribute as internal — tools and respectful callers treat it as private, but nothing stops you. A double leading underscore (__secret) triggers name mangling: Python renames it to _ClassName__secret to avoid collisions with subclasses. Trailing underscores (class_, for_) are used when a name conflicts with a Python keyword. Good class design hides implementation details behind methods and properties, even without strict enforcement. Keep the public API small and stable, and let the internals evolve. If a user modifies something underscored, they have opted in to the risk. Encapsulation in Python is a social contract, not a compiler check, and it works surprisingly well in practice.",
+    "codeExample": "class Account:\n    def __init__(self, balance):\n        self._balance = balance    # \"internal\"\n    def deposit(self, amount):\n        if amount <= 0:\n            raise ValueError('must be positive')\n        self._balance += amount\n    def balance(self):\n        return self._balance"
+  },
+  {
+    "id": 34,
+    "title": "Polymorphism",
+    "subject": "Python Day 34: Duck typing and polymorphism",
+    "body": "Polymorphism means different objects can respond to the same interface in their own way. In Python, this is loose by default: duck typing means if an object has the method or attribute you need, it fits — no explicit interface declaration required. A function that calls item.area() works with any object that defines an area method. This gives remarkable flexibility: tests often substitute simple fakes, and different classes can share a contract without sharing a base class. For stricter contracts, Python offers abstract base classes (ABC) and protocols (typing.Protocol) that let the type checker verify shapes. The practical rule: program to the behavior you need, not the concrete class. Document the expected interface. In dynamic Python, polymorphism is less about inheritance and more about consistent shapes across unrelated objects.",
+    "codeExample": "class Circle:\n    def __init__(self, r): self.r = r\n    def area(self): return 3.14159 * self.r ** 2\n\nclass Square:\n    def __init__(self, s): self.s = s\n    def area(self): return self.s ** 2\n\ndef total_area(shapes):\n    return sum(s.area() for s in shapes)\n\ntotal_area([Circle(1), Square(2)])"
+  },
+  {
+    "id": 35,
+    "title": "Magic Methods (Dunders)",
+    "subject": "Python Day 35: The methods with double underscores",
+    "body": "“Dunder” methods (double-underscore) let your classes integrate with Python's syntax. __init__ initializes, __repr__ produces an unambiguous developer-friendly string, __str__ returns the human version. __len__ powers len(), __iter__ and __next__ make something iterable, __contains__ powers in. Arithmetic operators map to __add__, __sub__, __mul__; comparisons to __lt__, __eq__, and so on. __call__ makes an instance callable like a function. Implementing the right dunders makes your objects feel native: you get to use +, ==, for loops, and in. Do not add them just because you can — each one is a contract that callers will rely on. Start with __repr__ (invaluable for debugging), then add others when you need the matching syntax. The data model chapter of the Python docs is worth a careful read.",
+    "codeExample": "class Money:\n    def __init__(self, amount): self.amount = amount\n    def __repr__(self): return f'Money({self.amount})'\n    def __add__(self, other): return Money(self.amount + other.amount)\n    def __eq__(self, other): return self.amount == other.amount\n\nMoney(5) + Money(3)   # Money(8)"
+  },
+  {
+    "id": 36,
+    "title": "classmethod and staticmethod in Depth",
+    "subject": "Python Day 36: When to pick classmethod vs staticmethod",
+    "body": "Both decorators change how a method is called, but they serve different purposes. Use @classmethod when the method needs access to the class, typically for alternative constructors: Date.from_string('2024-01-01') builds an instance from another format. The first parameter, cls, is the class itself — crucially, this respects inheritance, so subclasses calling the method will receive their own class. Use @staticmethod when the method logically belongs to the class but does not need self or cls — utility helpers that are scoped inside the class for organization. Static methods feel like namespaced module-level functions. If you find yourself writing many static methods, ask whether the class is really the right home, or if a module would be clearer. The distinction is small but communicates intent to readers of your code.",
+    "codeExample": "class Date:\n    def __init__(self, y, m, d):\n        self.y, self.m, self.d = y, m, d\n    @classmethod\n    def from_string(cls, s):\n        y, m, d = s.split('-')\n        return cls(int(y), int(m), int(d))\n    @staticmethod\n    def is_leap(year):\n        return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)"
+  },
+  {
+    "id": 37,
+    "title": "Properties",
+    "subject": "Python Day 37: Computed attributes with @property",
+    "body": "A property lets you expose a method as an attribute. Decorate a method with @property to make it accessible without parentheses; add a @name.setter to let callers assign to it. Use properties to add validation, computed values, or gradual evolution of a class without breaking callers — you can turn a plain attribute into a property later without changing the public API. Avoid expensive computations inside a property getter, since callers expect attribute access to be cheap; cache the result with functools.cached_property if needed. Properties are a Pythonic alternative to Java-style getters and setters: you start with plain attributes, and reach for properties only when you need to add behavior. They are also a great place for read-only attributes by omitting the setter.",
+    "codeExample": "class Temperature:\n    def __init__(self, celsius):\n        self._c = celsius\n    @property\n    def celsius(self):\n        return self._c\n    @celsius.setter\n    def celsius(self, value):\n        if value < -273.15:\n            raise ValueError('below absolute zero')\n        self._c = value\n    @property\n    def fahrenheit(self):\n        return self._c * 9 / 5 + 32"
+  },
+  {
+    "id": 38,
+    "title": "Exceptions and try/except",
+    "subject": "Python Day 38: Handling errors gracefully",
+    "body": "Exceptions are how Python signals unusual conditions. When an error occurs, Python raises an exception that propagates up the call stack until a matching except catches it or the program terminates. Wrap risky code in a try block. Add one or more except clauses to handle specific exception types — always be specific, because a bare except: also catches KeyboardInterrupt and bugs you want to see. The optional else runs only if no exception was raised; finally always runs, for cleanup. Best practices: catch narrow, act small, rethrow if you cannot recover. Use exception chaining with raise NewError(...) from original_error to preserve context. Logging the exception with logger.exception inside the except block captures the traceback automatically. Use exceptions for truly exceptional cases; do not use them for ordinary control flow.",
+    "codeExample": "def read_int(s):\n    try:\n        return int(s)\n    except ValueError:\n        return None\n    finally:\n        print('done parsing', s)\n\ntry:\n    data = open('file.txt').read()\nexcept FileNotFoundError:\n    data = ''"
+  },
+  {
+    "id": 39,
+    "title": "Raising Exceptions",
+    "subject": "Python Day 39: Signaling errors from your code",
+    "body": "Use raise to signal an error yourself. raise ExceptionClass('message') creates and raises a new exception. Choose specific built-in exceptions when they fit: ValueError for bad values, TypeError for wrong types, KeyError for missing dict keys, FileNotFoundError for missing files. Always prefer raising exceptions over silently returning sentinels like -1 or None for error cases; callers can then choose to handle them. Inside an except block, you can raise to re-raise the current exception, or raise NewError(...) from e to chain it, preserving the original traceback. Avoid catching broad exceptions just to raise a different one without context. And never catch an exception and do nothing — at minimum, log it. Well-placed raises with descriptive messages turn mysterious failures into immediately understandable bugs.",
+    "codeExample": "def divide(a, b):\n    if b == 0:\n        raise ValueError('b must not be zero')\n    return a / b\n\ntry:\n    divide(1, 0)\nexcept ValueError as e:\n    raise RuntimeError('division failed') from e"
+  },
+  {
+    "id": 40,
+    "title": "Custom Exceptions",
+    "subject": "Python Day 40: Designing your own exception hierarchy",
+    "body": "For application code, define exception classes that match your domain. Subclass Exception (or a more specific built-in if appropriate). A flat one-class-per-error design works for small apps; for larger ones, build a small hierarchy so callers can catch whole categories: class AppError(Exception); class DatabaseError(AppError); class NotFoundError(AppError). Add attributes that carry context — an error code, an offending field name, a retriable flag. Callers can inspect the attributes to decide how to respond. Keep the inheritance shallow; deep exception trees slow down understanding. Document what each exception means and when it is raised. Consistent exception design turns error handling from a patchwork of string-matching into a structured control flow and gives logs a searchable shape.",
+    "codeExample": "class AppError(Exception):\n    pass\nclass ValidationError(AppError):\n    def __init__(self, field, message):\n        super().__init__(message)\n        self.field = field\n\ntry:\n    raise ValidationError('email', 'required')\nexcept ValidationError as e:\n    print(e.field, e)"
+  },
+  {
+    "id": 41,
+    "title": "File I/O",
+    "subject": "Python Day 41: Reading and writing files",
+    "body": "Use the built-in open(path, mode, encoding=...) to open a file. Modes include 'r' for reading (default), 'w' for writing (truncates), 'a' for appending, and add 'b' for binary. Always specify encoding for text files, typically 'utf-8' — relying on the platform default causes bugs on different systems. The file object has read(), readline(), and readlines(), plus write() and writelines(). Iterating over the file yields lines, which is memory-efficient for large files. Always close files when done to flush writes and release handles; the with statement (next topic) does this automatically and is the idiomatic choice. For structured data, prefer higher-level modules: json for JSON, csv for CSV, pathlib for path operations. pathlib.Path.read_text() is a one-liner for reading small files.",
+    "codeExample": "with open('data.txt', 'w', encoding='utf-8') as f:\n    f.write('hello\\n')\n\nwith open('data.txt', 'r', encoding='utf-8') as f:\n    for line in f:\n        print(line.rstrip())\n\nfrom pathlib import Path\ntext = Path('data.txt').read_text(encoding='utf-8')"
+  },
+  {
+    "id": 42,
+    "title": "Context Managers (with)",
+    "subject": "Python Day 42: The with statement",
+    "body": "A context manager manages resources that need setup and teardown — typically files, locks, or network connections. The with statement ensures the teardown runs even if an exception happens inside the block. with open(path) as f: closes f when the block exits. You can stack multiple managers in one with by comma-separating them. To write your own, implement __enter__ and __exit__ on a class, or decorate a generator with contextlib.contextmanager and yield in the middle; code before yield is setup, after is teardown. Context managers eliminate many try/finally blocks and make cleanup visible at the top of the block. Use them for any resource that must be released — database cursors, temporary files, open sockets. They are one of Python's most beloved and distinctive features for good reason.",
+    "codeExample": "from contextlib import contextmanager\n\n@contextmanager\ndef timer(label):\n    import time\n    start = time.time()\n    yield\n    print(f'{label}: {time.time() - start:.3f}s')\n\nwith timer('load'):\n    data = open('file.txt').read()"
+  },
+  {
+    "id": 43,
+    "title": "The json Module",
+    "subject": "Python Day 43: Encoding and decoding JSON",
+    "body": "json is the standard-library module for working with JSON data. json.dumps(obj) converts a Python object (dict, list, str, number, bool, None) to a JSON string; json.loads(text) parses a JSON string back to a Python object. For files, use json.dump(obj, file) and json.load(file). Pass indent=2 to dumps for pretty output during debugging. For types that are not directly JSON-serializable (datetime, custom classes), either convert them yourself first or pass a default function that returns a serializable form. On the parsing side, you can pass object_hook to transform each decoded dict — useful for hydrating your own classes. Always handle JSONDecodeError for malformed input. When performance matters on large payloads, consider orjson or ujson, which are much faster than the standard library.",
+    "codeExample": "import json\n\nuser = {'name': 'Ada', 'tags': ['dev', 'py']}\ntext = json.dumps(user, indent=2)\n\nparsed = json.loads(text)\nparsed['name']     # 'Ada'\n\nwith open('u.json', 'w') as f:\n    json.dump(user, f)"
+  },
+  {
+    "id": 44,
+    "title": "The os Module",
+    "subject": "Python Day 44: Interacting with the operating system",
+    "body": "os provides many functions for interacting with the OS: environment variables, processes, and path operations. os.environ is a dict-like view of environment variables — use os.environ.get('KEY', default) so missing values do not raise. os.getcwd returns the current working directory, os.chdir changes it. For paths, prefer pathlib.Path for readability; os.path functions (join, dirname, basename, splitext) still work but are string-based. os.listdir, os.makedirs, and os.remove manage files and directories at the low level; again, pathlib wraps these with a nicer API. Spawning subprocesses is better handled by the subprocess module than os.system. Knowing os is essential for writing portable scripts; know which calls fail on which platforms and use pathlib or shutil for higher-level, cross-platform behavior.",
+    "codeExample": "import os\nfrom pathlib import Path\n\nhome = os.environ.get('HOME', '.')\ncwd = Path.cwd()\n\nfor name in os.listdir(cwd):\n    if name.endswith('.py'):\n        print(name)\n\npath = Path(home) / 'data' / 'file.txt'\npath.parent.mkdir(parents=True, exist_ok=True)"
+  },
+  {
+    "id": 45,
+    "title": "The sys Module",
+    "subject": "Python Day 45: Interacting with the interpreter",
+    "body": "sys gives access to interpreter-level things. sys.argv is a list of command-line arguments, where sys.argv[0] is the script name. For serious CLIs, use argparse, but sys.argv is enough for quick scripts. sys.exit(code) ends the program with a status code. sys.stdin, sys.stdout, sys.stderr are the file-like streams for standard input/output/error; printing to stderr is the conventional channel for diagnostics and log messages. sys.path is the list of directories Python searches for imports; modifying it is sometimes necessary to add project roots during development. sys.version tells you the running Python version, sys.platform identifies the OS. Use sys for things the interpreter controls; use os for things the operating system controls. Together they cover scripting essentials.",
+    "codeExample": "import sys\n\nif len(sys.argv) < 2:\n    print('Usage: script.py name', file=sys.stderr)\n    sys.exit(1)\n\nname = sys.argv[1]\nprint(f'Hello, {name}')\n\nprint('Python:', sys.version_info.major)"
+  },
+  {
+    "id": 46,
+    "title": "The datetime Module",
+    "subject": "Python Day 46: Dates and times",
+    "body": "datetime provides date, datetime, time, timedelta, and timezone classes. datetime.now() returns the current local time; use datetime.now(timezone.utc) for UTC. Build specific times with datetime(year, month, day, hour, ...). Parse strings with datetime.strptime(text, format) and format them with strftime(format). Format codes include %Y-%m-%d for ISO-like dates and %H:%M:%S for times. Arithmetic uses timedelta: tomorrow = now + timedelta(days=1). Always be explicit about timezones; naive datetimes (without tzinfo) cause subtle bugs in production. The zoneinfo module (3.9+) gives you IANA time zones like 'Asia/Kolkata'. For date-only math, use the date class, and for human-friendly durations and recurring schedules, libraries like arrow and pendulum offer nicer APIs. But the standard library handles most real-world needs.",
+    "codeExample": "from datetime import datetime, timedelta, timezone\nfrom zoneinfo import ZoneInfo\n\nnow = datetime.now(timezone.utc)\nlocal = datetime.now(ZoneInfo('Asia/Kolkata'))\n\ntomorrow = now + timedelta(days=1)\nformatted = now.strftime('%Y-%m-%d %H:%M')\n\nparsed = datetime.strptime('2024-05-01', '%Y-%m-%d')"
+  },
+  {
+    "id": 47,
+    "title": "Regular Expressions",
+    "subject": "Python Day 47: Pattern matching with re",
+    "body": "Regular expressions are a powerful syntax for matching text patterns, and Python's re module is the standard interface. re.search(pattern, text) looks for the first match anywhere; re.match only at the start. re.findall returns all non-overlapping matches as a list; re.finditer returns an iterator of match objects with positions and groups. Common pattern pieces: \\d digit, \\w word char, \\s whitespace, + one or more, * zero or more, ? optional, [...] character class, ^ start, $ end. Parentheses create capturing groups accessed with match.group(1). Use raw strings r'\\d+' to avoid backslash headaches. re.sub replaces matches. Compile a pattern once with re.compile if you will use it often. Regex is powerful but notorious for being hard to read; comment patterns and prefer simple ones. For structured text, a parser or split is usually clearer.",
+    "codeExample": "import re\n\nm = re.search(r'(\\w+)@(\\w+\\.\\w+)', 'ada@example.com')\nif m:\n    print(m.group(0), m.group(1), m.group(2))\n\nclean = re.sub(r'\\s+', ' ', '   many   spaces   ').strip()\n\nemails = re.findall(r'\\S+@\\S+\\.\\S+', text)"
+  },
+  {
+    "id": 48,
+    "title": "map, filter, reduce",
+    "subject": "Python Day 48: Functional-style helpers",
+    "body": "map(fn, iterable) applies fn to each item and yields the results. filter(fn, iterable) yields items where fn returns truthy. Both return iterators — wrap in list(...) to materialize. reduce(fn, iterable, initial) is in functools; it folds items into a single value, useful for custom aggregation. In Python, list comprehensions and generator expressions usually read more clearly than map and filter with lambdas, so reach for them first. sum, min, max, and any/all cover many common reduce cases with dedicated, clearer names. map and filter still have a place for readability when the function is already named and non-trivial. Use reduce sparingly; for sums and products, prefer sum and math.prod. The functional style thrives in Python, but its idioms lean on comprehensions and generators rather than a heavy map/filter/reduce habit.",
+    "codeExample": "from functools import reduce\n\nnums = [1, 2, 3, 4]\ndoubled = list(map(lambda n: n * 2, nums))\nevens = list(filter(lambda n: n % 2 == 0, nums))\ntotal = reduce(lambda acc, n: acc + n, nums, 0)\n\n# often clearer:\ndoubled = [n * 2 for n in nums]\ntotal = sum(nums)"
+  },
+  {
+    "id": 49,
+    "title": "zip and enumerate",
+    "subject": "Python Day 49: Iterating smarter",
+    "body": "enumerate(iterable, start=0) yields (index, item) pairs — use it instead of maintaining a manual counter in a for loop. zip(a, b, ...) pairs items from multiple iterables, stopping at the shortest. zip is the right tool for looping over parallel lists. To unzip, call zip(*pairs) to transpose a list of tuples back into separate lists. Both return iterators, so wrap in list or tuple if you need to scan twice. From Python 3.10, zip accepts strict=True to raise if the iterables are different lengths, catching a common bug. itertools has companions: zip_longest fills the short iterator with a default, and count and cycle produce infinite streams. These tools replace awkward index-based loops and produce shorter, clearer code.",
+    "codeExample": "for i, name in enumerate(['Ada', 'Sam', 'Lee']):\n    print(i, name)\n\nkeys = ['a', 'b', 'c']\nvals = [1, 2, 3]\nfor k, v in zip(keys, vals):\n    print(k, v)\n\npaired = dict(zip(keys, vals))   # {'a': 1, 'b': 2, 'c': 3}"
+  },
+  {
+    "id": 50,
+    "title": "Generators and yield",
+    "subject": "Python Day 50: Producing values lazily",
+    "body": "A generator is a function that uses yield to produce values one at a time, pausing its state between calls. Each yield returns a value to the caller; when the caller asks for another, the function resumes where it left off. Generators are memory-efficient because they do not build the full list in memory; they produce values on demand. Write one with def and yield, or use a generator expression (gen = (x*x for x in range(10))) which is like a list comprehension with parentheses. Loop over a generator with for, or pull values with next(). Generators are the foundation of many Python iteration patterns — file streaming, pagination, infinite sequences, and pipelines where each stage transforms the previous. Once a generator is exhausted, it cannot be restarted; call the generator function again to get a fresh iterator.",
+    "codeExample": "def count_up(start, end):\n    n = start\n    while n < end:\n        yield n\n        n += 1\n\nfor x in count_up(1, 5):\n    print(x)\n\nsquares = (n * n for n in range(5))\nlist(squares)     # [0, 1, 4, 9, 16]"
+  },
+  {
+    "id": 51,
+    "title": "Decorators",
+    "subject": "Python Day 51: Wrapping functions with decorators",
+    "body": "A decorator is a function that takes another function and returns a new function, usually extending its behavior. The @decorator syntax above a def applies it automatically. Common uses include logging, timing, authentication checks, caching, and input validation. A decorator that preserves the original function's metadata uses functools.wraps inside its wrapper. Stacked decorators apply bottom-up: the one closest to def runs first. Decorators can take arguments by adding an extra layer — a function that returns a decorator. Beyond functions, decorators can wrap classes or methods. Built-in decorators like @property, @staticmethod, @classmethod, and @functools.cache are everywhere. Decorators are a powerful way to cross-cut behavior without changing the wrapped code, but overuse can hide what a function actually does; use them for truly orthogonal concerns.",
+    "codeExample": "from functools import wraps\n\ndef log_calls(fn):\n    @wraps(fn)\n    def wrapper(*args, **kwargs):\n        print(f'calling {fn.__name__}')\n        return fn(*args, **kwargs)\n    return wrapper\n\n@log_calls\ndef add(a, b):\n    return a + b\n\nadd(2, 3)"
+  },
+  {
+    "id": 52,
+    "title": "Unpacking and *args/**kwargs in Call Sites",
+    "subject": "Python Day 52: Spreading arguments with * and **",
+    "body": "The same * and ** used in function parameter lists can be used at call sites to unpack sequences and dicts into arguments. If args is a list [1, 2, 3], fn(*args) is equivalent to fn(1, 2, 3). If kwargs is a dict {'a': 1, 'b': 2}, fn(**kwargs) is equivalent to fn(a=1, b=2). Combine both: fn(*args, **kwargs). This is how wrapper functions forward unknown arguments to the thing they wrap, which is why you see it everywhere in decorators and adapters. You can also unpack inside literal constructions: list merging with [*a, *b], and dict merging with {**a, **b} — elegant and immutable. Be careful that spreading ** with duplicate keys raises an error; the order of keys in the result follows left-to-right insertion.",
+    "codeExample": "def greet(greeting, name):\n    return f'{greeting}, {name}'\n\nargs = ('Hi', 'Ada')\ngreet(*args)                # 'Hi, Ada'\n\nopts = {'greeting': 'Hello', 'name': 'Sam'}\ngreet(**opts)\n\na, b = [1, 2], [3, 4]\ncombined = [*a, *b]         # [1, 2, 3, 4]\nmerged = {**{'x': 1}, **{'y': 2}}"
+  },
+  {
+    "id": 53,
+    "title": "Virtual Environments",
+    "subject": "Python Day 53: Isolating project dependencies",
+    "body": "A virtual environment is a directory that contains its own Python interpreter and its own site-packages, isolating your project's dependencies from the system Python and from other projects. Create one with python -m venv .venv, and activate it with source .venv/bin/activate on Unix or .\\.venv\\Scripts\\activate on Windows. While activated, pip install goes into the venv only, and the python command points to its interpreter. Deactivate with deactivate. Commit the requirements file, not the venv directory itself — add .venv to .gitignore. Virtual environments prevent the classic “works on my machine” drift, make upgrades safe, and allow different projects to use conflicting versions of the same package. Modern tools like uv and pipx build on the same concept. Venvs are the baseline for any non-trivial Python project.",
+    "codeExample": "# create and activate\npython -m venv .venv\nsource .venv/bin/activate     # Unix\n# .\\.venv\\Scripts\\activate    # Windows\n\npip install requests\npip freeze > requirements.txt\ndeactivate"
+  },
+  {
+    "id": 54,
+    "title": "pip and requirements.txt",
+    "subject": "Python Day 54: Installing and pinning dependencies",
+    "body": "pip is Python's package installer. pip install package installs the latest version; pip install 'package==1.2.3' pins an exact version; pip install -r requirements.txt installs from a file. pip freeze outputs the installed versions in a form you can save as requirements.txt, locking down the environment for reproducibility. For development dependencies, keep a separate file (requirements-dev.txt) with linters, test runners, and formatters. For projects you publish, pyproject.toml is the modern standard for declaring dependencies with version ranges. Always use virtual environments with pip, never install globally. When installing packages that include native extensions, make sure your Python version and platform are supported. Prefer officially maintained packages from PyPI, and check their repo activity before adding a dependency — each one is future maintenance.",
+    "codeExample": "pip install requests==2.31.0\npip install -r requirements.txt\npip list\npip show requests\npip freeze > requirements.txt\npip install --upgrade pip"
+  },
+  {
+    "id": 55,
+    "title": "Type Hints",
+    "subject": "Python Day 55: Optional static typing",
+    "body": "Type hints let you annotate parameters and return values with the types they expect. The interpreter does not enforce them at runtime; they are guidance for humans, editors, and type checkers like mypy or pyright. Syntax: def greet(name: str) -> str:. Common types come from the typing module for older versions; since 3.9 you can use built-ins directly: list[str], dict[str, int], tuple[int, ...]. Optional[T] is T | None. Use typing.Any to escape hatch when needed. Type-hinted code is easier to refactor and catches many bugs before you run it. Start with hints at module boundaries and on public functions; leave the inside loose until you need the extra safety. Modern Python libraries ship with typing stubs, so the tooling often Just Works once you start.",
+    "codeExample": "from typing import Optional\n\ndef add(a: int, b: int) -> int:\n    return a + b\n\ndef find_user(email: str) -> Optional[dict]:\n    return None if email == '' else {'email': email}\n\ndef names(users: list[dict]) -> list[str]:\n    return [u['name'] for u in users]"
+  },
+  {
+    "id": 56,
+    "title": "f-Strings",
+    "subject": "Python Day 56: Formatted string literals",
+    "body": "f-strings, introduced in Python 3.6, are the modern way to build strings with embedded values. Prefix a string literal with f and drop expressions inside {}. The expression is evaluated and its result is stringified. You can include method calls, attribute access, even arithmetic. Format specifiers follow a colon: {value:.2f} formats a float to two decimals, {n:,} adds thousand separators, {name:>10} right-aligns to width 10. Debug syntax: f'{x=}' expands to x=<value>, great for print-debugging. f-strings are faster and clearer than the older % formatting and str.format. Do not use f-strings for SQL queries or shell commands — they are not sanitizers and will introduce injection vulnerabilities. Use parameterized queries and shlex for those cases.",
+    "codeExample": "name = 'Ada'\nscore = 87.5\n\nprint(f'{name} scored {score}')\nprint(f'{name:>10}: {score:.1f}%')    # right-aligned\nprint(f'{score=}')                     # score=87.5\n\nfrom datetime import datetime\nprint(f'Now: {datetime.now():%Y-%m-%d %H:%M}')"
+  },
+  {
+    "id": 57,
+    "title": "String Formatting: format and %",
+    "subject": "Python Day 57: The older string formatting styles",
+    "body": "Before f-strings, Python had two formatting styles you will still encounter. str.format uses positional or named placeholders: 'Hello, {name}'.format(name='Ada'). You can reference arguments by position too: '{0} and {1}'.format('a', 'b'). Format specifiers use the same syntax as f-strings: {:.2f}, {:>10}. The older percent style, '%s %d' % ('Ada', 30), mimics C's printf. It is the least flexible and error-prone with multiple arguments, but logging libraries still use it for efficient lazy formatting: logger.info('user %s', user). When maintaining legacy code, keep the existing style for consistency; in new code, prefer f-strings for everything except logging. Mixing styles in one file is noise; pick one and stick with it per module.",
+    "codeExample": "name, age = 'Ada', 30\n\n'{} is {}'.format(name, age)\n'{name} is {age}'.format(name=name, age=age)\n\n'%s is %d' % (name, age)\n\nimport logging\nlogging.info('user %s age %d', name, age)"
+  },
+  {
+    "id": 58,
+    "title": "Comprehensions and Generator Expressions",
+    "subject": "Python Day 58: Lazy vs eager sequences",
+    "body": "Comprehensions come in four flavors: list [x for x in y], set {x for x in y}, dict {k: v for k, v in y}, and generator expression (x for x in y). The generator expression looks like a list comprehension but produces values lazily; it does not hold the whole sequence in memory. Pass a generator expression directly into sum, any, all, max, and min without the extra brackets: sum(x*x for x in range(10)). For large data, this is dramatically more memory-efficient. But generators can be consumed only once; after you iterate, they are exhausted. Use list comprehensions when you need the result multiple times or need indexing and slicing. Choose generator expressions when the values stream through a pipeline and you never need them again.",
+    "codeExample": "# list: materialized\nsquares_list = [n * n for n in range(10)]\n\n# generator: lazy\nsquares_gen = (n * n for n in range(10))\n\nsum(n * n for n in range(1000000))   # streams, low memory\nany(u.active for u in users)"
+  },
+  {
+    "id": 59,
+    "title": "The collections Module",
+    "subject": "Python Day 59: Specialized data structures",
+    "body": "collections builds on the built-in types with data structures tuned for common patterns. Counter counts hashable items in one line and exposes most_common(n). defaultdict wraps a dict that auto-creates missing values using a factory — perfect for grouping and counting without boilerplate. OrderedDict is less relevant now that regular dicts preserve order, but it still offers move_to_end and equality that considers order. deque is a double-ended queue with fast appends and pops from both ends — use it over a list when you need a queue or a sliding window. namedtuple gives tuple instances with named fields and a nice repr; typing.NamedTuple and @dataclass are often better choices today. ChainMap layers multiple dicts into one view. These tools shorten code and make the intent obvious to readers.",
+    "codeExample": "from collections import Counter, defaultdict, deque\n\nwords = 'to be or not to be'.split()\nCounter(words).most_common(2)   # [('to', 2), ('be', 2)]\n\ngrouped = defaultdict(list)\nfor w in words:\n    grouped[w[0]].append(w)\n\ndq = deque(maxlen=3)\nfor n in range(5):\n    dq.append(n)  # keeps last 3"
+  },
+  {
+    "id": 60,
+    "title": "Pythonic Idioms",
+    "subject": "Python Day 60: Writing Python that reads like Python",
+    "body": "Pythonic code leans on built-in features and community idioms to be short and readable. Iterate directly over sequences instead of indices. Use enumerate for (index, item) pairs and zip for parallel iteration. Prefer comprehensions and generator expressions over map and filter plus lambdas. Use truthiness checks: if items, not if len(items) > 0. Compare to None with is. Use contextlib.contextmanager or with blocks to manage resources. Pack and unpack with *: a, *rest = seq. Use f-strings for formatting. Return early on invalid inputs to keep the happy path flat. When a loop plus accumulator looks verbose, reach for sum, any, all, max, min. Follow PEP 8 for names and spacing, and PEP 20 — the Zen of Python — import this. Congratulations, you have completed the 60-day Python series!",
+    "codeExample": "# unpythonic\nresult = []\nfor i in range(len(items)):\n    if items[i] > 0:\n        result.append(items[i] * 2)\n\n# pythonic\nresult = [x * 2 for x in items if x > 0]\n\nimport this   # prints the Zen of Python"
+  }
+]
