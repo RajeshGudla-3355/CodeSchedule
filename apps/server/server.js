@@ -1,5 +1,8 @@
-// require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
+// On Render env vars are injected by the platform, so plain dotenv.config() is enough.
+// Locally with the monorepo .env at the repo root, also try the repo-root path.
+// dotenv.config() does NOT override already-set env vars, so this is safe in both cases.
 require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');

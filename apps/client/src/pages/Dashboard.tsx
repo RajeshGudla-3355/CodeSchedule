@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import AddLanguageModal from '../components/AddLanguageModal';
 import Avatar from '../components/Avatar';
 import { useAuth } from '../context/AuthContext';
+import { useTilt } from '../landing/useTilt';
+import { useCountUp } from '../landing/useCountUp';
 import {
   getLanguages,
   getProgress,
@@ -12,6 +15,8 @@ import {
   type ProgressEntry,
   type Schedule
 } from '../services/api';
+
+const Scene3D = lazy(() => import('../landing/Scene3D'));
 
 function timeInputValue(t: string) {
   return /^\d{2}:\d{2}$/.test(t) ? t : '08:00';
@@ -31,8 +36,83 @@ function formatSentAt(iso: string): string {
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+function SubCard({
+  p,
+  expanded,
+  onToggle,
+  onRemove
+}: {
+  p: ProgressEntry;
+  expanded: boolean;
+  onToggle: () => void;
+  onRemove: () => void;
+}) {
+  const tilt = useTilt(6);
+  const hasHistory = p.completedTopics.length > 0;
+  return (
+    <motion.div
+      className="dash3d-sub-wrap"
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <div
+        className="dash3d-sub"
+        ref={tilt.ref}
+        onMouseMove={tilt.onMouseMove}
+        onMouseLeave={tilt.onMouseLeave}
+      >
+        <div className="dash3d-sub-glow" aria-hidden="true" />
+        <div className="dash3d-sub-head">
+          <div>
+            <div className="dash3d-sub-name">{p.name}</div>
+            <div className="dash3d-sub-meta">
+              {p.completedCount} completed · {p.currentTopicIndex} / {p.totalTopics} topics
+              {!p.isActive && p.completedAt ? ' · completed' : ''}
+              {!p.isActive && !p.completedAt ? ' · paused' : ''}
+            </div>
+          </div>
+          <button className="dash3d-btn-ghost" onClick={onRemove}>
+            Remove
+          </button>
+        </div>
+        <div className="dash3d-progress">
+          <div
+            className="dash3d-progress-bar"
+            style={{ width: `${p.percentage}%` }}
+          />
+        </div>
+        <button
+          className="dash3d-history-toggle"
+          onClick={onToggle}
+          disabled={!hasHistory}
+        >
+          {hasHistory
+            ? expanded
+              ? `Hide history (${p.completedCount})`
+              : `Show history (${p.completedCount})`
+            : 'No emails delivered yet'}
+        </button>
+        {expanded && hasHistory && (
+          <ol className="dash3d-history">
+            {p.completedTopics.map((t) => (
+              <li key={t.topicIndex} className="dash3d-history-item">
+                <span className="dash3d-history-idx">#{t.topicIndex + 1}</span>
+                <span className="dash3d-history-title">{t.topicTitle}</span>
+                <span className="dash3d-history-when">{formatSentAt(t.sentAt)}</span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
 export default function Dashboard() {
   const { user, setUser } = useAuth();
+  const reduced = useReducedMotion();
+  const [sceneMounted, setSceneMounted] = useState(false);
 
   const [languages, setLanguages] = useState<AvailableLanguage[]>([]);
   const [progress, setProgress] = useState<ProgressEntry[]>([]);
@@ -45,6 +125,13 @@ export default function Dashboard() {
   const [schedules, setSchedules] = useState<Schedule[]>(user?.schedules ?? []);
   const [scheduleSaving, setScheduleSaving] = useState(false);
   const [scheduleMsg, setScheduleMsg] = useState<string | null>(null);
+
+  const animatedTotal = useCountUp(totalCompleted, 1400, !loading);
+
+  useEffect(() => {
+    const id = setTimeout(() => setSceneMounted(true), 120);
+    return () => clearTimeout(id);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -120,155 +207,152 @@ export default function Dashboard() {
   const subscribed = progress.map((p) => p.language);
 
   return (
-    <div className="page">
+    <div className="page dashboard3d-page">
       <Navbar />
-      <main className="page-scroll">
-      <div className="dashboard">
-        <header className="dashboard-header">
-          <div className="dashboard-title-row">
-            <div className="welcome-block">
-              <Avatar url={user?.avatar} name={user?.name || ''} size={64} />
+      <main className="page-scroll dashboard3d-scroll">
+        <section className="dash3d-hero">
+          <div className="dash3d-scene" aria-hidden="true">
+            {!reduced && sceneMounted && (
+              <Suspense fallback={<div className="dash3d-scene-fallback" />}>
+                <Scene3D />
+              </Suspense>
+            )}
+            {(reduced || !sceneMounted) && <div className="dash3d-scene-fallback" />}
+          </div>
+          <motion.div
+            className="dash3d-hero-content"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="dash3d-welcome">
+              <div className="dash3d-avatar-glow">
+                <Avatar url={user?.avatar} name={user?.name || ''} size={64} />
+              </div>
               <div>
-                <h1>Welcome back, {user?.name}</h1>
-                <p className="muted">Here's your learning progress and schedule.</p>
-              </div>
-            </div>
-            <div className="stat-chip" title="Total topics delivered across all languages">
-              <div className="stat-chip-num">{totalCompleted}</div>
-              <div className="stat-chip-label">topics completed</div>
-            </div>
-          </div>
-        </header>
-
-        {loading ? (
-          <div className="center-block">
-            <div className="spinner" />
-          </div>
-        ) : error ? (
-          <div className="error">{error}</div>
-        ) : (
-          <>
-            <section className="card">
-              <div className="card-head">
-                <h2>Your subscriptions</h2>
-                <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
-                  + Add language
-                </button>
-              </div>
-
-              {progress.length === 0 ? (
-                <p className="muted">
-                  No subscriptions yet. Add a language to start receiving daily emails.
+                <h1 className="dash3d-h1">Welcome back, {user?.name}</h1>
+                <p className="dash3d-sub">
+                  Here's your learning progress and schedule.
                 </p>
-              ) : (
-                <div className="subs-list">
-                  {progress.map((p) => {
-                    const isExpanded = !!expanded[p.language];
-                    const hasHistory = p.completedTopics.length > 0;
-                    return (
-                      <div key={p.language} className="sub-row">
-                        <div className="sub-top">
-                          <div>
-                            <div className="sub-name">{p.name}</div>
-                            <div className="sub-count muted">
-                              {p.completedCount} completed · {p.currentTopicIndex} / {p.totalTopics} topics
-                              {!p.isActive && p.completedAt ? ' · completed' : ''}
-                              {!p.isActive && !p.completedAt ? ' · paused' : ''}
-                            </div>
-                          </div>
-                          <button
-                            className="btn btn-ghost btn-sm"
-                            onClick={() => handleRemove(p.language)}
-                          >
-                            Remove
-                          </button>
-                        </div>
-                        <div className="progress">
-                          <div className="progress-bar" style={{ width: `${p.percentage}%` }} />
-                        </div>
-
-                        <button
-                          className="history-toggle"
-                          onClick={() => toggleHistory(p.language)}
-                          disabled={!hasHistory}
-                        >
-                          {hasHistory
-                            ? isExpanded
-                              ? `Hide history (${p.completedCount})`
-                              : `Show history (${p.completedCount})`
-                            : 'No emails delivered yet'}
-                        </button>
-
-                        {isExpanded && hasHistory && (
-                          <ol className="history-list">
-                            {p.completedTopics.map((t) => (
-                              <li key={t.topicIndex} className="history-item">
-                                <span className="history-idx">#{t.topicIndex + 1}</span>
-                                <span className="history-title">{t.topicTitle}</span>
-                                <span className="history-when muted">{formatSentAt(t.sentAt)}</span>
-                              </li>
-                            ))}
-                          </ol>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
-
-            <section className="card">
-              <div className="card-head">
-                <h2>Your schedule</h2>
-                <button
-                  className="btn btn-ghost btn-sm"
-                  onClick={addScheduleSlot}
-                  disabled={schedules.length >= 3}
-                >
-                  + Add time
-                </button>
               </div>
+            </div>
+            <div className="dash3d-stat-chip">
+              <div className="dash3d-stat-chip-num">{animatedTotal}</div>
+              <div className="dash3d-stat-chip-label">topics completed</div>
+            </div>
+          </motion.div>
+        </section>
 
-              <p className="muted">
-                Up to 3 times per day, in IST (Asia/Kolkata). Emails are sent at these times.
-              </p>
+        <div className="dash3d-body">
+          {loading ? (
+            <div className="dash3d-loading">
+              <div className="spinner" />
+            </div>
+          ) : error ? (
+            <div className="error">{error}</div>
+          ) : (
+            <>
+              <motion.section
+                className="dash3d-section"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+              >
+                <div className="dash3d-section-head">
+                  <h2 className="dash3d-h2">Your subscriptions</h2>
+                  <button
+                    className="dash3d-btn-primary"
+                    onClick={() => setShowAdd(true)}
+                  >
+                    + Add language
+                  </button>
+                </div>
 
-              <div className="schedule-list">
-                {schedules.length === 0 && (
-                  <div className="muted">No times yet. Add one to receive daily emails.</div>
+                {progress.length === 0 ? (
+                  <div className="dash3d-empty">
+                    No subscriptions yet. Add a language to start receiving daily
+                    emails.
+                  </div>
+                ) : (
+                  <div className="dash3d-subs-grid">
+                    {progress.map((p) => (
+                      <SubCard
+                        key={p.language}
+                        p={p}
+                        expanded={!!expanded[p.language]}
+                        onToggle={() => toggleHistory(p.language)}
+                        onRemove={() => handleRemove(p.language)}
+                      />
+                    ))}
+                  </div>
                 )}
-                {schedules.map((s, idx) => (
-                  <div key={idx} className="schedule-row">
-                    <input
-                      type="time"
-                      value={timeInputValue(s.time)}
-                      onChange={(e) => updateScheduleSlot(idx, e.target.value)}
-                    />
-                    <span className="muted">{s.timezone}</span>
+              </motion.section>
+
+              <motion.section
+                className="dash3d-section"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <div className="dash3d-card">
+                  <div className="dash3d-section-head">
+                    <h2 className="dash3d-h2">Your schedule</h2>
                     <button
-                      className="btn btn-ghost btn-sm"
-                      onClick={() => removeScheduleSlot(idx)}
+                      className="dash3d-btn-ghost"
+                      onClick={addScheduleSlot}
+                      disabled={schedules.length >= 3}
                     >
-                      Remove
+                      + Add time
                     </button>
                   </div>
-                ))}
-              </div>
 
-              <div className="schedule-save">
-                <button
-                  className="btn btn-primary"
-                  onClick={saveSchedules}
-                  disabled={scheduleSaving}
-                >
-                  {scheduleSaving ? 'Saving...' : 'Save schedule'}
-                </button>
-                {scheduleMsg && <span className="muted">{scheduleMsg}</span>}
-              </div>
-            </section>
-          </>
-        )}
-      </div>
+                  <p className="dash3d-muted">
+                    Up to 3 times per day, in IST (Asia/Kolkata). Emails are sent at
+                    these times.
+                  </p>
+
+                  <div className="dash3d-schedule">
+                    {schedules.length === 0 && (
+                      <div className="dash3d-muted">
+                        No times yet. Add one to receive daily emails.
+                      </div>
+                    )}
+                    {schedules.map((s, idx) => (
+                      <div key={idx} className="dash3d-schedule-row">
+                        <input
+                          className="dash3d-time"
+                          type="time"
+                          value={timeInputValue(s.time)}
+                          onChange={(e) => updateScheduleSlot(idx, e.target.value)}
+                        />
+                        <span className="dash3d-muted">{s.timezone}</span>
+                        <button
+                          className="dash3d-btn-ghost"
+                          onClick={() => removeScheduleSlot(idx)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="dash3d-save">
+                    <button
+                      className="dash3d-btn-primary"
+                      onClick={saveSchedules}
+                      disabled={scheduleSaving}
+                    >
+                      {scheduleSaving ? 'Saving...' : 'Save schedule'}
+                    </button>
+                    {scheduleMsg && (
+                      <span className="dash3d-muted">{scheduleMsg}</span>
+                    )}
+                  </div>
+                </div>
+              </motion.section>
+            </>
+          )}
+        </div>
       </main>
 
       {showAdd && (
